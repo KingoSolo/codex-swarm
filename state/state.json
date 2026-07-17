@@ -252,6 +252,26 @@
       "from": "backend",
       "to": "security",
       "content": "Backend validates accepted fields and uses parameterized SQLite values; please review error handling and deployment configuration during the final pass."
+    },
+    {
+      "from": "manager",
+      "to": "frontend",
+      "content": "Backend API is complete. Please report completion when the board integration is finished so QA can begin acceptance testing."
+    },
+    {
+      "from": "manager",
+      "to": "qa",
+      "content": "Prepare the API/UI acceptance pass, but report the missing Flask dependency and unavailable package network as a blocker if it prevents runtime execution. Capture static checks that remain possible."
+    },
+    {
+      "from": "manager",
+      "to": "security",
+      "content": "Begin the final static security review now: verify API validation/parameterization and frontend safe rendering. Report any runtime checks blocked by the unavailable Flask dependency."
+    },
+    {
+      "from": "manager",
+      "to": "backend",
+      "content": "No API change is requested. Remain available to address QA or security findings after their review."
     }
   ],
   "architecture_decisions": [
@@ -310,6 +330,10 @@
     {
       "by": "manager",
       "decision": "Do not create further duplicate implementation tasks; use messages and existing task records to coordinate the remaining work."
+    },
+    {
+      "by": "manager",
+      "decision": "Proceed with static QA/security review while treating runtime validation as an environment blocker, not an implementation completion signal."
     }
   ],
   "retrospective": null
