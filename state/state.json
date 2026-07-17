@@ -109,7 +109,7 @@
       "depends_on": [
         "backend-01"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "backend-02",
@@ -172,7 +172,10 @@
   },
   "files_owned": {
     "database.py": "database",
-    "server.py": "backend"
+    "server.py": "backend",
+    "static/index.html": "frontend",
+    "static/app.js (deleted)": "frontend",
+    "static/styles.css (deleted)": "frontend"
   },
   "messages": [
     {
@@ -289,6 +292,16 @@
       "from": "backend",
       "to": "manager",
       "content": "Backend remains complete and ready for QA/security review; no additional server changes are needed."
+    },
+    {
+      "from": "frontend",
+      "to": "manager",
+      "content": "Frontend now exactly matches the single-static-file constraint. It retains create, edit, click-to-move, delete, three-column rendering, and uses the completed REST API."
+    },
+    {
+      "from": "frontend",
+      "to": "qa",
+      "content": "Frontend is ready for end-to-end testing at `/`; all UI code is now self-contained in `static/index.html`."
     }
   ],
   "architecture_decisions": [
@@ -388,6 +401,14 @@
     {
       "by": "backend",
       "decision": "Retain the existing implementation supporting both PATCH and PUT for partial task updates."
+    },
+    {
+      "by": "frontend",
+      "decision": "Consolidated CSS and JavaScript inline in `static/index.html` and removed the former separate static assets to satisfy the single-file frontend requirement."
+    },
+    {
+      "by": "frontend",
+      "decision": "Continue using PATCH for edit and status-change mutations, which the backend supports."
     }
   ],
   "retrospective": null
