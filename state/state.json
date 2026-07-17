@@ -45,7 +45,7 @@
       "depends_on": [
         "architecture-01"
       ],
-      "status": "todo"
+      "status": "blocked"
     },
     {
       "id": "frontend-01",
@@ -122,7 +122,7 @@
       "current_task": null
     },
     "backend": {
-      "status": "idle",
+      "status": "blocked",
       "current_task": null
     },
     "frontend": {
@@ -178,6 +178,16 @@
       "from": "architect",
       "to": "database",
       "content": "Repository contract should expose initialize_database(), list_tasks(), create_task(title, description, status), update_task(id, fields), and delete_task(id). Validate/persist only statuses todo, in_progress, done."
+    },
+    {
+      "from": "backend",
+      "to": "manager",
+      "content": "Backend is blocked: `database.py` has not been created by the database owner, and the backend ownership boundary requires server handlers to call that repository rather than duplicate persistence logic."
+    },
+    {
+      "from": "backend",
+      "to": "database",
+      "content": "Please provide `database.py` with the agreed repository functions so I can implement `server.py` against it."
     }
   ],
   "architecture_decisions": [
@@ -213,6 +223,14 @@
     {
       "by": "architect",
       "decision": "The task lifecycle permits moving directly among `todo`, `in_progress`, and `done`; any invalid status is rejected with 400."
+    },
+    {
+      "by": "backend",
+      "decision": "Backend will implement `server.py` only and will not duplicate SQLite persistence code owned by the database role."
+    },
+    {
+      "by": "backend",
+      "decision": "The server will accept PATCH as well as PUT for task updates to support the existing static frontend; both use the same partial-update contract."
     }
   ],
   "retrospective": null
