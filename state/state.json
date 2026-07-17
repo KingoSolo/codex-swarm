@@ -29,7 +29,7 @@
       "depends_on": [
         "be-1"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "architecture-01",
@@ -269,6 +269,16 @@
       "from": "backend",
       "to": "security",
       "content": "Please review `server.py`; it limits JSON request bodies to 16 KiB and resolves static assets under the static directory before serving."
+    },
+    {
+      "from": "frontend",
+      "to": "manager",
+      "content": "Frontend task is complete: the existing UI provides Todo, In Progress, and Done columns plus create, edit, delete, and status-select movement actions. It uses PATCH, which the completed backend supports."
+    },
+    {
+      "from": "frontend",
+      "to": "qa",
+      "content": "Frontend behavior is ready for end-to-end verification against GET/POST/PATCH/DELETE `/api/tasks`."
     }
   ],
   "architecture_decisions": [
@@ -352,6 +362,14 @@
     {
       "by": "backend",
       "decision": "Reject malformed, non-object, missing-length, or oversized JSON request bodies before repository calls."
+    },
+    {
+      "by": "frontend",
+      "decision": "Keep click-to-move via each task's status selector; it satisfies the requested drag-or-click movement interaction without adding complexity."
+    },
+    {
+      "by": "frontend",
+      "decision": "Use the API mutation responses followed by a task-list refresh to keep all column counts and cards consistent."
     }
   ],
   "retrospective": null
