@@ -5,10 +5,67 @@
     "status": "in_progress"
   },
   "sprint_history": [],
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "arch-1",
+      "title": "Inspect the repository and define the Kanban architecture, API contract, data model, and integration plan.",
+      "owner": "architect",
+      "depends_on": [],
+      "status": "todo"
+    },
+    {
+      "id": "be-1",
+      "title": "Implement validated REST endpoints for creating, listing, reading, updating/moving, and deleting tasks using project conventions.",
+      "owner": "backend",
+      "depends_on": [
+        "arch-1"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "fe-1",
+      "title": "Implement the minimal three-column Kanban UI with create, move, edit, and delete interactions.",
+      "owner": "frontend",
+      "depends_on": [
+        "arch-1",
+        "be-1"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "db-1",
+      "title": "Review and implement the task persistence schema, migrations, constraints, and seed strategy required by the agreed API.",
+      "owner": "database",
+      "depends_on": [
+        "arch-1"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "qa-1",
+      "title": "Create and run API and UI acceptance tests covering all task lifecycle actions and invalid inputs.",
+      "owner": "qa",
+      "depends_on": [
+        "be-1",
+        "fe-1",
+        "db-1"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "sec-1",
+      "title": "Review API and UI for input validation, unsafe rendering, error leakage, and authorization assumptions; report or remediate issues.",
+      "owner": "security",
+      "depends_on": [
+        "be-1",
+        "fe-1"
+      ],
+      "status": "todo"
+    }
+  ],
   "agents": {
     "manager": {
-      "status": "idle",
+      "status": "in_progress",
       "current_task": null
     },
     "architect": {
@@ -37,7 +94,47 @@
     }
   },
   "files_owned": {},
-  "messages": [],
-  "architecture_decisions": [],
+  "messages": [
+    {
+      "from": "manager",
+      "to": "architect",
+      "content": "Assigned architecture discovery and technical plan."
+    },
+    {
+      "from": "manager",
+      "to": "backend",
+      "content": "Assigned REST API implementation and validation."
+    },
+    {
+      "from": "manager",
+      "to": "frontend",
+      "content": "Assigned minimal Kanban UI implementation."
+    },
+    {
+      "from": "manager",
+      "to": "database",
+      "content": "Queued persistence schema and migration review for assignment when a slot opens."
+    },
+    {
+      "from": "manager",
+      "to": "qa",
+      "content": "Queued lifecycle and validation testing for assignment when implementation is ready."
+    },
+    {
+      "from": "manager",
+      "to": "security",
+      "content": "Queued application security review for assignment when implementation is ready."
+    }
+  ],
+  "architecture_decisions": [
+    {
+      "by": "manager",
+      "decision": "Use a lightweight task model with Todo, In Progress, and Done states."
+    },
+    {
+      "by": "manager",
+      "decision": "Sequence database design before final API integration, then UI, QA, and security validation."
+    }
+  ],
   "retrospective": null
 }
