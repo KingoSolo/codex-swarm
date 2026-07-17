@@ -5,10 +5,91 @@
     "status": "in_progress"
   },
   "sprint_history": [],
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "db-1",
+      "title": "Create tasks table schema (id, title, status, created_at)",
+      "owner": "database",
+      "depends_on": [],
+      "status": "todo"
+    },
+    {
+      "id": "be-1",
+      "title": "Implement REST API: create/list/update/delete tasks, move between statuses",
+      "owner": "backend",
+      "depends_on": [
+        "db-1"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "fe-1",
+      "title": "Build Kanban board UI (3 columns, drag or click-to-move) consuming the API",
+      "owner": "frontend",
+      "depends_on": [
+        "be-1"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "architecture-01",
+      "title": "Define API, task lifecycle, and integration contract",
+      "owner": "architect",
+      "depends_on": [],
+      "status": "todo"
+    },
+    {
+      "id": "backend-01",
+      "title": "Implement Python-standard-library REST API for task CRUD and column moves",
+      "owner": "backend",
+      "depends_on": [
+        "architecture-01"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "frontend-01",
+      "title": "Implement a single static HTML vanilla-JS Kanban UI",
+      "owner": "frontend",
+      "depends_on": [
+        "architecture-01"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "database-01",
+      "title": "Implement SQLite task schema and persistence layer",
+      "owner": "database",
+      "depends_on": [
+        "architecture-01"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "qa-01",
+      "title": "Create and run functional API/UI verification for CRUD and task movement",
+      "owner": "qa",
+      "depends_on": [
+        "backend-01",
+        "frontend-01",
+        "database-01"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "security-01",
+      "title": "Review HTTP input handling, SQLite access, and static-file serving security",
+      "owner": "security",
+      "depends_on": [
+        "backend-01",
+        "database-01"
+      ],
+      "status": "todo"
+    }
+  ],
   "agents": {
     "manager": {
-      "status": "idle",
+      "status": "in_progress",
       "current_task": null
     },
     "architect": {
@@ -37,7 +118,37 @@
     }
   },
   "files_owned": {},
-  "messages": [],
-  "architecture_decisions": [],
+  "messages": [
+    {
+      "from": "manager",
+      "to": "architect",
+      "content": "Provide the contract promptly so implementation work can align."
+    },
+    {
+      "from": "manager",
+      "to": "backend",
+      "content": "Proceed with a standard-library-only REST API; await architecture guidance if needed."
+    },
+    {
+      "from": "manager",
+      "to": "frontend",
+      "content": "Proceed with a single-file vanilla-JS UI and align to the API contract when available."
+    }
+  ],
+  "architecture_decisions": [
+    {
+      "by": "architect",
+      "decision": "Python stdlib http.server + sqlite3 for backend, single static HTML+vanilla JS file for frontend. No external dependencies (sandbox has no network access).",
+      "sprint": 1
+    },
+    {
+      "by": "manager",
+      "decision": "Use Python standard library only, with sqlite3 for persistence and a single static HTML frontend."
+    },
+    {
+      "by": "manager",
+      "decision": "Keep the API and UI lightweight with no external packages or build tooling."
+    }
+  ],
   "retrospective": null
 }
