@@ -110,6 +110,34 @@
         "backend-01"
       ],
       "status": "todo"
+    },
+    {
+      "id": "backend-02",
+      "title": "Implement `server.py` REST and static-file server using the completed `database.py` repository; support GET, POST, PATCH/PUT, and DELETE task endpoints.",
+      "owner": "backend",
+      "depends_on": [
+        "db-1"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "qa-01",
+      "title": "Verify API CRUD, valid status moves, invalid input responses, and the static UI workflow after the server is available.",
+      "owner": "qa",
+      "depends_on": [
+        "backend-02",
+        "frontend-01"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "security-01",
+      "title": "Review `server.py` for request-size limits, JSON/path validation, error handling, and safe static-file resolution.",
+      "owner": "security",
+      "depends_on": [
+        "backend-02"
+      ],
+      "status": "todo"
     }
   ],
   "agents": {
@@ -210,6 +238,21 @@
       "from": "database",
       "to": "manager",
       "content": "Database task is complete. The repository uses SQLite with fields id, title, description, status, created_at, and updated_at; local CRUD verification and Python compilation passed."
+    },
+    {
+      "from": "manager",
+      "to": "backend",
+      "content": "Database is ready and your dependency is cleared. Implement server.py against its repository contract, including PATCH compatibility for the existing UI."
+    },
+    {
+      "from": "manager",
+      "to": "qa",
+      "content": "Prepare end-to-end verification once backend-02 completes."
+    },
+    {
+      "from": "manager",
+      "to": "security",
+      "content": "Review server input and static-serving behavior after backend-02 completes."
     }
   ],
   "architecture_decisions": [
@@ -273,6 +316,14 @@
     {
       "by": "database",
       "decision": "Task timestamps are UTC ISO-8601 strings; `updated_at` changes on each update."
+    },
+    {
+      "by": "manager",
+      "decision": "The backend must support PATCH as well as PUT because the completed static UI uses PATCH for edits and status moves."
+    },
+    {
+      "by": "manager",
+      "decision": "QA and security begin only after the server integrates the database repository."
     }
   ],
   "retrospective": null
