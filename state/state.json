@@ -54,7 +54,7 @@
       "depends_on": [
         "architecture-01"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "database-01",
@@ -126,7 +126,7 @@
       "current_task": null
     },
     "frontend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "database": {
@@ -188,6 +188,16 @@
       "from": "backend",
       "to": "database",
       "content": "Please provide `database.py` with the agreed repository functions so I can implement `server.py` against it."
+    },
+    {
+      "from": "frontend",
+      "to": "manager",
+      "content": "Frontend work is complete in the existing `static/index.html`, `static/app.js`, and `static/styles.css`. It renders Todo/In Progress/Done and supports all requested mutations; runtime verification awaits the blocked backend."
+    },
+    {
+      "from": "frontend",
+      "to": "backend",
+      "content": "The existing UI sends PATCH for partial edits/status moves (rather than PUT). Please support PATCH alongside PUT as noted in your backend decision."
     }
   ],
   "architecture_decisions": [
@@ -231,6 +241,14 @@
     {
       "by": "backend",
       "decision": "The server will accept PATCH as well as PUT for task updates to support the existing static frontend; both use the same partial-update contract."
+    },
+    {
+      "by": "frontend",
+      "decision": "Retain the existing static UI implementation because it satisfies the requested functionality without external dependencies."
+    },
+    {
+      "by": "frontend",
+      "decision": "Use PATCH for partial task updates in the UI; backend compatibility with PATCH is required before end-to-end verification."
     }
   ],
   "retrospective": null
