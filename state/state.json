@@ -94,7 +94,7 @@
   ],
   "agents": {
     "manager": {
-      "status": "in_progress",
+      "status": "done",
       "current_task": null
     },
     "architect": {
@@ -195,6 +195,26 @@
       "from": "database",
       "to": "manager",
       "content": "Database persistence work is complete in schema.sql; backend is unblocked."
+    },
+    {
+      "from": "manager",
+      "to": "backend",
+      "content": "schema.sql is complete and validated; resume be-1 now using the architect's API contract. Keep ownership to app.py and requirements.txt."
+    },
+    {
+      "from": "manager",
+      "to": "frontend",
+      "content": "Backend implementation is now unblocked. Remain queued until its API is complete, then implement the board against the documented contract."
+    },
+    {
+      "from": "manager",
+      "to": "qa",
+      "content": "Prepare lifecycle and invalid-input acceptance coverage after backend and frontend implementation are complete."
+    },
+    {
+      "from": "manager",
+      "to": "security",
+      "content": "Prepare a final review focused on API validation and safe UI text rendering after backend and frontend implementation are complete."
     }
   ],
   "architecture_decisions": [
@@ -237,6 +257,14 @@
     {
       "by": "database",
       "decision": "Enforce normalized state values and nonblank 1-200 character titles at the database boundary; update `updated_at` via trigger."
+    },
+    {
+      "by": "manager",
+      "decision": "Database schema is complete and owned by the database role; backend may now consume it without editing it."
+    },
+    {
+      "by": "manager",
+      "decision": "Retire the architect's overlapping db-2/be-2/fe-2 tracking tasks in favor of the already-assigned db-1/be-1/fe-1 work, using the architect's file boundaries and contract."
     }
   ],
   "retrospective": null
