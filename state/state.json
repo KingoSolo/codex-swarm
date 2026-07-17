@@ -20,7 +20,7 @@
       "depends_on": [
         "db-1"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "fe-1",
@@ -150,7 +150,7 @@
       "current_task": null
     },
     "backend": {
-      "status": "blocked",
+      "status": "done",
       "current_task": null
     },
     "frontend": {
@@ -171,7 +171,8 @@
     }
   },
   "files_owned": {
-    "database.py": "database"
+    "database.py": "database",
+    "server.py": "backend"
   },
   "messages": [
     {
@@ -253,6 +254,21 @@
       "from": "manager",
       "to": "security",
       "content": "Review server input and static-serving behavior after backend-02 completes."
+    },
+    {
+      "from": "backend",
+      "to": "manager",
+      "content": "Backend is complete and ready for QA/security. `server.py` serves the UI and provides GET/POST/PATCH/PUT/DELETE task operations against `database.py`."
+    },
+    {
+      "from": "backend",
+      "to": "qa",
+      "content": "The server implementation is ready for verification. API smoke testing could not bind a local TCP port in this sandbox (PermissionError), but syntax and HTTP status checks passed."
+    },
+    {
+      "from": "backend",
+      "to": "security",
+      "content": "Please review `server.py`; it limits JSON request bodies to 16 KiB and resolves static assets under the static directory before serving."
     }
   ],
   "architecture_decisions": [
@@ -324,6 +340,18 @@
     {
       "by": "manager",
       "decision": "QA and security begin only after the server integrates the database repository."
+    },
+    {
+      "by": "backend",
+      "decision": "Serve the existing UI at `/` and assets only below `/static/`; paths outside that scope return JSON 404 responses."
+    },
+    {
+      "by": "backend",
+      "decision": "Support both PUT and PATCH for partial task updates so the existing frontend can use PATCH."
+    },
+    {
+      "by": "backend",
+      "decision": "Reject malformed, non-object, missing-length, or oversized JSON request bodies before repository calls."
     }
   ],
   "retrospective": null
