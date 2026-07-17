@@ -2,7 +2,7 @@
   "sprint": {
     "number": 1,
     "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
-    "status": "in_progress"
+    "status": "complete"
   },
   "sprint_history": [],
   "tasks": [
@@ -37,6 +37,13 @@
       "owner": "qa",
       "depends_on": [],
       "status": "done"
+    },
+    {
+      "id": "auto-security-s1",
+      "title": "Final security pass",
+      "owner": "security",
+      "depends_on": [],
+      "status": "done"
     }
   ],
   "agents": {
@@ -65,7 +72,7 @@
       "current_task": null
     },
     "security": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     }
   },
@@ -95,6 +102,11 @@
       "from": "qa",
       "to": "frontend",
       "content": "QA found a minor UX gap: edit-form submission closes the dialog even when the PATCH request fails because mutate() catches errors internally. Keeping it open on failed saves would let users retry immediately."
+    },
+    {
+      "from": "security",
+      "to": "manager",
+      "content": "Security review passed: API limits JSON request bodies, validates task fields/statuses, uses SQLite parameters for values, escapes frontend task text via textContent, and constrains static files to the static directory."
     }
   ],
   "architecture_decisions": [
@@ -137,8 +149,18 @@
       "by": "qa",
       "decision": "Verified Python compilation, frontend JavaScript syntax, and whitespace checks in addition to the lifecycle test.",
       "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "The server binds to 127.0.0.1 by default, which is appropriate for this unauthenticated local Kanban app; it should not be deployed on a public interface without adding authentication and authorization.",
+      "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "Retain the existing 16 KiB request-body limit and resolved-path containment check for static files.",
+      "sprint": 1
     }
   ],
-  "retrospective": null,
+  "retrospective": "Sprint retrospective: Architecture established the stdlib contract; database delivered the constrained schema; backend implemented validated CRUD; frontend integrated the three-column board; QA added and passed lifecycle coverage while noting the failed-save dialog UX gap; security verified input, SQL, rendering, and static-path safeguards; manager coordinated the completed handoffs.",
   "planning_frozen_sprint": 1
 }

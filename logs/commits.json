@@ -1,5 +1,10 @@
 [
   {
+    "hash": "c5bf458",
+    "role": "security",
+    "message": "[security] Reviewed API, database, and frontend input paths; no exploitable security regression requiring a code change was found."
+  },
+  {
     "hash": "06ec8c0",
     "role": "qa",
     "message": "[qa] Added and passed an in-process API lifecycle regression test covering create, list, edit/status movement, delete, and invalid-status handling."
