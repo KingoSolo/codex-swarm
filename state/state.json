@@ -20,7 +20,7 @@
       "depends_on": [
         "db-1"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "fe-1",
@@ -42,7 +42,7 @@
       "current_task": null
     },
     "backend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "frontend": {
@@ -63,13 +63,19 @@
     }
   },
   "files_owned": {
-    "database.py": "database"
+    "database.py": "database",
+    "server.py": "backend"
   },
   "messages": [
     {
       "from": "database",
       "to": "backend",
       "content": "database.py now exposes initialize_database(), get_connection(), utc_timestamp(), DATABASE_PATH, and VALID_STATUSES; tasks uses id, title, status, created_at with valid statuses todo/in_progress/done."
+    },
+    {
+      "from": "backend",
+      "to": "frontend",
+      "content": "API ready: GET/POST /api/tasks; PATCH or PUT /api/tasks/:id; DELETE /api/tasks/:id. Tasks return id, title, status (todo|in_progress|done), created_at. POST requires title and accepts optional status; PATCH accepts title and/or status."
     }
   ],
   "architecture_decisions": [
@@ -81,6 +87,16 @@
     {
       "by": "database",
       "decision": "Used a SQLite CHECK constraint to restrict task statuses to todo, in_progress, and done.",
+      "sprint": 1
+    },
+    {
+      "by": "backend",
+      "decision": "Used JSON request/response bodies and PATCH for partial task edits/status moves.",
+      "sprint": 1
+    },
+    {
+      "by": "backend",
+      "decision": "Validated titles and status values at the API boundary; used parameterized SQLite statements.",
       "sprint": 1
     }
   ],

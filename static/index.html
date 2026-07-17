@@ -17,7 +17,7 @@
     .column header, .card footer, .dialog-actions { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
     .column h2 { margin: 0; font-size: 1rem; } .count { color: #516078; } .tasks { display: grid; gap: .65rem; margin-top: .8rem; }
     .card { background: white; border: 1px solid #dbe1ec; border-radius: 8px; padding: .75rem; } .card h3 { margin: 0 0 .35rem; }
-    .card p { color: #62708a; white-space: pre-wrap; } .card footer { margin-top: .7rem; } .card select { min-width: 0; }
+    .card footer { margin-top: .7rem; } .card select { min-width: 0; }
     .empty { color: #748198; text-align: center; } .notice { padding: .75rem; background: #feecee; color: #9c1731; border-radius: 6px; }
     dialog { width: min(94vw, 550px); border: 0; border-radius: 12px; padding: 1.2rem; } dialog::backdrop { background: #17203388; }
     @media (max-width: 720px) { main { padding: 1rem; } .board { grid-template-columns: 1fr; } }
@@ -27,7 +27,7 @@
   <main>
     <h1>Flowboard</h1><p class="subtitle">Keep the next useful thing moving.</p>
     <form id="create-form"><label>Title<input id="new-title" maxlength="200" required placeholder="What needs to happen?"></label>
-      <label>Details <textarea id="new-description" rows="2" placeholder="Optional context"></textarea></label><button>Add to Todo</button></form>
+      <button>Add to Todo</button></form>
     <p id="notice" class="notice" role="status" hidden></p>
     <section class="board" aria-label="Kanban board">
       <section class="column"><header><h2>Todo</h2><span id="todo-count" class="count">0</span></header><div id="todo-tasks" class="tasks"></div></section>
@@ -35,7 +35,7 @@
       <section class="column"><header><h2>Done</h2><span id="done-count" class="count">0</span></header><div id="done-tasks" class="tasks"></div></section>
     </section>
   </main>
-  <dialog id="editor"><form id="edit-form"><label>Title<input id="edit-title" maxlength="200" required></label><label>Details<textarea id="edit-description" rows="5"></textarea></label><div class="dialog-actions"><button class="secondary" type="button" id="cancel">Cancel</button><button>Save changes</button></div></form></dialog>
+  <dialog id="editor"><form id="edit-form"><label>Title<input id="edit-title" maxlength="200" required></label><div class="dialog-actions"><button class="secondary" type="button" id="cancel">Cancel</button><button>Save changes</button></div></form></dialog>
   <script>
     const statuses = [["todo", "Todo"], ["in_progress", "In Progress"], ["done", "Done"]];
     const notice = document.querySelector("#notice"), editor = document.querySelector("#editor");
@@ -49,7 +49,6 @@
     function card(task) {
       const article = document.createElement("article"); article.className = "card";
       const title = document.createElement("h3"); title.textContent = task.title; article.append(title);
-      if (task.description) { const description = document.createElement("p"); description.textContent = task.description; article.append(description); }
       const footer = document.createElement("footer"), select = document.createElement("select");
       statuses.forEach(([key, label]) => { const option = new Option(label, key, false, key === task.status); select.add(option); });
       select.onchange = () => mutate(task.id, { status: select.value });
@@ -62,10 +61,10 @@
     }
     async function reload() { try { alertUser(""); tasks = await api("/api/tasks"); render(); } catch (error) { alertUser(error.message); } }
     async function mutate(id, fields) { try { await api(`/api/tasks/${id}`, { method: "PATCH", body: JSON.stringify(fields) }); await reload(); } catch (error) { alertUser(error.message); } }
-    function openEditor(task) { editingId = task.id; document.querySelector("#edit-title").value = task.title; document.querySelector("#edit-description").value = task.description; editor.showModal(); }
+    function openEditor(task) { editingId = task.id; document.querySelector("#edit-title").value = task.title; editor.showModal(); }
     async function removeTask(task) { if (!confirm(`Delete “${task.title}”?`)) return; try { await api(`/api/tasks/${task.id}`, { method: "DELETE" }); await reload(); } catch (error) { alertUser(error.message); } }
-    document.querySelector("#create-form").onsubmit = async event => { event.preventDefault(); const title = document.querySelector("#new-title").value.trim(); if (!title) return alertUser("A task title is required."); try { await api("/api/tasks", { method: "POST", body: JSON.stringify({ title, description: document.querySelector("#new-description").value }) }); event.target.reset(); await reload(); } catch (error) { alertUser(error.message); } };
-    document.querySelector("#edit-form").onsubmit = async event => { event.preventDefault(); const title = document.querySelector("#edit-title").value.trim(); if (!title) return alertUser("A task title is required."); await mutate(editingId, { title, description: document.querySelector("#edit-description").value }); editor.close(); };
+    document.querySelector("#create-form").onsubmit = async event => { event.preventDefault(); const title = document.querySelector("#new-title").value.trim(); if (!title) return alertUser("A task title is required."); try { await api("/api/tasks", { method: "POST", body: JSON.stringify({ title }) }); event.target.reset(); await reload(); } catch (error) { alertUser(error.message); } };
+    document.querySelector("#edit-form").onsubmit = async event => { event.preventDefault(); const title = document.querySelector("#edit-title").value.trim(); if (!title) return alertUser("A task title is required."); await mutate(editingId, { title }); editor.close(); };
     document.querySelector("#cancel").onclick = () => editor.close(); reload();
   </script>
 </body>

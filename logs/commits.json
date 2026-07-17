@@ -1,5 +1,10 @@
 [
   {
+    "hash": "d9716f1",
+    "role": "backend",
+    "message": "[backend] Implemented the standard-library REST API for task creation, listing, editing, status movement, deletion, and static UI delivery."
+  },
+  {
     "hash": "9e83b1c",
     "role": "database",
     "message": "[database] Created and verified the SQLite tasks schema with id, title, status, and created_at fields."
