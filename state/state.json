@@ -11,7 +11,7 @@
       "title": "Inspect the repository and define the Kanban architecture, API contract, data model, and integration plan.",
       "owner": "architect",
       "depends_on": [],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "be-1",
@@ -61,6 +61,35 @@
         "fe-1"
       ],
       "status": "todo"
+    },
+    {
+      "id": "db-2",
+      "title": "Create `schema.sql` only: SQLite `tasks` table with id, title, description, status, created_at, updated_at; enforce statuses todo, in_progress, done and add status ordering index.",
+      "owner": "database",
+      "depends_on": [
+        "arch-1"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "be-2",
+      "title": "Implement `app.py` and `requirements.txt` only: initialize SQLite from `schema.sql` and expose the agreed JSON task REST API with validation, correct 404 handling, and no frontend-file edits.",
+      "owner": "backend",
+      "depends_on": [
+        "arch-1",
+        "db-2"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "fe-2",
+      "title": "Implement `static/index.html`, `static/app.js`, and `static/styles.css` only: a minimal three-column board consuming the agreed REST API, with create, edit, move, and delete flows.",
+      "owner": "frontend",
+      "depends_on": [
+        "arch-1",
+        "be-2"
+      ],
+      "status": "todo"
     }
   ],
   "agents": {
@@ -69,7 +98,7 @@
       "current_task": null
     },
     "architect": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "backend": {
@@ -124,6 +153,26 @@
       "from": "manager",
       "to": "security",
       "content": "Queued application security review for assignment when implementation is ready."
+    },
+    {
+      "from": "architect",
+      "to": "manager",
+      "content": "No application code exists yet. Please sequence database before backend and treat db-2/be-2/fe-2 as the implementation tasks; the earlier broad tasks overlap them and should be retired or redirected to avoid duplicate work."
+    },
+    {
+      "from": "architect",
+      "to": "database",
+      "content": "Own only schema.sql. Contract: tasks(id INTEGER PK, title TEXT required 1-200 chars, description TEXT default '', status TEXT required default 'todo' constrained to todo|in_progress|done, created_at, updated_at); include an index on status."
+    },
+    {
+      "from": "architect",
+      "to": "backend",
+      "content": "API contract: GET /api/tasks; POST /api/tasks with {title,description?}, returns 201; GET /api/tasks/:id; PATCH /api/tasks/:id with any of title, description, status; DELETE /api/tasks/:id returns 204. JSON errors use {error: string}; invalid payload/status is 400 and missing IDs are 404. Use schema.sql, and own only app.py and requirements.txt."
+    },
+    {
+      "from": "architect",
+      "to": "frontend",
+      "content": "Use GET /api/tasks on load; POST for creation; PATCH for edits and status moves; DELETE then remove/reload. Status keys are todo, in_progress, done. Own only static/index.html, static/app.js, static/styles.css; render user text safely with textContent, never innerHTML."
     }
   ],
   "architecture_decisions": [
@@ -134,6 +183,30 @@
     {
       "by": "manager",
       "decision": "Sequence database design before final API integration, then UI, QA, and security validation."
+    },
+    {
+      "by": "architect",
+      "decision": "Use Python Flask with the standard sqlite3 module because the repository has no existing application scaffold and this stack is minimal to run locally."
+    },
+    {
+      "by": "architect",
+      "decision": "Use SQLite database file `kanban.db`, initialized from database-owned `schema.sql`; no ORM or authentication is required for this lightweight single-user scope."
+    },
+    {
+      "by": "architect",
+      "decision": "Expose JSON endpoints at `/api/tasks`: GET collection, POST collection, GET item, PATCH item (including status transitions), and DELETE item."
+    },
+    {
+      "by": "architect",
+      "decision": "Use lowercase API status values `todo`, `in_progress`, and `done`; map them to the UI labels Todo, In Progress, and Done."
+    },
+    {
+      "by": "architect",
+      "decision": "Serve a dependency-free vanilla JavaScript UI from `static/`; keep HTML, JavaScript, and CSS exclusively frontend-owned, API files exclusively backend-owned, and schema exclusively database-owned."
+    },
+    {
+      "by": "architect",
+      "decision": "Tasks are ordered in each column by most recently updated first unless a future explicit ordering field is added."
     }
   ],
   "retrospective": null
