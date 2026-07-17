@@ -11,7 +11,7 @@
       "title": "Create tasks table schema (id, title, status, created_at) in database.py",
       "owner": "database",
       "depends_on": [],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "be-1",
@@ -50,7 +50,7 @@
       "current_task": null
     },
     "database": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "qa": {
@@ -62,12 +62,25 @@
       "current_task": null
     }
   },
-  "files_owned": {},
-  "messages": [],
+  "files_owned": {
+    "database.py": "database"
+  },
+  "messages": [
+    {
+      "from": "database",
+      "to": "backend",
+      "content": "database.py now exposes initialize_database(), get_connection(), utc_timestamp(), DATABASE_PATH, and VALID_STATUSES; tasks uses id, title, status, created_at with valid statuses todo/in_progress/done."
+    }
+  ],
   "architecture_decisions": [
     {
       "by": "architect",
       "decision": "Python stdlib http.server + sqlite3 for backend, single static HTML+vanilla JS file for frontend. No external dependencies (sandbox has no network access).",
+      "sprint": 1
+    },
+    {
+      "by": "database",
+      "decision": "Used a SQLite CHECK constraint to restrict task statuses to todo, in_progress, and done.",
       "sprint": 1
     }
   ],
