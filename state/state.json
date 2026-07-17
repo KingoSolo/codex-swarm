@@ -29,7 +29,7 @@
       "depends_on": [
         "be-1"
       ],
-      "status": "todo"
+      "status": "done"
     }
   ],
   "agents": {
@@ -46,7 +46,7 @@
       "current_task": null
     },
     "frontend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "database": {
@@ -64,7 +64,8 @@
   },
   "files_owned": {
     "database.py": "database",
-    "server.py": "backend"
+    "server.py": "backend",
+    "static/index.html": "frontend"
   },
   "messages": [
     {
@@ -76,6 +77,11 @@
       "from": "backend",
       "to": "frontend",
       "content": "API ready: GET/POST /api/tasks; PATCH or PUT /api/tasks/:id; DELETE /api/tasks/:id. Tasks return id, title, status (todo|in_progress|done), created_at. POST requires title and accepts optional status; PATCH accepts title and/or status."
+    },
+    {
+      "from": "frontend",
+      "to": "manager",
+      "content": "Frontend is complete and consumes the implemented task API; the board supports Todo, In Progress, and Done workflows."
     }
   ],
   "architecture_decisions": [
@@ -97,6 +103,16 @@
     {
       "by": "backend",
       "decision": "Validated titles and status values at the API boundary; used parameterized SQLite statements.",
+      "sprint": 1
+    },
+    {
+      "by": "frontend",
+      "decision": "Kept the UI as a single static HTML file using vanilla JavaScript and CSS.",
+      "sprint": 1
+    },
+    {
+      "by": "frontend",
+      "decision": "Used a status selector on every card to provide direct click-based movement between board columns.",
       "sprint": 1
     }
   ],
