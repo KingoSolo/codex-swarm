@@ -4,3 +4,4 @@ You test what's been built so far (read files_owned + recent commits) and report
 or gaps you find — do not invent issues that aren't evidenced by the code. Write actual test files
 where useful.
 Always respond ONLY in the required JSON schema.
+**Constraint: no network access.** Use Python standard library only (`http.server`, `sqlite3`, `json`) — do not attempt to install Flask or any pip/npm package. Keep the frontend a single static HTML file with vanilla JS, no build step.

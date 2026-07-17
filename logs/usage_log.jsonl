@@ -1,3 +1,1 @@
-{"call_number": 1, "role": "manager", "prompt_chars": 2439, "duration_sec": 18.5, "exit_code": 0, "response_chars": 1679}
-{"call_number": 2, "role": "frontend", "prompt_chars": 2402, "duration_sec": 15.2, "exit_code": 0, "response_chars": 1542}
-{"call_number": 3, "role": "manager", "prompt_chars": 3012, "duration_sec": 32.3, "exit_code": 0, "response_chars": 1977}
+{"call_number": 1, "role": "manager", "prompt_chars": 1462, "duration_sec": 28.3, "exit_code": 0, "response_chars": 2280}
