@@ -13,7 +13,7 @@ import json
 import os
 import subprocess
 import sys
-import time
+import time as _time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -22,6 +22,8 @@ SCHEMA_PATH = ROOT / "state" / "schemas" / "agent_turn.json"
 ROLES_DIR = ROOT / "agents" / "roles"
 SESSION_ID_PATH = ROOT / "logs" / "session_id.txt"
 MOCK = os.environ.get("CODEX_ORG_MOCK", "1") == "1"
+USAGE_LOG_PATH = ROOT / "logs" / "usage_log.jsonl"
+
 
 ROLE_ORDER = ["manager", "architect", "backend", "frontend", "database", "qa", "security"]
 
@@ -64,33 +66,33 @@ def build_prompt(role, state, task):
 Respond with ONLY JSON matching the required schema.
 """
 
+_call_count = [0]
 
 def call_codex_real(role, prompt):
-    """Real call via Codex CLI headless mode."""
+    _call_count[0] += 1
+    start = _time.time()
     out_path = ROOT / "logs" / f"{role}_last_output.json"
     session_id = get_session_id()
-
     base_flags = [
-        "--sandbox", "workspace-write",
-        "--skip-git-repo-check",
-        "--json",
-        "--output-schema", str(SCHEMA_PATH),
-        "-o", str(out_path),
+        "--sandbox", "workspace-write", "--skip-git-repo-check", "--json",
+        "--output-schema", str(SCHEMA_PATH), "-o", str(out_path),
     ]
-
-    if session_id is None:
-        cmd = ["codex", "exec"] + base_flags + [prompt]
-    else:
-        cmd = ["codex", "exec"] + base_flags + ["resume", session_id, prompt]
-
+    cmd = ["codex", "exec"] + base_flags + ([prompt] if session_id is None else ["resume", session_id, prompt])
     result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=900)
+    duration = _time.time() - start
+
+    log_entry = {
+        "call_number": _call_count[0], "role": role, "prompt_chars": len(prompt),
+        "duration_sec": round(duration, 1), "exit_code": result.returncode,
+        "response_chars": len(result.stdout),
+    }
+    with open(USAGE_LOG_PATH, "a") as f:
+        f.write(json.dumps(log_entry) + "\n")
+    print(f"  [usage] call #{_call_count[0]} | {role} | {log_entry['prompt_chars']} chars in | {round(duration,1)}s")
+
     if result.returncode != 0:
-        raise RuntimeError(
-            f"codex exec failed for {role} (exit {result.returncode}):\n"
-            f"--- stdout tail ---\n{result.stdout[-3000:]}\n"
-            f"--- stderr tail ---\n{result.stderr[-3000:]}"
-        )
-    
+        raise RuntimeError(f"codex exec failed for {role} (exit {result.returncode}):\n--- stdout tail ---\n{result.stdout[-3000:]}\n--- stderr tail ---\n{result.stderr[-3000:]}")
+
     if session_id is None:
         for line in result.stdout.splitlines():
             try:
@@ -100,14 +102,13 @@ def call_codex_real(role, prompt):
             if event.get("type") == "thread.started" and event.get("thread_id"):
                 save_session_id(event["thread_id"])
                 break
-
     return json.loads(out_path.read_text())
 
 
 def call_codex_mock(role, prompt):
     """Fake response so we can test the full pipeline before credits arrive.
     Simulates one plausible turn per role so the demo data flows end-to-end."""
-    time.sleep(0.2)
+    _time.sleep(0.2)
     canned = {
         "manager": {
             "summary": "Broke sprint goal into initial tasks.", 
@@ -197,12 +198,16 @@ def next_ready_task(state, role):
     return None
 
 def run_dev_loop(state, max_rounds=6):
+    seen_blocker_signature = None
     for round_num in range(max_rounds):
         any_work = False
+        current_blockers = tuple(sorted(t["id"] for t in state["tasks"] if t["status"] == "blocked"))
         for role in ROLE_ORDER:
             task = next_ready_task(state, role)
-            if role == "manager" and round_num > 0 and not any(t["status"] == "blocked" for t in state["tasks"]):
-                continue
+            if role == "manager":
+                if round_num > 0 and (not current_blockers or current_blockers == seen_blocker_signature):
+                    continue
+                seen_blocker_signature = current_blockers
             if not task and role != "manager":
                 continue
             prompt = build_prompt(role, state, task)
@@ -251,6 +256,19 @@ def run_retrospective(state):
     print(json.dumps(state["retrospective"], indent=2))
 
 
+def seed_sprint_1(state):
+    if state["sprint"]["number"] != 1 or state["tasks"]:
+        return  # only seed a fresh sprint 1
+    state["architecture_decisions"].append({
+        "by": "architect",
+        "decision": "Python stdlib http.server + sqlite3 for backend, single static HTML+vanilla JS file for frontend. No external dependencies (sandbox has no network access).",
+        "sprint": 1,
+    })
+    state["tasks"] = [
+        {"id": "db-1", "title": "Create tasks table schema (id, title, status, created_at)", "owner": "database", "depends_on": [], "status": "todo"},
+        {"id": "be-1", "title": "Implement REST API: create/list/update/delete tasks, move between statuses", "owner": "backend", "depends_on": ["db-1"], "status": "todo"},
+        {"id": "fe-1", "title": "Build Kanban board UI (3 columns, drag or click-to-move) consuming the API", "owner": "frontend", "depends_on": ["be-1"], "status": "todo"},
+    ]
 
 def start_new_sprint(state, new_goal):
     """Archive the finished sprint and open the next one, same session,
@@ -276,6 +294,7 @@ def run_sprint(goal_override=None):
         state = start_new_sprint(state, goal_override)
     state["sprint"]["status"] = "in_progress"
     save_state(state)
+    seed_sprint_1(state)
     run_dev_loop(state)
     run_retrospective(state)
 

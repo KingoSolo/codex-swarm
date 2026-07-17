@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flowboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Project workspace</p>
+          <h1>Flowboard</h1>
+          <p class="subtitle">Keep the next useful thing moving.</p>
+        </div>
+      </header>
+
+      <section class="create-panel" aria-labelledby="create-heading">
+        <div>
+          <p class="eyebrow">New work item</p>
+          <h2 id="create-heading">Add a task</h2>
+        </div>
+        <form id="create-form" class="task-form">
+          <label>
+            <span>Title</span>
+            <input id="new-title" name="title" maxlength="200" required placeholder="What needs to happen?">
+          </label>
+          <label>
+            <span>Details <small>Optional</small></span>
+            <textarea id="new-description" name="description" rows="2" placeholder="Add useful context"></textarea>
+          </label>
+          <button type="submit">Add to Todo</button>
+        </form>
+      </section>
+
+      <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
+
+      <section class="board" aria-label="Kanban board">
+        <section class="column todo" aria-labelledby="todo-heading">
+          <header><h2 id="todo-heading">Todo</h2><span id="todo-count" class="count">0</span></header>
+          <div id="todo-tasks" class="task-list"></div>
+        </section>
+        <section class="column in-progress" aria-labelledby="in-progress-heading">
+          <header><h2 id="in-progress-heading">In Progress</h2><span id="in-progress-count" class="count">0</span></header>
+          <div id="in-progress-tasks" class="task-list"></div>
+        </section>
+        <section class="column done" aria-labelledby="done-heading">
+          <header><h2 id="done-heading">Done</h2><span id="done-count" class="count">0</span></header>
+          <div id="done-tasks" class="task-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="edit-dialog" aria-labelledby="edit-heading">
+      <form id="edit-form" class="task-form">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow">Update task</p>
+            <h2 id="edit-heading">Edit details</h2>
+          </div>
+          <button class="icon-button" type="button" data-close-dialog aria-label="Close edit dialog">×</button>
+        </div>
+        <label>
+          <span>Title</span>
+          <input id="edit-title" name="title" maxlength="200" required>
+        </label>
+        <label>
+          <span>Details <small>Optional</small></span>
+          <textarea id="edit-description" name="description" rows="5"></textarea>
+        </label>
+        <div class="dialog-actions">
+          <button type="button" class="secondary" data-close-dialog>Cancel</button>
+          <button type="submit">Save changes</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

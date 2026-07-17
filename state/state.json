@@ -79,7 +79,7 @@
         "arch-1",
         "db-2"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "fe-2",
@@ -102,7 +102,7 @@
       "current_task": null
     },
     "backend": {
-      "status": "blocked",
+      "status": "done",
       "current_task": null
     },
     "frontend": {
@@ -123,7 +123,9 @@
     }
   },
   "files_owned": {
-    "schema.sql": "database"
+    "schema.sql": "database",
+    "app.py": "backend",
+    "requirements.txt": "backend"
   },
   "messages": [
     {
@@ -230,6 +232,26 @@
       "from": "manager",
       "to": "frontend",
       "content": "Backend remains the active dependency. Begin UI work as soon as backend reports the API ready."
+    },
+    {
+      "from": "backend",
+      "to": "manager",
+      "content": "Backend API is implemented in app.py and is ready for frontend integration. Python syntax and schema loading checks passed; runtime smoke tests could not run because Flask is unavailable locally and package installation cannot reach PyPI."
+    },
+    {
+      "from": "backend",
+      "to": "frontend",
+      "content": "API is ready: GET/POST /api/tasks; GET/PATCH/DELETE /api/tasks/:id. POST accepts title and optional description; PATCH accepts title, description, and/or status (todo|in_progress|done). Success responses return task JSON; validation errors return {error} with 400, missing tasks return 404, and DELETE returns 204."
+    },
+    {
+      "from": "backend",
+      "to": "qa",
+      "content": "Please verify task create/list/read/update/status-move/delete flows plus 400 JSON validation and 404 behavior once Flask dependencies are installed."
+    },
+    {
+      "from": "backend",
+      "to": "security",
+      "content": "Backend validates accepted fields and uses parameterized SQLite values; please review error handling and deployment configuration during the final pass."
     }
   ],
   "architecture_decisions": [
