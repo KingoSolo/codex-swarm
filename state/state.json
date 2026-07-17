@@ -36,7 +36,7 @@
       "title": "Define API, task lifecycle, and integration contract",
       "owner": "architect",
       "depends_on": [],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "backend-01",
@@ -85,6 +85,31 @@
         "database-01"
       ],
       "status": "todo"
+    },
+    {
+      "id": "database-01",
+      "title": "Create `database.py` containing SQLite connection setup, schema initialization, and task repository functions; own only this file and the runtime `.db` file.",
+      "owner": "database",
+      "depends_on": [],
+      "status": "todo"
+    },
+    {
+      "id": "backend-01",
+      "title": "Create `server.py` containing the `http.server` request router, JSON responses, static-file serving, and REST handlers; call the repository API from `database.py` without editing it.",
+      "owner": "backend",
+      "depends_on": [
+        "database-01"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "frontend-01",
+      "title": "Create `index.html` as the sole static frontend file with vanilla JS for loading, creating, editing, moving, and deleting tasks through `/api/tasks`; do not edit Python files.",
+      "owner": "frontend",
+      "depends_on": [
+        "backend-01"
+      ],
+      "status": "todo"
     }
   ],
   "agents": {
@@ -93,7 +118,7 @@
       "current_task": null
     },
     "architect": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "backend": {
@@ -133,6 +158,26 @@
       "from": "manager",
       "to": "frontend",
       "content": "Proceed with a single-file vanilla-JS UI and align to the API contract when available."
+    },
+    {
+      "from": "architect",
+      "to": "manager",
+      "content": "Architecture contract is ready: SQLite repository (`database.py`), HTTP server (`server.py`), and single-file UI (`index.html`) have exclusive ownership boundaries."
+    },
+    {
+      "from": "architect",
+      "to": "backend",
+      "content": "REST contract: GET /api/tasks; POST /api/tasks body {title,description?,status?}; PUT /api/tasks/{id} body may include title,description,status; DELETE /api/tasks/{id}. Return task objects {id,title,description,status,created_at,updated_at}; statuses are todo, in_progress, done."
+    },
+    {
+      "from": "architect",
+      "to": "frontend",
+      "content": "Use the contract GET/POST /api/tasks and PUT/DELETE /api/tasks/{id}; display statuses todo, in_progress, done as Todo, In Progress, Done. Send JSON and refresh state after mutations."
+    },
+    {
+      "from": "architect",
+      "to": "database",
+      "content": "Repository contract should expose initialize_database(), list_tasks(), create_task(title, description, status), update_task(id, fields), and delete_task(id). Validate/persist only statuses todo, in_progress, done."
     }
   ],
   "architecture_decisions": [
@@ -148,6 +193,26 @@
     {
       "by": "manager",
       "decision": "Keep the API and UI lightweight with no external packages or build tooling."
+    },
+    {
+      "by": "architect",
+      "decision": "Use Python `http.server` for REST routing and static serving, `sqlite3` for persistence, and `json` for payloads/responses; no external packages."
+    },
+    {
+      "by": "architect",
+      "decision": "Store tasks in SQLite with id, title, description, status, created_at, and updated_at. Title is required; description defaults to empty; status defaults to `todo`."
+    },
+    {
+      "by": "architect",
+      "decision": "Serve `index.html` from the same origin as the API to avoid CORS requirements."
+    },
+    {
+      "by": "architect",
+      "decision": "API errors use JSON with an `error` field and appropriate 400, 404, or 405 status codes."
+    },
+    {
+      "by": "architect",
+      "decision": "The task lifecycle permits moving directly among `todo`, `in_progress`, and `done`; any invalid status is rejected with 400."
     }
   ],
   "retrospective": null
