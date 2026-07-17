@@ -1,13 +1,12 @@
-#!/usr/bin/env python3
+
 """
 Codex Org orchestrator.
 
-Core loop: pick the next ready task -> build a role-specific prompt ->
-call `codex exec` (real) or a mock -> parse the structured JSON response ->
-apply it to shared state -> commit to git as that "agent".
-
-Set CODEX_ORG_MOCK=1 to run without real Codex credits (for testing the
-pipeline end-to-end before credits arrive). Unset it to use real `codex exec`.
+Lifecycle: each sprint has exactly ONE planning phase that produces a frozen
+task graph (plan_sprint). After that, no agent — including the manager — can
+add new tasks; any attempt is dropped and logged. The manager's role in the
+dev loop is purely reactive: unblock/reassign existing tasks, never invent
+new ones. Duplicate task IDs are rejected before every save.
 """
 import json
 import os
@@ -21,18 +20,41 @@ STATE_PATH = ROOT / "state" / "state.json"
 SCHEMA_PATH = ROOT / "state" / "schemas" / "agent_turn.json"
 ROLES_DIR = ROOT / "agents" / "roles"
 SESSION_ID_PATH = ROOT / "logs" / "session_id.txt"
-MOCK = os.environ.get("CODEX_ORG_MOCK", "1") == "1"
 USAGE_LOG_PATH = ROOT / "logs" / "usage_log.jsonl"
+MOCK = os.environ.get("CODEX_ORG_MOCK", "1") == "1"
+MAX_TOTAL_CALLS = int(os.environ.get("CODEX_ORG_MAX_CALLS", "12"))
 
+(ROOT / "logs").mkdir(parents=True, exist_ok=True)
+
+_total_calls = [0]
+_call_count = [0]
 
 ROLE_ORDER = ["manager", "architect", "backend", "frontend", "database", "qa", "security"]
+
+
+def check_call_budget():
+    if _total_calls[0] >= MAX_TOTAL_CALLS:
+        print(f"\n!!! HARD STOP: reached {MAX_TOTAL_CALLS} Codex calls this run. Exiting safely to protect credits.")
+        sys.exit(1)
+    _total_calls[0] += 1
 
 
 def load_state():
     return json.loads(STATE_PATH.read_text())
 
 
+def validate_state(state):
+    ids = [t["id"] for t in state["tasks"]]
+    dupes = {i for i in ids if ids.count(i) > 1}
+    if dupes:
+        raise ValueError(
+            f"Duplicate task IDs detected: {dupes}. Refusing to save state — "
+            f"this means planning ran more than once. Fix before continuing."
+        )
+
+
 def save_state(state):
+    validate_state(state)
     STATE_PATH.write_text(json.dumps(state, indent=2))
 
 
@@ -47,15 +69,22 @@ def get_session_id():
 def save_session_id(sid):
     SESSION_ID_PATH.write_text(sid)
 
+
 def build_prompt(role, state, task):
     inbox = [m for m in state["messages"] if m.get("to") == role]
+    task_overview = ""
+    if role == "manager":
+        task_overview = f"""
+## All existing tasks (planning is frozen — never create a task that duplicates one already here)
+{json.dumps(state["tasks"], indent=2)}
+"""
     return f"""{role_prompt(role)}
 
-## Sprint goal
+## Sprint {state['sprint']['number']} goal
 {state['sprint']['goal']}
-
+{task_overview}
 ## Your current task
-{json.dumps(task, indent=2) if task else "No task assigned yet. If you are the manager, create the first tasks. Otherwise, report task_status: blocked."}
+{json.dumps(task, indent=2) if task else "No task assigned right now. Report task_status: blocked if you have nothing to do."}
 
 ## Files currently owned by others (do not touch these)
 {json.dumps({f: o for f, o in state['files_owned'].items() if o != role}, indent=2)}
@@ -66,9 +95,9 @@ def build_prompt(role, state, task):
 Respond with ONLY JSON matching the required schema.
 """
 
-_call_count = [0]
 
 def call_codex_real(role, prompt):
+    check_call_budget()
     _call_count[0] += 1
     start = _time.time()
     out_path = ROOT / "logs" / f"{role}_last_output.json"
@@ -106,58 +135,16 @@ def call_codex_real(role, prompt):
 
 
 def call_codex_mock(role, prompt):
-    """Fake response so we can test the full pipeline before credits arrive.
-    Simulates one plausible turn per role so the demo data flows end-to-end."""
     _time.sleep(0.2)
     canned = {
-        "manager": {
-            "summary": "Broke sprint goal into initial tasks.", 
-            "task_status": "done",
-            "new_tasks": [{"id": "T1", "title": "Design system architecture", "owner": "architect", "depends_on": []}],
-            "messages": [{"to": "architect", "content": "Please design the stack and file layout."}]
-            },
-        
-        "architect": {
-            "summary": "Chose Flask + SQLite + vanilla JS, defined module boundaries.", 
-            "task_status": "done",
-            "decisions": ["Use Flask for API, SQLite for storage, vanilla JS for board UI."],
-            "new_tasks": [
-                          {"id": "T2", "title": "Implement task CRUD + move endpoints", "owner": "backend", "depends_on": ["T1"]},
-                          {"id": "T3", "title": "Implement schema", "owner": "database", "depends_on": ["T1"]},
-                          {"id": "T4", "title": "Build Kanban board UI", "owner": "frontend", "depends_on": ["T2"]},
-                      ]},
-
-        "backend": {
-            "summary": "Implemented /api/tasks CRUD + move endpoint.", 
-            "task_status": "done",
-            "files_changed": ["app.py"],
-            "messages": [{"to": "frontend", "content": "API ready at /api/tasks."}]
-            },
-        
-        "database": {
-            "summary": "Created tasks table with status column.", 
-            "task_status": "done", 
-            "files_changed": ["schema.sql"]
-            },
-
-        "frontend": {
-            "summary": "Built drag-drop board with three columns.", 
-            "task_status": "done",
-            "files_changed": ["index.html"], 
-            "blockers": ["Drag-drop across columns took longer than expected."]
-            },
-
-        "qa": {
-            "summary": "Ran manual pass on move/edit/delete.", 
-            "task_status": "done",
-            "blockers": ["Found a regression: deleting a task in Done doesn't refresh the board."]
-            },
-
-        "security": {
-            "summary": "Reviewed input handling on task fields.", 
-            "task_status": "done",
-            "decisions": ["Recommend sanitizing task titles before rendering (XSS)."]
-            },
+        "manager": {"summary": "Reviewed blockers, no new tasks needed.", "task_status": "done", "messages": []},
+        "architect": {"summary": "Chose stdlib http.server + sqlite3 + vanilla JS.", "task_status": "done",
+                      "decisions": ["Python stdlib only, no network dependencies."]},
+        "backend": {"summary": "Implemented task CRUD + move endpoint.", "task_status": "done", "files_changed": ["server.py"]},
+        "database": {"summary": "Created tasks table with status column.", "task_status": "done", "files_changed": ["database.py"]},
+        "frontend": {"summary": "Built board with three columns.", "task_status": "done", "files_changed": ["index.html"]},
+        "qa": {"summary": "Ran manual pass.", "task_status": "done", "blockers": ["Found a minor UI refresh bug."]},
+        "security": {"summary": "Reviewed input handling.", "task_status": "done", "decisions": ["Sanitize task titles."]},
     }
     return canned.get(role, {"summary": "No-op", "task_status": "done"})
 
@@ -166,17 +153,31 @@ def call_codex(role, prompt):
     return call_codex_mock(role, prompt) if MOCK else call_codex_real(role, prompt)
 
 
-def apply_turn(state, role, output):
+def add_tasks(state, new_tasks, allow=True):
+    if not new_tasks:
+        return
+    if not allow:
+        print(f"  [planning frozen] dropped {len(new_tasks)} proposed task(s) — planning already closed this sprint.")
+        return
+    existing_ids = {t["id"] for t in state["tasks"]}
+    for t in new_tasks:
+        if t["id"] in existing_ids:
+            print(f"  [warning] duplicate task id '{t['id']}' proposed — skipped.")
+            continue
+        t["status"] = "todo"
+        state["tasks"].append(t)
+        existing_ids.add(t["id"])
+
+
+def apply_turn(state, role, output, planning_open=False):
     state["agents"][role]["status"] = output.get("task_status", "done")
     for f in output.get("files_changed", []):
         state["files_owned"][f] = role
     for msg in output.get("messages", []):
         state["messages"].append({"from": role, "to": msg["to"], "content": msg["content"]})
-    for t in output.get("new_tasks", []):
-        t["status"] = "todo"
-        state["tasks"].append(t)
+    add_tasks(state, output.get("new_tasks", []), allow=planning_open)
     for d in output.get("decisions", []):
-        state["architecture_decisions"].append({"by": role, "decision": d})
+        state["architecture_decisions"].append({"by": role, "decision": d, "sprint": state["sprint"]["number"]})
     return output.get("blockers", [])
 
 
@@ -187,6 +188,13 @@ def git_commit(role, summary):
          "commit", "-m", f"[{role}] {summary}", "--allow-empty"],
         cwd=ROOT, check=False, capture_output=True,
     )
+    log = subprocess.run(["git", "log", "--pretty=format:%h|%an|%s", "-30"], cwd=ROOT, capture_output=True, text=True)
+    commits = []
+    for line in log.stdout.splitlines():
+        parts = line.split("|", 2)
+        if len(parts) == 3:
+            commits.append({"hash": parts[0], "role": parts[1], "message": parts[2]})
+    (ROOT / "logs" / "commits.json").write_text(json.dumps(commits, indent=2))
 
 
 def next_ready_task(state, role):
@@ -197,23 +205,69 @@ def next_ready_task(state, role):
                 return t
     return None
 
+
+def seed_sprint_1(state):
+    """Deterministic seed for the known Kanban demo — skips paying for
+    manager/architect to 'discover' an architecture we already decided on."""
+    state["architecture_decisions"].append({
+        "by": "architect",
+        "decision": "Python stdlib http.server + sqlite3 for backend, single static HTML+vanilla JS file for frontend. No external dependencies (sandbox has no network access).",
+        "sprint": 1,
+    })
+    state["tasks"] = [
+        {"id": "db-1", "title": "Create tasks table schema (id, title, status, created_at) in database.py", "owner": "database", "depends_on": [], "status": "todo"},
+        {"id": "be-1", "title": "Implement REST API in server.py: create/list/update/delete tasks, move between statuses", "owner": "backend", "depends_on": ["db-1"], "status": "todo"},
+        {"id": "fe-1", "title": "Build Kanban board UI in index.html (3 columns, click-to-move) consuming the API", "owner": "frontend", "depends_on": ["be-1"], "status": "todo"},
+    ]
+
+
+def plan_sprint(state):
+    """Exactly one planning phase per sprint. Produces a frozen task graph;
+    nothing after this point may add tasks except via a new sprint."""
+    if state.get("planning_frozen_sprint") == state["sprint"]["number"]:
+        return  # already planned
+
+    if state["sprint"]["number"] == 1:
+        seed_sprint_1(state)
+    else:
+        prompt = build_prompt("manager", state, None)
+        output = call_codex("manager", prompt)
+        add_tasks(state, output.get("new_tasks", []), allow=True)
+        git_commit("manager", output.get("summary", "sprint planning"))
+        save_state(state)
+
+        prompt = build_prompt("architect", state, None)
+        output = call_codex("architect", prompt)
+        add_tasks(state, output.get("new_tasks", []), allow=True)
+        for d in output.get("decisions", []):
+            state["architecture_decisions"].append({"by": "architect", "decision": d, "sprint": state["sprint"]["number"]})
+        git_commit("architect", output.get("summary", "architecture planning"))
+
+    state["planning_frozen_sprint"] = state["sprint"]["number"]
+    save_state(state)
+
+
 def run_dev_loop(state, max_rounds=6):
     seen_blocker_signature = None
     for round_num in range(max_rounds):
         any_work = False
         current_blockers = tuple(sorted(t["id"] for t in state["tasks"] if t["status"] == "blocked"))
+
         for role in ROLE_ORDER:
-            task = next_ready_task(state, role)
             if role == "manager":
-                if round_num > 0 and (not current_blockers or current_blockers == seen_blocker_signature):
+                if not current_blockers or current_blockers == seen_blocker_signature:
                     continue
                 seen_blocker_signature = current_blockers
-            if not task and role != "manager":
-                continue
+                task = None
+            else:
+                task = next_ready_task(state, role)
+                if not task:
+                    continue
+
             prompt = build_prompt(role, state, task)
-            print(f"--- Round {round_num+1}: {role} working on {task['id'] if task else '(kickoff)'} ---")
+            print(f"--- Round {round_num+1}: {role} working on {task['id'] if task else '(reviewing blockers)'} ---")
             output = call_codex(role, prompt)
-            blockers = apply_turn(state, role, output)
+            blockers = apply_turn(state, role, output, planning_open=False)
             if task:
                 task["status"] = output.get("task_status", "done")
             git_commit(role, output.get("summary", "update"))
@@ -233,7 +287,7 @@ def run_dev_loop(state, max_rounds=6):
             prompt = build_prompt(role, state, task)
             print(f"--- Final pass: {role} ---")
             output = call_codex(role, prompt)
-            blockers = apply_turn(state, role, output)
+            blockers = apply_turn(state, role, output, planning_open=False)
             task["status"] = output.get("task_status", "done")
             git_commit(role, output.get("summary", "final pass"))
             save_state(state)
@@ -256,29 +310,10 @@ def run_retrospective(state):
     print(json.dumps(state["retrospective"], indent=2))
 
 
-def seed_sprint_1(state):
-    if state["sprint"]["number"] != 1 or state["tasks"]:
-        return  # only seed a fresh sprint 1
-    state["architecture_decisions"].append({
-        "by": "architect",
-        "decision": "Python stdlib http.server + sqlite3 for backend, single static HTML+vanilla JS file for frontend. No external dependencies (sandbox has no network access).",
-        "sprint": 1,
-    })
-    state["tasks"] = [
-        {"id": "db-1", "title": "Create tasks table schema (id, title, status, created_at)", "owner": "database", "depends_on": [], "status": "todo"},
-        {"id": "be-1", "title": "Implement REST API: create/list/update/delete tasks, move between statuses", "owner": "backend", "depends_on": ["db-1"], "status": "todo"},
-        {"id": "fe-1", "title": "Build Kanban board UI (3 columns, drag or click-to-move) consuming the API", "owner": "frontend", "depends_on": ["be-1"], "status": "todo"},
-    ]
-
 def start_new_sprint(state, new_goal):
-    """Archive the finished sprint and open the next one, same session,
-    same files_owned (the app persists — it's evolving, not restarting)."""
     state["sprint_history"].append({
-        "number": state["sprint"]["number"],
-        "goal": state["sprint"]["goal"],
-        "tasks": state["tasks"],
-        "messages": state["messages"],
-        "retrospective": state["retrospective"],
+        "number": state["sprint"]["number"], "goal": state["sprint"]["goal"],
+        "tasks": state["tasks"], "messages": state["messages"], "retrospective": state["retrospective"],
     })
     state["sprint"] = {"number": state["sprint"]["number"] + 1, "goal": new_goal, "status": "not_started"}
     state["tasks"] = []
@@ -288,13 +323,13 @@ def start_new_sprint(state, new_goal):
         state["agents"][role] = {"status": "idle", "current_task": None}
     return state
 
+
 def run_sprint(goal_override=None):
     state = load_state()
     if goal_override:
         state = start_new_sprint(state, goal_override)
     state["sprint"]["status"] = "in_progress"
-    save_state(state)
-    seed_sprint_1(state)
+    plan_sprint(state)
     run_dev_loop(state)
     run_retrospective(state)
 
