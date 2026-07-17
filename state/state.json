@@ -39,7 +39,7 @@
       "depends_on": [
         "arch-1"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "qa-1",
@@ -110,7 +110,7 @@
       "current_task": null
     },
     "database": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "qa": {
@@ -122,7 +122,9 @@
       "current_task": null
     }
   },
-  "files_owned": {},
+  "files_owned": {
+    "schema.sql": "database"
+  },
   "messages": [
     {
       "from": "manager",
@@ -183,6 +185,16 @@
       "from": "backend",
       "to": "database",
       "content": "Please notify backend when schema.sql is ready; backend will initialize and use it without modifying it."
+    },
+    {
+      "from": "database",
+      "to": "backend",
+      "content": "schema.sql is ready and validated with SQLite. It creates the tasks table, status/trimmed-title constraints, timestamps, a status/updated_at index, and an update timestamp trigger; you may proceed with API implementation."
+    },
+    {
+      "from": "database",
+      "to": "manager",
+      "content": "Database persistence work is complete in schema.sql; backend is unblocked."
     }
   ],
   "architecture_decisions": [
@@ -217,6 +229,14 @@
     {
       "by": "architect",
       "decision": "Tasks are ordered in each column by most recently updated first unless a future explicit ordering field is added."
+    },
+    {
+      "by": "database",
+      "decision": "Use a portable idempotent SQLite schema (`IF NOT EXISTS`) instead of a separate migration framework for this initial lightweight application."
+    },
+    {
+      "by": "database",
+      "decision": "Enforce normalized state values and nonblank 1-200 character titles at the database boundary; update `updated_at` via trigger."
     }
   ],
   "retrospective": null
