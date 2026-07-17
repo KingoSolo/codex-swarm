@@ -100,7 +100,7 @@
       "depends_on": [
         "database-01"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "frontend-01",
@@ -284,6 +284,11 @@
       "from": "database",
       "to": "manager",
       "content": "Database implementation remains complete: it supplies the agreed repository functions, validates statuses, and includes created/updated timestamps."
+    },
+    {
+      "from": "backend",
+      "to": "manager",
+      "content": "Backend remains complete and ready for QA/security review; no additional server changes are needed."
     }
   ],
   "architecture_decisions": [
@@ -379,6 +384,10 @@
     {
       "by": "database",
       "decision": "No schema change is required; the existing tasks table covers the required fields and lifecycle states."
+    },
+    {
+      "by": "backend",
+      "decision": "Retain the existing implementation supporting both PATCH and PUT for partial task updates."
     }
   ],
   "retrospective": null

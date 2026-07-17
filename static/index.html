@@ -1,80 +1,72 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Flowboard</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <script src="/static/app.js" defer></script>
-  </head>
-  <body>
-    <main class="page-shell">
-      <header class="page-header">
-        <div>
-          <p class="eyebrow">Project workspace</p>
-          <h1>Flowboard</h1>
-          <p class="subtitle">Keep the next useful thing moving.</p>
-        </div>
-      </header>
-
-      <section class="create-panel" aria-labelledby="create-heading">
-        <div>
-          <p class="eyebrow">New work item</p>
-          <h2 id="create-heading">Add a task</h2>
-        </div>
-        <form id="create-form" class="task-form">
-          <label>
-            <span>Title</span>
-            <input id="new-title" name="title" maxlength="200" required placeholder="What needs to happen?">
-          </label>
-          <label>
-            <span>Details <small>Optional</small></span>
-            <textarea id="new-description" name="description" rows="2" placeholder="Add useful context"></textarea>
-          </label>
-          <button type="submit">Add to Todo</button>
-        </form>
-      </section>
-
-      <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
-
-      <section class="board" aria-label="Kanban board">
-        <section class="column todo" aria-labelledby="todo-heading">
-          <header><h2 id="todo-heading">Todo</h2><span id="todo-count" class="count">0</span></header>
-          <div id="todo-tasks" class="task-list"></div>
-        </section>
-        <section class="column in-progress" aria-labelledby="in-progress-heading">
-          <header><h2 id="in-progress-heading">In Progress</h2><span id="in-progress-count" class="count">0</span></header>
-          <div id="in-progress-tasks" class="task-list"></div>
-        </section>
-        <section class="column done" aria-labelledby="done-heading">
-          <header><h2 id="done-heading">Done</h2><span id="done-count" class="count">0</span></header>
-          <div id="done-tasks" class="task-list"></div>
-        </section>
-      </section>
-    </main>
-
-    <dialog id="edit-dialog" aria-labelledby="edit-heading">
-      <form id="edit-form" class="task-form">
-        <div class="dialog-heading">
-          <div>
-            <p class="eyebrow">Update task</p>
-            <h2 id="edit-heading">Edit details</h2>
-          </div>
-          <button class="icon-button" type="button" data-close-dialog aria-label="Close edit dialog">×</button>
-        </div>
-        <label>
-          <span>Title</span>
-          <input id="edit-title" name="title" maxlength="200" required>
-        </label>
-        <label>
-          <span>Details <small>Optional</small></span>
-          <textarea id="edit-description" name="description" rows="5"></textarea>
-        </label>
-        <div class="dialog-actions">
-          <button type="button" class="secondary" data-close-dialog>Cancel</button>
-          <button type="submit">Save changes</button>
-        </div>
-      </form>
-    </dialog>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flowboard</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #172033; background: #f5f7fb; }
+    * { box-sizing: border-box; } body { margin: 0; } button, input, textarea, select { font: inherit; }
+    main { max-width: 1200px; margin: auto; padding: 2rem; } h1 { margin: 0; } .subtitle { color: #62708a; }
+    form, .column { background: white; border: 1px solid #dce2ed; border-radius: 12px; padding: 1rem; }
+    form { display: grid; gap: .7rem; margin: 1.5rem 0; } label { display: grid; gap: .25rem; font-weight: 600; }
+    input, textarea, select { border: 1px solid #bac4d6; border-radius: 6px; padding: .55rem; }
+    button { cursor: pointer; border: 0; border-radius: 6px; padding: .55rem .8rem; background: #315fce; color: white; font-weight: 650; }
+    button.secondary { background: transparent; color: #40516d; } button.danger { background: #b42341; }
+    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; } .column { min-height: 250px; background: #edf1f7; }
+    .column header, .card footer, .dialog-actions { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+    .column h2 { margin: 0; font-size: 1rem; } .count { color: #516078; } .tasks { display: grid; gap: .65rem; margin-top: .8rem; }
+    .card { background: white; border: 1px solid #dbe1ec; border-radius: 8px; padding: .75rem; } .card h3 { margin: 0 0 .35rem; }
+    .card p { color: #62708a; white-space: pre-wrap; } .card footer { margin-top: .7rem; } .card select { min-width: 0; }
+    .empty { color: #748198; text-align: center; } .notice { padding: .75rem; background: #feecee; color: #9c1731; border-radius: 6px; }
+    dialog { width: min(94vw, 550px); border: 0; border-radius: 12px; padding: 1.2rem; } dialog::backdrop { background: #17203388; }
+    @media (max-width: 720px) { main { padding: 1rem; } .board { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Flowboard</h1><p class="subtitle">Keep the next useful thing moving.</p>
+    <form id="create-form"><label>Title<input id="new-title" maxlength="200" required placeholder="What needs to happen?"></label>
+      <label>Details <textarea id="new-description" rows="2" placeholder="Optional context"></textarea></label><button>Add to Todo</button></form>
+    <p id="notice" class="notice" role="status" hidden></p>
+    <section class="board" aria-label="Kanban board">
+      <section class="column"><header><h2>Todo</h2><span id="todo-count" class="count">0</span></header><div id="todo-tasks" class="tasks"></div></section>
+      <section class="column"><header><h2>In Progress</h2><span id="in_progress-count" class="count">0</span></header><div id="in_progress-tasks" class="tasks"></div></section>
+      <section class="column"><header><h2>Done</h2><span id="done-count" class="count">0</span></header><div id="done-tasks" class="tasks"></div></section>
+    </section>
+  </main>
+  <dialog id="editor"><form id="edit-form"><label>Title<input id="edit-title" maxlength="200" required></label><label>Details<textarea id="edit-description" rows="5"></textarea></label><div class="dialog-actions"><button class="secondary" type="button" id="cancel">Cancel</button><button>Save changes</button></div></form></dialog>
+  <script>
+    const statuses = [["todo", "Todo"], ["in_progress", "In Progress"], ["done", "Done"]];
+    const notice = document.querySelector("#notice"), editor = document.querySelector("#editor");
+    let tasks = [], editingId = null;
+    function alertUser(message) { notice.textContent = message; notice.hidden = !message; }
+    async function api(path, options = {}) {
+      const response = await fetch(path, { headers: { "Content-Type": "application/json" }, ...options });
+      if (!response.ok) { const body = await response.json().catch(() => ({})); throw Error(body.error || "Request failed."); }
+      return response.status === 204 ? null : response.json();
+    }
+    function card(task) {
+      const article = document.createElement("article"); article.className = "card";
+      const title = document.createElement("h3"); title.textContent = task.title; article.append(title);
+      if (task.description) { const description = document.createElement("p"); description.textContent = task.description; article.append(description); }
+      const footer = document.createElement("footer"), select = document.createElement("select");
+      statuses.forEach(([key, label]) => { const option = new Option(label, key, false, key === task.status); select.add(option); });
+      select.onchange = () => mutate(task.id, { status: select.value });
+      const edit = document.createElement("button"); edit.className = "secondary"; edit.textContent = "Edit"; edit.onclick = () => openEditor(task);
+      const remove = document.createElement("button"); remove.className = "danger"; remove.textContent = "Delete"; remove.onclick = () => removeTask(task);
+      footer.append(select, edit, remove); article.append(footer); return article;
+    }
+    function render() {
+      statuses.forEach(([key, label]) => { const column = document.querySelector(`#${key}-tasks`), items = tasks.filter(task => task.status === key); column.replaceChildren(...(items.length ? items.map(card) : [Object.assign(document.createElement("p"), { className: "empty", textContent: `No tasks ${label.toLowerCase()}.` })])); document.querySelector(`#${key}-count`).textContent = items.length; });
+    }
+    async function reload() { try { alertUser(""); tasks = await api("/api/tasks"); render(); } catch (error) { alertUser(error.message); } }
+    async function mutate(id, fields) { try { await api(`/api/tasks/${id}`, { method: "PATCH", body: JSON.stringify(fields) }); await reload(); } catch (error) { alertUser(error.message); } }
+    function openEditor(task) { editingId = task.id; document.querySelector("#edit-title").value = task.title; document.querySelector("#edit-description").value = task.description; editor.showModal(); }
+    async function removeTask(task) { if (!confirm(`Delete “${task.title}”?`)) return; try { await api(`/api/tasks/${task.id}`, { method: "DELETE" }); await reload(); } catch (error) { alertUser(error.message); } }
+    document.querySelector("#create-form").onsubmit = async event => { event.preventDefault(); const title = document.querySelector("#new-title").value.trim(); if (!title) return alertUser("A task title is required."); try { await api("/api/tasks", { method: "POST", body: JSON.stringify({ title, description: document.querySelector("#new-description").value }) }); event.target.reset(); await reload(); } catch (error) { alertUser(error.message); } };
+    document.querySelector("#edit-form").onsubmit = async event => { event.preventDefault(); const title = document.querySelector("#edit-title").value.trim(); if (!title) return alertUser("A task title is required."); await mutate(editingId, { title, description: document.querySelector("#edit-description").value }); editor.close(); };
+    document.querySelector("#cancel").onclick = () => editor.close(); reload();
+  </script>
+</body>
 </html>
