@@ -85,8 +85,12 @@ def call_codex_real(role, prompt):
 
     result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=900)
     if result.returncode != 0:
-        raise RuntimeError(f"codex exec failed for {role}:\ncmd={' '.join(cmd)}\nstderr={result.stderr[-2000:]}")
-
+        raise RuntimeError(
+            f"codex exec failed for {role} (exit {result.returncode}):\n"
+            f"--- stdout tail ---\n{result.stdout[-3000:]}\n"
+            f"--- stderr tail ---\n{result.stderr[-3000:]}"
+        )
+    
     if session_id is None:
         for line in result.stdout.splitlines():
             try:

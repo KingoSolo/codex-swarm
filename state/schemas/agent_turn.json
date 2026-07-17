@@ -13,7 +13,8 @@
           "owner": {"type": "string", "enum": ["manager","architect","backend","frontend","database","qa","security"]},
           "depends_on": {"type": "array", "items": {"type": "string"}}
         },
-        "required": ["id", "title", "owner"]
+        "required": ["id", "title", "owner", "depends_on"],
+        "additionalProperties": false
       }
     },
     "messages": {
@@ -24,13 +25,14 @@
           "to": {"type": "string"},
           "content": {"type": "string"}
         },
-        "required": ["to", "content"]
+        "required": ["to", "content"],
+        "additionalProperties": false
       }
     },
     "blockers": {"type": "array", "items": {"type": "string"}},
     "decisions": {"type": "array", "items": {"type": "string"}},
     "task_status": {"type": "string", "enum": ["done", "blocked", "in_progress"]}
   },
-  "required": ["summary", "task_status"],
+  "required": ["summary", "task_status", "files_changed", "new_tasks", "messages", "blockers", "decisions"],
   "additionalProperties": false
 }

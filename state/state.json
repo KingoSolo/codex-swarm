@@ -1,196 +1,43 @@
 {
   "sprint": {
-    "number": 2,
-    "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
-    "status": "complete"
+    "number": 1,
+    "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
+    "status": "in_progress"
   },
-  "sprint_history": [
-    {
-      "number": 1,
-      "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
-      "tasks": [
-        {
-          "id": "T1",
-          "title": "Design system architecture",
-          "owner": "architect",
-          "depends_on": [],
-          "status": "done"
-        },
-        {
-          "id": "T2",
-          "title": "Implement task CRUD + move endpoints",
-          "owner": "backend",
-          "depends_on": [
-            "T1"
-          ],
-          "status": "done"
-        },
-        {
-          "id": "T3",
-          "title": "Implement schema",
-          "owner": "database",
-          "depends_on": [
-            "T1"
-          ],
-          "status": "done"
-        },
-        {
-          "id": "T4",
-          "title": "Build Kanban board UI",
-          "owner": "frontend",
-          "depends_on": [
-            "T2"
-          ],
-          "status": "done"
-        },
-        {
-          "id": "auto-qa-s1",
-          "title": "Final qa pass",
-          "owner": "qa",
-          "depends_on": [],
-          "status": "done"
-        },
-        {
-          "id": "auto-security-s1",
-          "title": "Final security pass",
-          "owner": "security",
-          "depends_on": [],
-          "status": "done"
-        }
-      ],
-      "messages": [
-        {
-          "from": "manager",
-          "to": "architect",
-          "content": "Please design the stack and file layout."
-        },
-        {
-          "from": "backend",
-          "to": "frontend",
-          "content": "API ready at /api/tasks."
-        }
-      ],
-      "retrospective": "Broke sprint goal into initial tasks."
-    }
-  ],
-  "tasks": [
-    {
-      "id": "T1",
-      "title": "Design system architecture",
-      "owner": "architect",
-      "depends_on": [],
-      "status": "done"
-    },
-    {
-      "id": "T2",
-      "title": "Implement task CRUD + move endpoints",
-      "owner": "backend",
-      "depends_on": [
-        "T1"
-      ],
-      "status": "done"
-    },
-    {
-      "id": "T3",
-      "title": "Implement schema",
-      "owner": "database",
-      "depends_on": [
-        "T1"
-      ],
-      "status": "done"
-    },
-    {
-      "id": "T4",
-      "title": "Build Kanban board UI",
-      "owner": "frontend",
-      "depends_on": [
-        "T2"
-      ],
-      "status": "done"
-    },
-    {
-      "id": "auto-qa-s2",
-      "title": "Final qa pass",
-      "owner": "qa",
-      "depends_on": [],
-      "status": "done"
-    },
-    {
-      "id": "auto-security-s2",
-      "title": "Final security pass",
-      "owner": "security",
-      "depends_on": [],
-      "status": "done"
-    }
-  ],
+  "sprint_history": [],
+  "tasks": [],
   "agents": {
     "manager": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "architect": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "backend": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "frontend": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "database": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "qa": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "security": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     }
   },
-  "files_owned": {
-    "app.py": "backend",
-    "index.html": "frontend",
-    "schema.sql": "database"
-  },
-  "messages": [
-    {
-      "from": "manager",
-      "to": "architect",
-      "content": "Please design the stack and file layout."
-    },
-    {
-      "from": "backend",
-      "to": "frontend",
-      "content": "API ready at /api/tasks."
-    }
-  ],
-  "architecture_decisions": [
-    {
-      "by": "architect",
-      "decision": "Use Flask for API, SQLite for storage, vanilla JS for board UI.",
-      "sprint": 1
-    },
-    {
-      "by": "security",
-      "decision": "Recommend sanitizing task titles before rendering (XSS).",
-      "sprint": 1
-    },
-    {
-      "by": "architect",
-      "decision": "Use Flask for API, SQLite for storage, vanilla JS for board UI.",
-      "sprint": 2
-    },
-    {
-      "by": "security",
-      "decision": "Recommend sanitizing task titles before rendering (XSS).",
-      "sprint": 2
-    }
-  ],
-  "retrospective": "Broke sprint goal into initial tasks."
+  "files_owned": {},
+  "messages": [],
+  "architecture_decisions": [],
+  "retrospective": null
 }
