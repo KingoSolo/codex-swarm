@@ -11,7 +11,7 @@
       "title": "Create tasks table schema (id, title, status, created_at)",
       "owner": "database",
       "depends_on": [],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "be-1",
@@ -130,7 +130,7 @@
       "current_task": null
     },
     "database": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "qa": {
@@ -142,7 +142,9 @@
       "current_task": null
     }
   },
-  "files_owned": {},
+  "files_owned": {
+    "database.py": "database"
+  },
   "messages": [
     {
       "from": "manager",
@@ -198,6 +200,16 @@
       "from": "frontend",
       "to": "backend",
       "content": "The existing UI sends PATCH for partial edits/status moves (rather than PUT). Please support PATCH alongside PUT as noted in your backend decision."
+    },
+    {
+      "from": "database",
+      "to": "backend",
+      "content": "`database.py` is ready. Import `initialize_database`, `list_tasks`, `create_task`, `update_task`, and `delete_task`; repository functions return task dictionaries or `None`/`False` for absent tasks as specified."
+    },
+    {
+      "from": "database",
+      "to": "manager",
+      "content": "Database task is complete. The repository uses SQLite with fields id, title, description, status, created_at, and updated_at; local CRUD verification and Python compilation passed."
     }
   ],
   "architecture_decisions": [
@@ -249,6 +261,18 @@
     {
       "by": "frontend",
       "decision": "Use PATCH for partial task updates in the UI; backend compatibility with PATCH is required before end-to-end verification."
+    },
+    {
+      "by": "database",
+      "decision": "The SQLite database is stored next to `database.py` as `kanban.db` at runtime."
+    },
+    {
+      "by": "database",
+      "decision": "Database validation enforces nonempty trimmed titles up to 200 characters and statuses todo, in_progress, or done."
+    },
+    {
+      "by": "database",
+      "decision": "Task timestamps are UTC ISO-8601 strings; `updated_at` changes on each update."
     }
   ],
   "retrospective": null
