@@ -30,6 +30,13 @@
         "be-1"
       ],
       "status": "done"
+    },
+    {
+      "id": "auto-qa-s1",
+      "title": "Final qa pass",
+      "owner": "qa",
+      "depends_on": [],
+      "status": "done"
     }
   ],
   "agents": {
@@ -54,7 +61,7 @@
       "current_task": null
     },
     "qa": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "security": {
@@ -65,7 +72,8 @@
   "files_owned": {
     "database.py": "database",
     "server.py": "backend",
-    "static/index.html": "frontend"
+    "static/index.html": "frontend",
+    "test_api.py": "qa"
   },
   "messages": [
     {
@@ -82,6 +90,11 @@
       "from": "frontend",
       "to": "manager",
       "content": "Frontend is complete and consumes the implemented task API; the board supports Todo, In Progress, and Done workflows."
+    },
+    {
+      "from": "qa",
+      "to": "frontend",
+      "content": "QA found a minor UX gap: edit-form submission closes the dialog even when the PATCH request fails because mutate() catches errors internally. Keeping it open on failed saves would let users retry immediately."
     }
   ],
   "architecture_decisions": [
@@ -113,6 +126,16 @@
     {
       "by": "frontend",
       "decision": "Used a status selector on every card to provide direct click-based movement between board columns.",
+      "sprint": 1
+    },
+    {
+      "by": "qa",
+      "decision": "Used an in-process handler harness so API tests exercise the real handler and SQLite logic without opening a network socket.",
+      "sprint": 1
+    },
+    {
+      "by": "qa",
+      "decision": "Verified Python compilation, frontend JavaScript syntax, and whitespace checks in addition to the lifecycle test.",
       "sprint": 1
     }
   ],

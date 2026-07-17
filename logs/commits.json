@@ -1,5 +1,10 @@
 [
   {
+    "hash": "06ec8c0",
+    "role": "qa",
+    "message": "[qa] Added and passed an in-process API lifecycle regression test covering create, list, edit/status movement, delete, and invalid-status handling."
+  },
+  {
     "hash": "38b5d6e",
     "role": "frontend",
     "message": "[frontend] Built the responsive three-column Kanban UI with task creation, editing, status movement, deletion, loading, and API error feedback."
