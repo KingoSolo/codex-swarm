@@ -20,7 +20,7 @@
       "depends_on": [
         "arch-1"
       ],
-      "status": "todo"
+      "status": "blocked"
     },
     {
       "id": "fe-1",
@@ -102,7 +102,7 @@
       "current_task": null
     },
     "backend": {
-      "status": "idle",
+      "status": "blocked",
       "current_task": null
     },
     "frontend": {
@@ -173,6 +173,16 @@
       "from": "architect",
       "to": "frontend",
       "content": "Use GET /api/tasks on load; POST for creation; PATCH for edits and status moves; DELETE then remove/reload. Status keys are todo, in_progress, done. Own only static/index.html, static/app.js, static/styles.css; render user text safely with textContent, never innerHTML."
+    },
+    {
+      "from": "backend",
+      "to": "manager",
+      "content": "Backend task be-1 is blocked on database-owned schema.sql; please complete db-2 before scheduling backend implementation."
+    },
+    {
+      "from": "backend",
+      "to": "database",
+      "content": "Please notify backend when schema.sql is ready; backend will initialize and use it without modifying it."
     }
   ],
   "architecture_decisions": [
