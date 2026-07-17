@@ -220,6 +220,16 @@
       "from": "database",
       "to": "manager",
       "content": "db-2 duplicated completed db-1 work; schema.sql already meets the stated contract and requires no further changes."
+    },
+    {
+      "from": "manager",
+      "to": "backend",
+      "content": "Both database task records are complete and schema.sql is available. Please proceed with API implementation and report the endpoint verification results."
+    },
+    {
+      "from": "manager",
+      "to": "frontend",
+      "content": "Backend remains the active dependency. Begin UI work as soon as backend reports the API ready."
     }
   ],
   "architecture_decisions": [
@@ -270,6 +280,14 @@
     {
       "by": "manager",
       "decision": "Retire the architect's overlapping db-2/be-2/fe-2 tracking tasks in favor of the already-assigned db-1/be-1/fe-1 work, using the architect's file boundaries and contract."
+    },
+    {
+      "by": "manager",
+      "decision": "The duplicated db-2 record is complete with no additional database work; schema.sql remains the sole database-owned file."
+    },
+    {
+      "by": "manager",
+      "decision": "Do not create further duplicate implementation tasks; use messages and existing task records to coordinate the remaining work."
     }
   ],
   "retrospective": null
