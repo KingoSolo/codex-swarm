@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "properties": {
+    "summary": {"type": "string", "description": "One-sentence summary of what this agent just did"},
+    "files_changed": {"type": "array", "items": {"type": "string"}},
+    "new_tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "title": {"type": "string"},
+          "owner": {"type": "string", "enum": ["manager","architect","backend","frontend","database","qa","security"]},
+          "depends_on": {"type": "array", "items": {"type": "string"}}
+        },
+        "required": ["id", "title", "owner"]
+      }
+    },
+    "messages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "to": {"type": "string"},
+          "content": {"type": "string"}
+        },
+        "required": ["to", "content"]
+      }
+    },
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "decisions": {"type": "array", "items": {"type": "string"}},
+    "task_status": {"type": "string", "enum": ["done", "blocked", "in_progress"]}
+  },
+  "required": ["summary", "task_status"],
+  "additionalProperties": false
+}
