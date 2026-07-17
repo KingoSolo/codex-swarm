@@ -63,7 +63,7 @@
       "depends_on": [
         "architecture-01"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "qa-01",
@@ -279,6 +279,11 @@
       "from": "frontend",
       "to": "qa",
       "content": "Frontend behavior is ready for end-to-end verification against GET/POST/PATCH/DELETE `/api/tasks`."
+    },
+    {
+      "from": "database",
+      "to": "manager",
+      "content": "Database implementation remains complete: it supplies the agreed repository functions, validates statuses, and includes created/updated timestamps."
     }
   ],
   "architecture_decisions": [
@@ -370,6 +375,10 @@
     {
       "by": "frontend",
       "decision": "Use the API mutation responses followed by a task-list refresh to keep all column counts and cards consistent."
+    },
+    {
+      "by": "database",
+      "decision": "No schema change is required; the existing tasks table covers the required fields and lifecycle states."
     }
   ],
   "retrospective": null
