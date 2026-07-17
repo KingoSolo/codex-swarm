@@ -20,7 +20,8 @@ ROOT = Path(__file__).resolve().parent.parent
 STATE_PATH = ROOT / "state" / "state.json"
 SCHEMA_PATH = ROOT / "state" / "schemas" / "agent_turn.json"
 ROLES_DIR = ROOT / "agents" / "roles"
-MOCK = os.environ.get("CODEX_ORG_MOCK", "1") == "1"  # default ON until credits land
+SESSION_ID_PATH = ROOT / "logs" / "session_id.txt"
+MOCK = os.environ.get("CODEX_ORG_MOCK", "1") == "1"
 
 ROLE_ORDER = ["manager", "architect", "backend", "frontend", "database", "qa", "security"]
 
@@ -37,10 +38,14 @@ def role_prompt(role):
     return (ROLES_DIR / f"{role}.md").read_text()
 
 
+def get_session_id():
+    return SESSION_ID_PATH.read_text().strip() if SESSION_ID_PATH.exists() else None
+
+
+def save_session_id(sid):
+    SESSION_ID_PATH.write_text(sid)
+
 def build_prompt(role, state, task):
-    """Give the agent just enough shared context: the goal, its task, open
-    messages addressed to it, and current file ownership (so it doesn't
-    collide with another agent's files)."""
     inbox = [m for m in state["messages"] if m.get("to") == role]
     return f"""{role_prompt(role)}
 
@@ -63,70 +68,91 @@ Respond with ONLY JSON matching the required schema.
 def call_codex_real(role, prompt):
     """Real call via Codex CLI headless mode."""
     out_path = ROOT / "logs" / f"{role}_last_output.json"
-    cmd = [
-        "codex", "exec",
+    session_id = get_session_id()
+
+    base_flags = [
         "--sandbox", "workspace-write",
         "--skip-git-repo-check",
+        "--json",
         "--output-schema", str(SCHEMA_PATH),
         "-o", str(out_path),
-        prompt,
     ]
+
+    if session_id is None:
+        cmd = ["codex", "exec"] + base_flags + [prompt]
+    else:
+        cmd = ["codex", "exec"] + base_flags + ["resume", session_id, prompt]
+
     result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=900)
     if result.returncode != 0:
-        raise RuntimeError(f"codex exec failed for {role}: {result.stderr[-2000:]}")
+        raise RuntimeError(f"codex exec failed for {role}:\ncmd={' '.join(cmd)}\nstderr={result.stderr[-2000:]}")
+
+    if session_id is None:
+        for line in result.stdout.splitlines():
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if event.get("type") == "thread.started" and event.get("thread_id"):
+                save_session_id(event["thread_id"])
+                break
+
     return json.loads(out_path.read_text())
 
 
 def call_codex_mock(role, prompt):
     """Fake response so we can test the full pipeline before credits arrive.
     Simulates one plausible turn per role so the demo data flows end-to-end."""
-    time.sleep(0.3)
+    time.sleep(0.2)
     canned = {
         "manager": {
-            "summary": "Broke sprint goal into initial tasks.",
+            "summary": "Broke sprint goal into initial tasks.", 
             "task_status": "done",
-            "new_tasks": [
-                {"id": "T1", "title": "Design system architecture", "owner": "architect", "depends_on": []},
-            ],
-            "messages": [{"to": "architect", "content": "Please design the stack and file layout."}],
-        },
+            "new_tasks": [{"id": "T1", "title": "Design system architecture", "owner": "architect", "depends_on": []}],
+            "messages": [{"to": "architect", "content": "Please design the stack and file layout."}]
+            },
+        
         "architect": {
-            "summary": "Chose Flask + SQLite, defined module boundaries.",
+            "summary": "Chose Flask + SQLite + vanilla JS, defined module boundaries.", 
             "task_status": "done",
-            "decisions": ["Use Flask for API, SQLite for storage, React for frontend."],
+            "decisions": ["Use Flask for API, SQLite for storage, vanilla JS for board UI."],
             "new_tasks": [
-                {"id": "T2", "title": "Implement API endpoints", "owner": "backend", "depends_on": ["T1"]},
-                {"id": "T3", "title": "Implement schema", "owner": "database", "depends_on": ["T1"]},
-                {"id": "T4", "title": "Build UI", "owner": "frontend", "depends_on": ["T2"]},
-            ],
-        },
+                          {"id": "T2", "title": "Implement task CRUD + move endpoints", "owner": "backend", "depends_on": ["T1"]},
+                          {"id": "T3", "title": "Implement schema", "owner": "database", "depends_on": ["T1"]},
+                          {"id": "T4", "title": "Build Kanban board UI", "owner": "frontend", "depends_on": ["T2"]},
+                      ]},
+
         "backend": {
-            "summary": "Implemented /api/items endpoints.",
+            "summary": "Implemented /api/tasks CRUD + move endpoint.", 
             "task_status": "done",
             "files_changed": ["app.py"],
-            "messages": [{"to": "frontend", "content": "API ready at /api/items."}],
-        },
+            "messages": [{"to": "frontend", "content": "API ready at /api/tasks."}]
+            },
+        
         "database": {
-            "summary": "Created items table schema.",
-            "task_status": "done",
-            "files_changed": ["schema.sql"],
-        },
+            "summary": "Created tasks table with status column.", 
+            "task_status": "done", 
+            "files_changed": ["schema.sql"]
+            },
+
         "frontend": {
-            "summary": "Built list view consuming /api/items.",
+            "summary": "Built drag-drop board with three columns.", 
             "task_status": "done",
-            "files_changed": ["index.html"],
-            "blockers": ["Auth took longer than expected to wire up."],
-        },
+            "files_changed": ["index.html"], 
+            "blockers": ["Drag-drop across columns took longer than expected."]
+            },
+
         "qa": {
-            "summary": "Ran manual pass, found regressions.",
+            "summary": "Ran manual pass on move/edit/delete.", 
             "task_status": "done",
-            "blockers": ["Three regressions found in item deletion flow."],
-        },
+            "blockers": ["Found a regression: deleting a task in Done doesn't refresh the board."]
+            },
+
         "security": {
-            "summary": "Reviewed input handling.",
+            "summary": "Reviewed input handling on task fields.", 
             "task_status": "done",
-            "decisions": ["Recommend enabling CSP headers."],
-        },
+            "decisions": ["Recommend sanitizing task titles before rendering (XSS)."]
+            },
     }
     return canned.get(role, {"summary": "No-op", "task_status": "done"})
 
@@ -166,17 +192,13 @@ def next_ready_task(state, role):
                 return t
     return None
 
-
-def run_sprint(max_rounds=6):
-    state = load_state()
-    state["sprint"]["status"] = "in_progress"
-
+def run_dev_loop(state, max_rounds=6):
     for round_num in range(max_rounds):
         any_work = False
         for role in ROLE_ORDER:
             task = next_ready_task(state, role)
             if role == "manager" and round_num > 0 and not any(t["status"] == "blocked" for t in state["tasks"]):
-                continue  # manager only re-engages if something's blocked
+                continue
             if not task and role != "manager":
                 continue
             prompt = build_prompt(role, state, task)
@@ -193,11 +215,9 @@ def run_sprint(max_rounds=6):
         if not any_work:
             break
 
-    # Safety net: QA and Security must always get a pass before retro,
-    # even if no other agent explicitly delegated to them.
     for role in ["qa", "security"]:
         if not any(t["owner"] == role for t in state["tasks"]):
-            state["tasks"].append({"id": f"auto-{role}", "title": f"Final {role} pass",
+            state["tasks"].append({"id": f"auto-{role}-s{state['sprint']['number']}", "title": f"Final {role} pass",
                                     "owner": role, "depends_on": [], "status": "todo"})
         task = next_ready_task(state, role)
         if task:
@@ -211,20 +231,51 @@ def run_sprint(max_rounds=6):
             if blockers:
                 print(f"  blockers: {blockers}")
 
-    # Retrospective: manager reads the full log and produces closing dialogue
+
+def run_retrospective(state):
     print("--- Retrospective ---")
     retro_prompt = build_prompt("manager", state, None) + (
         "\n\nThe sprint is complete. Using the full message log, blockers, and decisions above, "
-        "write a short retrospective as a JSON field 'retrospective_dialogue': an array of "
-        "{speaker, line} objects, one or two lines per agent, grounded only in what actually happened."
+        "write a grounded retrospective as JSON field 'retrospective_dialogue': an array of "
+        "{speaker, line} objects, one or two lines per agent, based only on what actually happened."
     )
     retro = call_codex("manager", retro_prompt)
     state["retrospective"] = retro.get("retrospective_dialogue", retro.get("summary"))
     state["sprint"]["status"] = "complete"
     save_state(state)
-    git_commit("manager", "Sprint retrospective complete")
+    git_commit("manager", f"Sprint {state['sprint']['number']} retrospective complete")
     print(json.dumps(state["retrospective"], indent=2))
 
 
+
+def start_new_sprint(state, new_goal):
+    """Archive the finished sprint and open the next one, same session,
+    same files_owned (the app persists — it's evolving, not restarting)."""
+    state["sprint_history"].append({
+        "number": state["sprint"]["number"],
+        "goal": state["sprint"]["goal"],
+        "tasks": state["tasks"],
+        "messages": state["messages"],
+        "retrospective": state["retrospective"],
+    })
+    state["sprint"] = {"number": state["sprint"]["number"] + 1, "goal": new_goal, "status": "not_started"}
+    state["tasks"] = []
+    state["messages"] = []
+    state["retrospective"] = None
+    for role in state["agents"]:
+        state["agents"][role] = {"status": "idle", "current_task": None}
+    return state
+
+def run_sprint(goal_override=None):
+    state = load_state()
+    if goal_override:
+        state = start_new_sprint(state, goal_override)
+    state["sprint"]["status"] = "in_progress"
+    save_state(state)
+    run_dev_loop(state)
+    run_retrospective(state)
+
+
 if __name__ == "__main__":
-    run_sprint()
+    goal_arg = sys.argv[1] if len(sys.argv) > 1 else None
+    run_sprint(goal_arg)

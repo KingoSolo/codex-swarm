@@ -1,9 +1,78 @@
 {
   "sprint": {
-    "number": 1,
-    "goal": "Build a lightweight Kanban project management application with a REST API and minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks. The application should be intentionally simple—the focus of the demonstration is watching the AI engineering organization collaboratively design, build, review, test, and ship the software in a single sprint.",
+    "number": 2,
+    "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
     "status": "complete"
   },
+  "sprint_history": [
+    {
+      "number": 1,
+      "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
+      "tasks": [
+        {
+          "id": "T1",
+          "title": "Design system architecture",
+          "owner": "architect",
+          "depends_on": [],
+          "status": "done"
+        },
+        {
+          "id": "T2",
+          "title": "Implement task CRUD + move endpoints",
+          "owner": "backend",
+          "depends_on": [
+            "T1"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "T3",
+          "title": "Implement schema",
+          "owner": "database",
+          "depends_on": [
+            "T1"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "T4",
+          "title": "Build Kanban board UI",
+          "owner": "frontend",
+          "depends_on": [
+            "T2"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "auto-qa-s1",
+          "title": "Final qa pass",
+          "owner": "qa",
+          "depends_on": [],
+          "status": "done"
+        },
+        {
+          "id": "auto-security-s1",
+          "title": "Final security pass",
+          "owner": "security",
+          "depends_on": [],
+          "status": "done"
+        }
+      ],
+      "messages": [
+        {
+          "from": "manager",
+          "to": "architect",
+          "content": "Please design the stack and file layout."
+        },
+        {
+          "from": "backend",
+          "to": "frontend",
+          "content": "API ready at /api/tasks."
+        }
+      ],
+      "retrospective": "Broke sprint goal into initial tasks."
+    }
+  ],
   "tasks": [
     {
       "id": "T1",
@@ -14,7 +83,7 @@
     },
     {
       "id": "T2",
-      "title": "Implement API endpoints",
+      "title": "Implement task CRUD + move endpoints",
       "owner": "backend",
       "depends_on": [
         "T1"
@@ -32,7 +101,7 @@
     },
     {
       "id": "T4",
-      "title": "Build UI",
+      "title": "Build Kanban board UI",
       "owner": "frontend",
       "depends_on": [
         "T2"
@@ -40,85 +109,17 @@
       "status": "done"
     },
     {
-      "id": "T1",
-      "title": "Design system architecture",
-      "owner": "architect",
-      "depends_on": [],
-      "status": "done"
-    },
-    {
-      "id": "T2",
-      "title": "Implement API endpoints",
-      "owner": "backend",
-      "depends_on": [
-        "T1"
-      ],
-      "status": "done"
-    },
-    {
-      "id": "T3",
-      "title": "Implement schema",
-      "owner": "database",
-      "depends_on": [
-        "T1"
-      ],
-      "status": "done"
-    },
-    {
-      "id": "T4",
-      "title": "Build UI",
-      "owner": "frontend",
-      "depends_on": [
-        "T2"
-      ],
-      "status": "done"
-    },
-    {
-      "id": "auto-qa",
+      "id": "auto-qa-s2",
       "title": "Final qa pass",
       "owner": "qa",
       "depends_on": [],
       "status": "done"
     },
     {
-      "id": "auto-security",
+      "id": "auto-security-s2",
       "title": "Final security pass",
       "owner": "security",
       "depends_on": [],
-      "status": "done"
-    },
-    {
-      "id": "T1",
-      "title": "Design system architecture",
-      "owner": "architect",
-      "depends_on": [],
-      "status": "done"
-    },
-    {
-      "id": "T2",
-      "title": "Implement API endpoints",
-      "owner": "backend",
-      "depends_on": [
-        "T1"
-      ],
-      "status": "done"
-    },
-    {
-      "id": "T3",
-      "title": "Implement schema",
-      "owner": "database",
-      "depends_on": [
-        "T1"
-      ],
-      "status": "done"
-    },
-    {
-      "id": "T4",
-      "title": "Build UI",
-      "owner": "frontend",
-      "depends_on": [
-        "T2"
-      ],
       "status": "done"
     }
   ],
@@ -166,45 +167,29 @@
     {
       "from": "backend",
       "to": "frontend",
-      "content": "API ready at /api/items."
-    },
-    {
-      "from": "manager",
-      "to": "architect",
-      "content": "Please design the stack and file layout."
-    },
-    {
-      "from": "backend",
-      "to": "frontend",
-      "content": "API ready at /api/items."
-    },
-    {
-      "from": "manager",
-      "to": "architect",
-      "content": "Please design the stack and file layout."
-    },
-    {
-      "from": "backend",
-      "to": "frontend",
-      "content": "API ready at /api/items."
+      "content": "API ready at /api/tasks."
     }
   ],
   "architecture_decisions": [
     {
       "by": "architect",
-      "decision": "Use Flask for API, SQLite for storage, React for frontend."
-    },
-    {
-      "by": "architect",
-      "decision": "Use Flask for API, SQLite for storage, React for frontend."
+      "decision": "Use Flask for API, SQLite for storage, vanilla JS for board UI.",
+      "sprint": 1
     },
     {
       "by": "security",
-      "decision": "Recommend enabling CSP headers."
+      "decision": "Recommend sanitizing task titles before rendering (XSS).",
+      "sprint": 1
     },
     {
       "by": "architect",
-      "decision": "Use Flask for API, SQLite for storage, React for frontend."
+      "decision": "Use Flask for API, SQLite for storage, vanilla JS for board UI.",
+      "sprint": 2
+    },
+    {
+      "by": "security",
+      "decision": "Recommend sanitizing task titles before rendering (XSS).",
+      "sprint": 2
     }
   ],
   "retrospective": "Broke sprint goal into initial tasks."
