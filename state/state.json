@@ -2,7 +2,7 @@
   "sprint": {
     "number": 1,
     "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
-    "status": "in_progress"
+    "status": "complete"
   },
   "sprint_history": [],
   "tasks": [
@@ -37,6 +37,13 @@
       "owner": "qa",
       "depends_on": [],
       "status": "done"
+    },
+    {
+      "id": "auto-security-s1",
+      "title": "Final security pass",
+      "owner": "security",
+      "depends_on": [],
+      "status": "done"
     }
   ],
   "agents": {
@@ -65,7 +72,7 @@
       "current_task": null
     },
     "security": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     }
   },
@@ -80,9 +87,14 @@
       "by": "architect",
       "decision": "Python stdlib http.server + sqlite3 for backend, single static HTML+vanilla JS file for frontend. No external dependencies (sandbox has no network access).",
       "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "Sanitize task titles.",
+      "sprint": 1
     }
   ],
-  "retrospective": null,
+  "retrospective": "Reviewed blockers, no new tasks needed.",
   "blockers": [
     {
       "role": "qa",
