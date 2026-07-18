@@ -1,5 +1,10 @@
 [
   {
+    "hash": "ec9ee34",
+    "role": "security",
+    "message": "[security] Security review found one concrete account-enumeration risk in login timing; JWT validation, password derivation, token storage, and task authorization otherwise meet the intended local-app design."
+  },
+  {
     "hash": "31207d5",
     "role": "qa",
     "message": "[qa] Replaced the legacy API regression test with four passing authentication, authorization-isolation, token-rejection, password-storage, and frontend-auth smoke tests."
@@ -143,10 +148,5 @@
     "hash": "18c53be",
     "role": "architect",
     "message": "[architect] Defined a standard-library Kanban architecture, its API contract, and non-overlapping implementation boundaries."
-  },
-  {
-    "hash": "3499e62",
-    "role": "manager",
-    "message": "[manager] Created the initial sprint workstreams for architecture, backend API, and the static frontend; database, QA, and security will be delegated in the next available agent slots."
   }
 ]
