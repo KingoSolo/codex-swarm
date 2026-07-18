@@ -1,5 +1,10 @@
 [
   {
+    "hash": "eef2033",
+    "role": "architect",
+    "message": "[architect] No architecture task is currently assigned; Sprint 3 delegation is awaiting assignment."
+  },
+  {
     "hash": "50ab35f",
     "role": "manager",
     "message": "[manager] Planned Sprint 3 authentication delivery across architecture, data, API, UI, QA, and security without duplicating any listed task."
@@ -143,10 +148,5 @@
     "hash": "69c775b",
     "role": "manager",
     "message": "[manager] Confirmed that duplicate database tracking is complete and kept the sprint focused on the now-unblocked backend implementation."
-  },
-  {
-    "hash": "eee5615",
-    "role": "database",
-    "message": "[database] Confirmed db-2 is already satisfied by the existing validated schema.sql; no additional schema changes were needed."
   }
 ]
