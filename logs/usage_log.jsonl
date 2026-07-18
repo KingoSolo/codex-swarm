@@ -4,3 +4,4 @@
 {"call_number": 4, "role": "qa", "prompt_chars": 1091, "duration_sec": 46.4, "exit_code": 0, "response_chars": 2561}
 {"call_number": 5, "role": "security", "prompt_chars": 1116, "duration_sec": 21.9, "exit_code": 0, "response_chars": 18267}
 {"call_number": 6, "role": "manager", "prompt_chars": 3510, "duration_sec": 21.0, "exit_code": 0, "response_chars": 1619}
+{"call_number": 1, "role": "manager", "prompt_chars": 1783, "duration_sec": 24.5, "exit_code": 0, "response_chars": 3206}

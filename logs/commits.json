@@ -1,5 +1,10 @@
 [
   {
+    "hash": "e38cafb",
+    "role": "manager",
+    "message": "[manager] Sprint 1 retrospective complete"
+  },
+  {
     "hash": "c5bf458",
     "role": "security",
     "message": "[security] Reviewed API, database, and frontend input paths; no exploitable security regression requiring a code change was found."
@@ -143,10 +148,5 @@
     "hash": "91ef605",
     "role": "Solomon Adeniran",
     "message": "updated demo project"
-  },
-  {
-    "hash": "462f11a",
-    "role": "Solomon Adeniran",
-    "message": "setup skeleton"
   }
 ]
