@@ -1,5 +1,11 @@
 [
   {
+    "hash": "be485ca",
+    "role": "architect",
+    "time": 1784417443,
+    "message": "[architect] Chose stdlib http.server + sqlite3 + vanilla JS."
+  },
+  {
     "hash": "a047111",
     "role": "manager",
     "time": 1784417443,
@@ -172,11 +178,5 @@
     "role": "qa",
     "time": 1784303455,
     "message": "[qa] Added and passed an in-process API lifecycle regression test covering create, list, edit/status movement, delete, and invalid-status handling."
-  },
-  {
-    "hash": "38b5d6e",
-    "role": "frontend",
-    "time": 1784303408,
-    "message": "[frontend] Built the responsive three-column Kanban UI with task creation, editing, status movement, deletion, loading, and API error feedback."
   }
 ]
