@@ -1,5 +1,11 @@
 [
   {
+    "hash": "742167f",
+    "role": "manager",
+    "time": 1784417424,
+    "message": "[manager] Sprint 1 retrospective complete"
+  },
+  {
     "hash": "0c39b25",
     "role": "security",
     "time": 1784417423,
@@ -172,11 +178,5 @@
     "role": "backend",
     "time": 1784303370,
     "message": "[backend] Implemented the standard-library REST API for task creation, listing, editing, status movement, deletion, and static UI delivery."
-  },
-  {
-    "hash": "9e83b1c",
-    "role": "database",
-    "time": 1784303296,
-    "message": "[database] Created and verified the SQLite tasks schema with id, title, status, and created_at fields."
   }
 ]
