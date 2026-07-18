@@ -85,7 +85,7 @@
       "title": "Define the standard-library authentication design: user model, password hashing, signed JWT claims/expiry, API contract, and task ownership rules.",
       "owner": "architect",
       "depends_on": [],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "db-2",
@@ -143,7 +143,7 @@
       "current_task": null
     },
     "architect": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "backend": {
@@ -173,7 +173,23 @@
     "static/index.html": "frontend",
     "test_api.py": "qa"
   },
-  "messages": [],
+  "messages": [
+    {
+      "from": "architect",
+      "to": "database",
+      "content": "Use users(id, username UNIQUE, password_hash, password_salt, created_at) and associate every task with user_id; do not expose unowned legacy tasks."
+    },
+    {
+      "from": "architect",
+      "to": "backend",
+      "content": "Use PBKDF2-HMAC with random salts; issue HS256 JWTs with sub, iat, exp; require Authorization: Bearer tokens and scope all task access by sub."
+    },
+    {
+      "from": "architect",
+      "to": "frontend",
+      "content": "Keep the returned token in sessionStorage, attach it to task requests, and show the signed-out state after a 401."
+    }
+  ],
   "architecture_decisions": [
     {
       "by": "architect",
@@ -248,6 +264,26 @@
     {
       "by": "architect",
       "decision": "Keep the frontend as one static HTML file and hold the access token in sessionStorage rather than persistent localStorage.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Passwords use salted PBKDF2-HMAC; plaintext passwords are never persisted.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "JWTs use base64url-encoded HS256 signatures with constant-time comparison and required sub, iat, and exp claims.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "The signing secret is supplied through the server environment and is never hard-coded or returned.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Only registration and login remain public; task routes are authenticated and user-scoped.",
       "sprint": 2
     }
   ],

@@ -1,5 +1,10 @@
 [
   {
+    "hash": "a81b9a1",
+    "role": "architect",
+    "message": "[architect] Completed the standard-library authentication design for user registration, login, JWT validation, and task ownership."
+  },
+  {
     "hash": "a5de3aa",
     "role": "architect",
     "message": "[architect] Defined a standard-library JWT authentication architecture and delegated non-overlapping schema, API, and UI implementation work."
@@ -143,10 +148,5 @@
     "hash": "c488cd2",
     "role": "backend",
     "message": "[backend] API contract is ready, but implementation is blocked until the database-owned schema is available."
-  },
-  {
-    "hash": "60eb2fb",
-    "role": "architect",
-    "message": "[architect] Inspected the repository, found no application scaffold, and defined an isolated Flask/SQLite/vanilla-JS implementation plan and API contract."
   }
 ]
