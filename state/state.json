@@ -11,7 +11,7 @@
       "title": "Create tasks table schema (id, title, status, created_at) in database.py",
       "owner": "database",
       "depends_on": [],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "be-1",
@@ -50,7 +50,7 @@
       "current_task": null
     },
     "database": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "qa": {
@@ -62,7 +62,9 @@
       "current_task": null
     }
   },
-  "files_owned": {},
+  "files_owned": {
+    "database.py": "database"
+  },
   "messages": [],
   "architecture_decisions": [
     {
