@@ -1,6 +1,6 @@
 {
   "sprint": {
-    "number": 2,
+    "number": 3,
     "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
     "status": "in_progress"
   },
@@ -77,62 +77,160 @@
         }
       ],
       "retrospective": "Sprint retrospective: Architecture established the stdlib contract; database delivered the constrained schema; backend implemented validated CRUD; frontend integrated the three-column board; QA added and passed lifecycle coverage while noting the failed-save dialog UX gap; security verified input, SQL, rendering, and static-path safeguards; manager coordinated the completed handoffs."
+    },
+    {
+      "number": 2,
+      "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
+      "tasks": [
+        {
+          "id": "arch-2",
+          "title": "Define the standard-library authentication design: user model, password hashing, signed JWT claims/expiry, API contract, and task ownership rules.",
+          "owner": "architect",
+          "depends_on": [],
+          "status": "done"
+        },
+        {
+          "id": "db-2",
+          "title": "Add a users schema and migrate task ownership in database.py, including unique usernames and secure password-hash storage fields.",
+          "owner": "database",
+          "depends_on": [
+            "arch-2"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "be-2",
+          "title": "Implement register/login endpoints, standard-library JWT signing and verification, and Bearer-token protection plus per-user scoping for task endpoints in server.py.",
+          "owner": "backend",
+          "depends_on": [
+            "arch-2",
+            "db-2"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "fe-2",
+          "title": "Add register/login UI and authenticated task requests in static/index.html, retaining a token only for the browser session and handling unauthenticated responses.",
+          "owner": "frontend",
+          "depends_on": [
+            "arch-2",
+            "be-2"
+          ],
+          "status": "todo"
+        },
+        {
+          "id": "qa-2",
+          "title": "Add regression coverage for registration, login, token expiry/invalid-token rejection, protected task endpoints, and task isolation between users.",
+          "owner": "qa",
+          "depends_on": [
+            "be-2",
+            "fe-2"
+          ],
+          "status": "todo"
+        },
+        {
+          "id": "security-2",
+          "title": "Review password hashing, JWT signing/verification, token handling, authorization boundaries, and auth error responses after implementation.",
+          "owner": "security",
+          "depends_on": [
+            "arch-2",
+            "be-2"
+          ],
+          "status": "todo"
+        }
+      ],
+      "messages": [
+        {
+          "from": "architect",
+          "to": "database",
+          "content": "Use users(id, username UNIQUE, password_hash, password_salt, created_at) and associate every task with user_id; do not expose unowned legacy tasks."
+        },
+        {
+          "from": "architect",
+          "to": "backend",
+          "content": "Use PBKDF2-HMAC with random salts; issue HS256 JWTs with sub, iat, exp; require Authorization: Bearer tokens and scope all task access by sub."
+        },
+        {
+          "from": "architect",
+          "to": "frontend",
+          "content": "Keep the returned token in sessionStorage, attach it to task requests, and show the signed-out state after a 401."
+        },
+        {
+          "from": "database",
+          "to": "backend",
+          "content": "Database auth schema is ready: users has id, case-insensitive unique username, password_hash BLOB, password_salt BLOB, created_at; tasks now has nullable user_id referencing users(id). Connections enable foreign keys, and unowned legacy tasks remain inaccessible when queries scope by user_id."
+        },
+        {
+          "from": "backend",
+          "to": "frontend",
+          "content": "Auth API ready: POST /api/auth/register and POST /api/auth/login require exactly {username,password}; both return {token,user}. Usernames are 3\u201364 chars using letters/numbers/._-, passwords are 8\u2013256 chars. Send Authorization: Bearer <token> for every /api/tasks request; 401 means show signed-out UI."
+        },
+        {
+          "from": "backend",
+          "to": "qa",
+          "content": "Set KANBAN_JWT_SECRET to at least 32 bytes in test setup. Auth coverage can use POST /api/auth/register/login; unauthenticated task routes return 401, and a second user receives 404 when mutating another user's task."
+        },
+        {
+          "from": "backend",
+          "to": "security",
+          "content": "Server uses PBKDF2-HMAC-SHA256 with 16-byte random salts and 310,000 iterations; JWTs are HS256, require sub/iat/exp, use constant-time signature comparison, expire after one hour, and require KANBAN_JWT_SECRET (minimum 32 bytes)."
+        }
+      ],
+      "retrospective": null
     }
   ],
   "tasks": [
     {
-      "id": "arch-2",
-      "title": "Define the standard-library authentication design: user model, password hashing, signed JWT claims/expiry, API contract, and task ownership rules.",
+      "id": "arch-3",
+      "title": "Audit and confirm the standard-library JWT authentication contract, including token claims, password hashing, error responses, and task ownership boundaries.",
       "owner": "architect",
       "depends_on": [],
-      "status": "done"
+      "status": "todo"
     },
     {
-      "id": "db-2",
-      "title": "Add a users schema and migrate task ownership in database.py, including unique usernames and secure password-hash storage fields.",
+      "id": "db-3",
+      "title": "Verify and complete the users/task-ownership schema migration in database.py for authentication and per-user task isolation.",
       "owner": "database",
       "depends_on": [
-        "arch-2"
+        "arch-3"
       ],
-      "status": "done"
+      "status": "todo"
     },
     {
-      "id": "be-2",
-      "title": "Implement register/login endpoints, standard-library JWT signing and verification, and Bearer-token protection plus per-user scoping for task endpoints in server.py.",
+      "id": "be-3",
+      "title": "Verify and complete register/login, HS256 JWT verification, Bearer protection, and per-user task authorization in server.py.",
       "owner": "backend",
       "depends_on": [
-        "arch-2",
-        "db-2"
+        "arch-3",
+        "db-3"
       ],
-      "status": "done"
+      "status": "todo"
     },
     {
-      "id": "fe-2",
-      "title": "Add register/login UI and authenticated task requests in static/index.html, retaining a token only for the browser session and handling unauthenticated responses.",
+      "id": "fe-3",
+      "title": "Complete the login/register UI and session-scoped Bearer-token integration in static/index.html.",
       "owner": "frontend",
       "depends_on": [
-        "arch-2",
-        "be-2"
+        "be-3"
       ],
       "status": "todo"
     },
     {
-      "id": "qa-2",
-      "title": "Add regression coverage for registration, login, token expiry/invalid-token rejection, protected task endpoints, and task isolation between users.",
+      "id": "qa-3",
+      "title": "Test registration, login, invalid and expired token handling, protected task routes, and cross-user task isolation.",
       "owner": "qa",
       "depends_on": [
-        "be-2",
-        "fe-2"
+        "be-3",
+        "fe-3"
       ],
       "status": "todo"
     },
     {
-      "id": "security-2",
-      "title": "Review password hashing, JWT signing/verification, token handling, authorization boundaries, and auth error responses after implementation.",
+      "id": "security-3",
+      "title": "Review the completed authentication implementation for password storage, JWT validation, token handling, and authorization bypasses.",
       "owner": "security",
       "depends_on": [
-        "arch-2",
-        "be-2"
+        "be-3"
       ],
       "status": "todo"
     }
@@ -143,11 +241,11 @@
       "current_task": null
     },
     "architect": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "backend": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "frontend": {
@@ -155,7 +253,7 @@
       "current_task": null
     },
     "database": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "qa": {
@@ -173,43 +271,7 @@
     "static/index.html": "frontend",
     "test_api.py": "qa"
   },
-  "messages": [
-    {
-      "from": "architect",
-      "to": "database",
-      "content": "Use users(id, username UNIQUE, password_hash, password_salt, created_at) and associate every task with user_id; do not expose unowned legacy tasks."
-    },
-    {
-      "from": "architect",
-      "to": "backend",
-      "content": "Use PBKDF2-HMAC with random salts; issue HS256 JWTs with sub, iat, exp; require Authorization: Bearer tokens and scope all task access by sub."
-    },
-    {
-      "from": "architect",
-      "to": "frontend",
-      "content": "Keep the returned token in sessionStorage, attach it to task requests, and show the signed-out state after a 401."
-    },
-    {
-      "from": "database",
-      "to": "backend",
-      "content": "Database auth schema is ready: users has id, case-insensitive unique username, password_hash BLOB, password_salt BLOB, created_at; tasks now has nullable user_id referencing users(id). Connections enable foreign keys, and unowned legacy tasks remain inaccessible when queries scope by user_id."
-    },
-    {
-      "from": "backend",
-      "to": "frontend",
-      "content": "Auth API ready: POST /api/auth/register and POST /api/auth/login require exactly {username,password}; both return {token,user}. Usernames are 3\u201364 chars using letters/numbers/._-, passwords are 8\u2013256 chars. Send Authorization: Bearer <token> for every /api/tasks request; 401 means show signed-out UI."
-    },
-    {
-      "from": "backend",
-      "to": "qa",
-      "content": "Set KANBAN_JWT_SECRET to at least 32 bytes in test setup. Auth coverage can use POST /api/auth/register/login; unauthenticated task routes return 401, and a second user receives 404 when mutating another user's task."
-    },
-    {
-      "from": "backend",
-      "to": "security",
-      "content": "Server uses PBKDF2-HMAC-SHA256 with 16-byte random salts and 310,000 iterations; JWTs are HS256, require sub/iat/exp, use constant-time signature comparison, expire after one hour, and require KANBAN_JWT_SECRET (minimum 32 bytes)."
-    }
-  ],
+  "messages": [],
   "architecture_decisions": [
     {
       "by": "architect",
