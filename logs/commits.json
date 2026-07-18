@@ -1,5 +1,10 @@
 [
   {
+    "hash": "8ebdc55",
+    "role": "manager",
+    "message": "[manager] Sprint 3 is awaiting a small backend login-timing mitigation before security can complete sign-off."
+  },
+  {
     "hash": "ec9ee34",
     "role": "security",
     "message": "[security] Security review found one concrete account-enumeration risk in login timing; JWT validation, password derivation, token storage, and task authorization otherwise meet the intended local-app design."
@@ -143,10 +148,5 @@
     "hash": "019277c",
     "role": "backend",
     "message": "[backend] The REST contract is clear, but implementation is blocked until the assigned SQLite repository module exists."
-  },
-  {
-    "hash": "18c53be",
-    "role": "architect",
-    "message": "[architect] Defined a standard-library Kanban architecture, its API contract, and non-overlapping implementation boundaries."
   }
 ]
