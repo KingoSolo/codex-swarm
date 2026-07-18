@@ -1,5 +1,11 @@
 [
   {
+    "hash": "ae45b69",
+    "role": "qa",
+    "time": 1784418474,
+    "message": "[qa] QA pass completed: all four API/auth regression tests and Python compilation checks pass; no evidenced Sprint 1 regression was found."
+  },
+  {
     "hash": "cbfde38",
     "role": "frontend",
     "time": 1784418432,
@@ -172,11 +178,5 @@
     "role": "backend",
     "time": 1784338643,
     "message": "[backend] Implemented standard-library registration/login, PBKDF2 password verification, HS256 JWTs, Bearer authentication, and user-scoped task CRUD."
-  },
-  {
-    "hash": "9567d1b",
-    "role": "database",
-    "time": 1784337083,
-    "message": "[database] Added users storage, task ownership, foreign-key enforcement, indexing, and a safe migration for existing task databases."
   }
 ]

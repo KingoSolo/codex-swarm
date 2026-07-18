@@ -30,6 +30,13 @@
         "be-1"
       ],
       "status": "done"
+    },
+    {
+      "id": "auto-qa-s1",
+      "title": "Final qa pass",
+      "owner": "qa",
+      "depends_on": [],
+      "status": "done"
     }
   ],
   "agents": {
@@ -54,7 +61,7 @@
       "current_task": null
     },
     "qa": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "security": {
@@ -83,6 +90,11 @@
     {
       "by": "frontend",
       "decision": "Preserved the existing single-file vanilla JavaScript UI because the backend API is available and the implementation satisfies fe-1.",
+      "sprint": 1
+    },
+    {
+      "by": "qa",
+      "decision": "Attempted a live HTTP smoke test, but this sandbox prohibits local socket binding; direct handler regression tests cover the complete create/list/move/edit/delete lifecycle.",
       "sprint": 1
     }
   ],
