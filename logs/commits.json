@@ -1,5 +1,10 @@
 [
   {
+    "hash": "99948e3",
+    "role": "architect",
+    "message": "[architect] Chose stdlib http.server + sqlite3 + vanilla JS."
+  },
+  {
     "hash": "fdc900a",
     "role": "manager",
     "message": "[manager] Reviewed blockers, no new tasks needed."
@@ -143,10 +148,5 @@
     "hash": "e3e36aa",
     "role": "backend",
     "message": "[backend] Implemented `server.py` with a standard-library REST API, static serving, PATCH/PUT support, request validation, and SQLite repository integration."
-  },
-  {
-    "hash": "97af460",
-    "role": "manager",
-    "message": "[manager] Database completion removes the backend blocker; backend implementation and subsequent QA/security review are now scheduled."
   }
 ]
