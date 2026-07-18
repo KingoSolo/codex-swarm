@@ -1,5 +1,11 @@
 [
   {
+    "hash": "f1395ab",
+    "role": "manager",
+    "time": 1784418576,
+    "message": "[manager] Created a dependency-ordered Sprint 2 plan for JWT authentication and protected task access."
+  },
+  {
     "hash": "91400c0",
     "role": "manager",
     "time": 1784418513,
@@ -172,11 +178,5 @@
     "role": "architect",
     "time": 1784338940,
     "message": "[architect] Audited the current authentication design and confirmed the database/API contract for standard-library JWT-based task isolation."
-  },
-  {
-    "hash": "eef2033",
-    "role": "architect",
-    "time": 1784338921,
-    "message": "[architect] No architecture task is currently assigned; Sprint 3 delegation is awaiting assignment."
   }
 ]

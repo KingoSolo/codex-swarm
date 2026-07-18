@@ -1,49 +1,113 @@
 {
   "sprint": {
-    "number": 1,
-    "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
-    "status": "complete"
+    "number": 2,
+    "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
+    "status": "in_progress"
   },
-  "sprint_history": [],
+  "sprint_history": [
+    {
+      "number": 1,
+      "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
+      "tasks": [
+        {
+          "id": "db-1",
+          "title": "Create tasks table schema (id, title, status, created_at) in database.py",
+          "owner": "database",
+          "depends_on": [],
+          "status": "done"
+        },
+        {
+          "id": "be-1",
+          "title": "Implement REST API in server.py: create/list/update/delete tasks, move between statuses",
+          "owner": "backend",
+          "depends_on": [
+            "db-1"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "fe-1",
+          "title": "Build Kanban board UI in index.html (3 columns, click-to-move) consuming the API",
+          "owner": "frontend",
+          "depends_on": [
+            "be-1"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "auto-qa-s1",
+          "title": "Final qa pass",
+          "owner": "qa",
+          "depends_on": [],
+          "status": "done"
+        },
+        {
+          "id": "auto-security-s1",
+          "title": "Final security pass",
+          "owner": "security",
+          "depends_on": [],
+          "status": "done"
+        }
+      ],
+      "messages": [],
+      "retrospective": "Sprint 1 is complete: all planned implementation, QA, and security tasks were reported done."
+    }
+  ],
   "tasks": [
     {
-      "id": "db-1",
-      "title": "Create tasks table schema (id, title, status, created_at) in database.py",
-      "owner": "database",
+      "id": "arch-2",
+      "title": "Define JWT authentication API contract and task authorization behavior",
+      "owner": "architect",
       "depends_on": [],
-      "status": "done"
+      "status": "todo"
     },
     {
-      "id": "be-1",
-      "title": "Implement REST API in server.py: create/list/update/delete tasks, move between statuses",
+      "id": "db-2",
+      "title": "Add users schema and task-to-user ownership migration in database.py",
+      "owner": "database",
+      "depends_on": [
+        "arch-2"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "be-2",
+      "title": "Implement registration, login, JWT validation, and protected user-scoped task endpoints in server.py",
       "owner": "backend",
       "depends_on": [
-        "db-1"
+        "arch-2",
+        "db-2"
       ],
-      "status": "done"
+      "status": "todo"
     },
     {
-      "id": "fe-1",
-      "title": "Build Kanban board UI in index.html (3 columns, click-to-move) consuming the API",
+      "id": "fe-2",
+      "title": "Add register/login UI and authenticated task API requests in static/index.html",
       "owner": "frontend",
       "depends_on": [
-        "be-1"
+        "arch-2",
+        "be-2"
       ],
-      "status": "done"
+      "status": "todo"
     },
     {
-      "id": "auto-qa-s1",
-      "title": "Final qa pass",
+      "id": "qa-2",
+      "title": "Test authentication flows, token rejection, and task ownership isolation",
       "owner": "qa",
-      "depends_on": [],
-      "status": "done"
+      "depends_on": [
+        "be-2",
+        "fe-2"
+      ],
+      "status": "todo"
     },
     {
-      "id": "auto-security-s1",
-      "title": "Final security pass",
+      "id": "security-2",
+      "title": "Review JWT signing, credential storage, authorization, and authentication input handling",
       "owner": "security",
-      "depends_on": [],
-      "status": "done"
+      "depends_on": [
+        "be-2"
+      ],
+      "status": "todo"
     }
   ],
   "agents": {
@@ -56,23 +120,23 @@
       "current_task": null
     },
     "backend": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "frontend": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "database": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "qa": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "security": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     }
   },
@@ -125,7 +189,7 @@
       "sprint": 1
     }
   ],
-  "retrospective": "Sprint 1 is complete: all planned implementation, QA, and security tasks were reported done.",
+  "retrospective": null,
   "blockers": [],
   "planning_frozen_sprint": 1
 }
