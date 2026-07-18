@@ -178,6 +178,8 @@ def apply_turn(state, role, output, planning_open=False):
     add_tasks(state, output.get("new_tasks", []), allow=planning_open)
     for d in output.get("decisions", []):
         state["architecture_decisions"].append({"by": role, "decision": d, "sprint": state["sprint"]["number"]})
+    for b in output.get("blockers", []):
+        state["blockers"].append({"role": role, "text": b, "sprint": state["sprint"]["number"]})
     return output.get("blockers", [])
 
 
