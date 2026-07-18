@@ -94,7 +94,7 @@
       "depends_on": [
         "arch-2"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "be-2",
@@ -155,7 +155,7 @@
       "current_task": null
     },
     "database": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "qa": {
@@ -188,6 +188,11 @@
       "from": "architect",
       "to": "frontend",
       "content": "Keep the returned token in sessionStorage, attach it to task requests, and show the signed-out state after a 401."
+    },
+    {
+      "from": "database",
+      "to": "backend",
+      "content": "Database auth schema is ready: users has id, case-insensitive unique username, password_hash BLOB, password_salt BLOB, created_at; tasks now has nullable user_id referencing users(id). Connections enable foreign keys, and unowned legacy tasks remain inaccessible when queries scope by user_id."
     }
   ],
   "architecture_decisions": [
@@ -284,6 +289,16 @@
     {
       "by": "architect",
       "decision": "Only registration and login remain public; task routes are authenticated and user-scoped.",
+      "sprint": 2
+    },
+    {
+      "by": "database",
+      "decision": "Kept task.user_id nullable for migration compatibility; authenticated task queries must always filter user_id to prevent access to legacy unowned rows.",
+      "sprint": 2
+    },
+    {
+      "by": "database",
+      "decision": "Used BLOB columns for derived password hashes and salts, a case-insensitive unique username constraint, and an index on tasks.user_id.",
       "sprint": 2
     }
   ],

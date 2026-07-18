@@ -1,5 +1,10 @@
 [
   {
+    "hash": "9567d1b",
+    "role": "database",
+    "message": "[database] Added users storage, task ownership, foreign-key enforcement, indexing, and a safe migration for existing task databases."
+  },
+  {
     "hash": "a81b9a1",
     "role": "architect",
     "message": "[architect] Completed the standard-library authentication design for user registration, login, JWT validation, and task ownership."
@@ -143,10 +148,5 @@
     "hash": "0644f44",
     "role": "database",
     "message": "[database] Created and syntax-validated the SQLite schema for Kanban tasks, including status constraints, timestamps, an index, and automatic update timestamp handling."
-  },
-  {
-    "hash": "c488cd2",
-    "role": "backend",
-    "message": "[backend] API contract is ready, but implementation is blocked until the database-owned schema is available."
   }
 ]
