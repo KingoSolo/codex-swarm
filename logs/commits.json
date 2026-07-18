@@ -1,5 +1,11 @@
 [
   {
+    "hash": "453ee79",
+    "role": "security",
+    "time": 1784418504,
+    "message": "[security] Security review found no evidenced Sprint 1 vulnerability requiring a code change; authentication, authorization, validation, and output handling are appropriately implemented for this scope."
+  },
+  {
     "hash": "ae45b69",
     "role": "qa",
     "time": 1784418474,
@@ -172,11 +178,5 @@
     "role": "manager",
     "time": 1784338913,
     "message": "[manager] Planned Sprint 3 authentication delivery across architecture, data, API, UI, QA, and security without duplicating any listed task."
-  },
-  {
-    "hash": "fc59f9f",
-    "role": "backend",
-    "time": 1784338643,
-    "message": "[backend] Implemented standard-library registration/login, PBKDF2 password verification, HS256 JWTs, Bearer authentication, and user-scoped task CRUD."
   }
 ]

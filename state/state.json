@@ -2,7 +2,7 @@
   "sprint": {
     "number": 1,
     "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
-    "status": "in_progress"
+    "status": "complete"
   },
   "sprint_history": [],
   "tasks": [
@@ -37,6 +37,13 @@
       "owner": "qa",
       "depends_on": [],
       "status": "done"
+    },
+    {
+      "id": "auto-security-s1",
+      "title": "Final security pass",
+      "owner": "security",
+      "depends_on": [],
+      "status": "done"
     }
   ],
   "agents": {
@@ -65,7 +72,7 @@
       "current_task": null
     },
     "security": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     }
   },
@@ -96,9 +103,29 @@
       "by": "qa",
       "decision": "Attempted a live HTTP smoke test, but this sandbox prohibits local socket binding; direct handler regression tests cover the complete create/list/move/edit/delete lifecycle.",
       "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "Verified task queries are parameterized and scoped to the authenticated user.",
+      "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "Verified JWT signatures/expiry are checked with constant-time comparison, passwords are salted PBKDF2 hashes, and the server requires a 32-byte environment-provided signing secret.",
+      "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "Verified UI task content is rendered with textContent rather than HTML insertion, avoiding stored-XSS through task titles.",
+      "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "Security regression suite passes: 4 tests.",
+      "sprint": 1
     }
   ],
-  "retrospective": null,
+  "retrospective": "Sprint 1 is complete: all planned implementation, QA, and security tasks were reported done.",
   "blockers": [],
   "planning_frozen_sprint": 1
 }
