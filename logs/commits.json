@@ -1,5 +1,10 @@
 [
   {
+    "hash": "31207d5",
+    "role": "qa",
+    "message": "[qa] Replaced the legacy API regression test with four passing authentication, authorization-isolation, token-rejection, password-storage, and frontend-auth smoke tests."
+  },
+  {
     "hash": "4989211",
     "role": "frontend",
     "message": "[frontend] Completed the authentication UI with registration, login, session-scoped JWT storage, authenticated task requests, sign-out, and 401 recovery."
@@ -143,10 +148,5 @@
     "hash": "3499e62",
     "role": "manager",
     "message": "[manager] Created the initial sprint workstreams for architecture, backend API, and the static frontend; database, QA, and security will be delegated in the next available agent slots."
-  },
-  {
-    "hash": "ac9c0e4",
-    "role": "manager",
-    "message": "[manager] Sprint 1 retrospective complete"
   }
 ]

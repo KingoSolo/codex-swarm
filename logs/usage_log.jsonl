@@ -16,3 +16,4 @@
 {"call_number": 5, "role": "backend", "prompt_chars": 1687, "duration_sec": 32.4, "exit_code": 0, "response_chars": 5555}
 {"call_number": 6, "role": "frontend", "prompt_chars": 1526, "duration_sec": 96.2, "exit_code": 0, "response_chars": 3801}
 {"call_number": 7, "role": "qa", "prompt_chars": 1651, "duration_sec": 62.8, "exit_code": 0, "response_chars": 5868}
+{"call_number": 8, "role": "security", "prompt_chars": 1126, "duration_sec": 21.8, "exit_code": 0, "response_chars": 1764}
