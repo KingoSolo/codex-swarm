@@ -20,7 +20,7 @@
       "depends_on": [
         "db-1"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "fe-1",
@@ -42,7 +42,7 @@
       "current_task": null
     },
     "backend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "frontend": {
@@ -73,6 +73,11 @@
     {
       "by": "database",
       "decision": "Preserved the existing compatible schema implementation because it already satisfies db-1.",
+      "sprint": 1
+    },
+    {
+      "by": "backend",
+      "decision": "Preserved the existing server implementation because it satisfies be-1, including PATCH/PUT status transitions among todo, in_progress, and done.",
       "sprint": 1
     }
   ],
