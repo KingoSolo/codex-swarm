@@ -1,5 +1,11 @@
 [
   {
+    "hash": "a047111",
+    "role": "manager",
+    "time": 1784417443,
+    "message": "[manager] Reviewed blockers, no new tasks needed."
+  },
+  {
     "hash": "742167f",
     "role": "manager",
     "time": 1784417424,
@@ -172,11 +178,5 @@
     "role": "frontend",
     "time": 1784303408,
     "message": "[frontend] Built the responsive three-column Kanban UI with task creation, editing, status movement, deletion, loading, and API error feedback."
-  },
-  {
-    "hash": "d9716f1",
-    "role": "backend",
-    "time": 1784303370,
-    "message": "[backend] Implemented the standard-library REST API for task creation, listing, editing, status movement, deletion, and static UI delivery."
   }
 ]

@@ -1,51 +1,59 @@
 {
   "sprint": {
-    "number": 1,
-    "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
-    "status": "complete"
+    "number": 2,
+    "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
+    "status": "in_progress"
   },
-  "sprint_history": [],
-  "tasks": [
+  "sprint_history": [
     {
-      "id": "db-1",
-      "title": "Create tasks table schema (id, title, status, created_at) in database.py",
-      "owner": "database",
-      "depends_on": [],
-      "status": "done"
-    },
-    {
-      "id": "be-1",
-      "title": "Implement REST API in server.py: create/list/update/delete tasks, move between statuses",
-      "owner": "backend",
-      "depends_on": [
-        "db-1"
+      "number": 1,
+      "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
+      "tasks": [
+        {
+          "id": "db-1",
+          "title": "Create tasks table schema (id, title, status, created_at) in database.py",
+          "owner": "database",
+          "depends_on": [],
+          "status": "done"
+        },
+        {
+          "id": "be-1",
+          "title": "Implement REST API in server.py: create/list/update/delete tasks, move between statuses",
+          "owner": "backend",
+          "depends_on": [
+            "db-1"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "fe-1",
+          "title": "Build Kanban board UI in index.html (3 columns, click-to-move) consuming the API",
+          "owner": "frontend",
+          "depends_on": [
+            "be-1"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "auto-qa-s1",
+          "title": "Final qa pass",
+          "owner": "qa",
+          "depends_on": [],
+          "status": "done"
+        },
+        {
+          "id": "auto-security-s1",
+          "title": "Final security pass",
+          "owner": "security",
+          "depends_on": [],
+          "status": "done"
+        }
       ],
-      "status": "done"
-    },
-    {
-      "id": "fe-1",
-      "title": "Build Kanban board UI in index.html (3 columns, click-to-move) consuming the API",
-      "owner": "frontend",
-      "depends_on": [
-        "be-1"
-      ],
-      "status": "done"
-    },
-    {
-      "id": "auto-qa-s1",
-      "title": "Final qa pass",
-      "owner": "qa",
-      "depends_on": [],
-      "status": "done"
-    },
-    {
-      "id": "auto-security-s1",
-      "title": "Final security pass",
-      "owner": "security",
-      "depends_on": [],
-      "status": "done"
+      "messages": [],
+      "retrospective": "Reviewed blockers, no new tasks needed."
     }
   ],
+  "tasks": [],
   "agents": {
     "manager": {
       "status": "idle",
@@ -56,23 +64,23 @@
       "current_task": null
     },
     "backend": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "frontend": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "database": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "qa": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "security": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     }
   },
@@ -94,7 +102,7 @@
       "sprint": 1
     }
   ],
-  "retrospective": "Reviewed blockers, no new tasks needed.",
+  "retrospective": null,
   "blockers": [
     {
       "role": "qa",
