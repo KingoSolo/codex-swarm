@@ -1,5 +1,11 @@
 [
   {
+    "hash": "cbfde38",
+    "role": "frontend",
+    "time": 1784418432,
+    "message": "[frontend] Verified static/index.html already provides a responsive three-column Kanban board consuming the task API, with task creation, status movement via per-card controls, editing, deletion, and authentication handling."
+  },
+  {
     "hash": "3e44b8e",
     "role": "backend",
     "time": 1784418420,
@@ -172,11 +178,5 @@
     "role": "database",
     "time": 1784337083,
     "message": "[database] Added users storage, task ownership, foreign-key enforcement, indexing, and a safe migration for existing task databases."
-  },
-  {
-    "hash": "a81b9a1",
-    "role": "architect",
-    "time": 1784337045,
-    "message": "[architect] Completed the standard-library authentication design for user registration, login, JWT validation, and task ownership."
   }
 ]

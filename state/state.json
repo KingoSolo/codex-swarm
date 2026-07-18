@@ -29,7 +29,7 @@
       "depends_on": [
         "be-1"
       ],
-      "status": "todo"
+      "status": "done"
     }
   ],
   "agents": {
@@ -46,7 +46,7 @@
       "current_task": null
     },
     "frontend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "database": {
@@ -78,6 +78,11 @@
     {
       "by": "backend",
       "decision": "Preserved the existing server implementation because it satisfies be-1, including PATCH/PUT status transitions among todo, in_progress, and done.",
+      "sprint": 1
+    },
+    {
+      "by": "frontend",
+      "decision": "Preserved the existing single-file vanilla JavaScript UI because the backend API is available and the implementation satisfies fe-1.",
       "sprint": 1
     }
   ],
