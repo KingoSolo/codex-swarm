@@ -2,7 +2,7 @@
   "sprint": {
     "number": 2,
     "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
-    "status": "in_progress"
+    "status": "complete"
   },
   "sprint_history": [
     {
@@ -60,6 +60,13 @@
       "owner": "qa",
       "depends_on": [],
       "status": "done"
+    },
+    {
+      "id": "auto-security-s2",
+      "title": "Final security pass",
+      "owner": "security",
+      "depends_on": [],
+      "status": "done"
     }
   ],
   "agents": {
@@ -88,7 +95,7 @@
       "current_task": null
     },
     "security": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     }
   },
@@ -113,9 +120,14 @@
       "by": "architect",
       "decision": "Python stdlib only, no network dependencies.",
       "sprint": 2
+    },
+    {
+      "by": "security",
+      "decision": "Sanitize task titles.",
+      "sprint": 2
     }
   ],
-  "retrospective": null,
+  "retrospective": "Reviewed blockers, no new tasks needed.",
   "blockers": [
     {
       "role": "qa",

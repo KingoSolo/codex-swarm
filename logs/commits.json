@@ -1,5 +1,11 @@
 [
   {
+    "hash": "1267802",
+    "role": "security",
+    "time": 1784417444,
+    "message": "[security] Reviewed input handling."
+  },
+  {
     "hash": "a4cd574",
     "role": "qa",
     "time": 1784417444,
@@ -172,11 +178,5 @@
     "role": "manager",
     "time": 1784303498,
     "message": "[manager] Sprint 1 retrospective complete"
-  },
-  {
-    "hash": "c5bf458",
-    "role": "security",
-    "time": 1784303477,
-    "message": "[security] Reviewed API, database, and frontend input paths; no exploitable security regression requiring a code change was found."
   }
 ]
