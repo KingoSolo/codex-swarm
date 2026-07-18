@@ -20,7 +20,7 @@
       "depends_on": [
         "db-1"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "fe-1",
@@ -42,7 +42,7 @@
       "current_task": null
     },
     "backend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "frontend": {
@@ -63,7 +63,8 @@
     }
   },
   "files_owned": {
-    "database.py": "database"
+    "database.py": "database",
+    "server.py": "backend"
   },
   "messages": [],
   "architecture_decisions": [

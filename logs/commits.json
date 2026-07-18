@@ -1,5 +1,11 @@
 [
   {
+    "hash": "43d0c77",
+    "role": "backend",
+    "time": 1784417422,
+    "message": "[backend] Implemented task CRUD + move endpoint."
+  },
+  {
     "hash": "0079bf3",
     "role": "database",
     "time": 1784417422,
@@ -172,11 +178,5 @@
     "role": "backend",
     "time": 1784301268,
     "message": "[backend] `server.py` is already implemented with the requested REST routing, JSON handling, static serving, database integration, and PATCH compatibility."
-  },
-  {
-    "hash": "d588092",
-    "role": "database",
-    "time": 1784301258,
-    "message": "[database] The SQLite task schema and persistence layer are already implemented and verified in `database.py`."
   }
 ]
