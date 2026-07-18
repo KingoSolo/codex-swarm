@@ -82,6 +82,14 @@ class KanbanApiTests(unittest.TestCase):
         status, _ = self.request("POST", "/api/auth/login", {"username": "alice", "password": "wrong password"})
         self.assertEqual(status, 401)
 
+    def test_registration_rejects_confusable_unicode_username(self) -> None:
+        status, _ = self.request(
+            "POST",
+            "/api/auth/register",
+            {"username": "аlice", "password": "correct horse battery"},
+        )
+        self.assertEqual(status, 400)
+
     def test_protected_lifecycle_and_user_isolation(self) -> None:
         alice = self.register("alice")
         bob = self.register("bob")

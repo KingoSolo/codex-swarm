@@ -1,5 +1,11 @@
 [
   {
+    "hash": "f74367c",
+    "role": "qa",
+    "time": 1784418675,
+    "message": "[qa] Sprint 2 QA passed: all four authentication regression tests succeed, covering registration/login, invalid or expired tokens, protected CRUD, cross-user isolation, and frontend auth integration."
+  },
+  {
     "hash": "8a49dc8",
     "role": "frontend",
     "time": 1784418658,
@@ -172,11 +178,5 @@
     "role": "manager",
     "time": 1784339325,
     "message": "[manager] Sprint 3 is awaiting a small backend login-timing mitigation before security can complete sign-off."
-  },
-  {
-    "hash": "ec9ee34",
-    "role": "security",
-    "time": 1784339177,
-    "message": "[security] Security review found one concrete account-enumeration risk in login timing; JWT validation, password derivation, token storage, and task authorization otherwise meet the intended local-app design."
   }
 ]

@@ -98,7 +98,7 @@
         "be-2",
         "fe-2"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "security-2",
@@ -132,7 +132,7 @@
       "current_task": null
     },
     "qa": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "security": {
@@ -255,6 +255,11 @@
     {
       "by": "frontend",
       "decision": "Preserved the existing single-file UI because it matches the accepted backend contract; the frontend authentication smoke test passes.",
+      "sprint": 2
+    },
+    {
+      "by": "qa",
+      "decision": "No regression was evidenced, so no additional QA test file or code change was needed.",
       "sprint": 2
     }
   ],

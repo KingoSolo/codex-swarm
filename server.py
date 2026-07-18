@@ -154,7 +154,13 @@ class KanbanHandler(BaseHTTPRequestHandler):
         username = value.strip().lower()
         if not 3 <= len(username) <= 64:
             return None
-        return username if all(character.isalnum() or character in "_.-" for character in username) else None
+        # Keep login identifiers ASCII-only.  SQLite's NOCASE collation is
+        # ASCII-oriented; accepting visually confusable Unicode usernames
+        # would otherwise permit distinct accounts that appear identical.
+        return username if all(
+            character.isascii() and (character.isalnum() or character in "_.-")
+            for character in username
+        ) else None
 
     @staticmethod
     def _valid_password(value: object) -> str | None:
