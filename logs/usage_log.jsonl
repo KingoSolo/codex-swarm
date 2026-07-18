@@ -12,3 +12,4 @@
 {"call_number": 6, "role": "frontend", "prompt_chars": 1263, "duration_sec": 21.0, "exit_code": 0, "response_chars": 2002}
 {"call_number": 7, "role": "qa", "prompt_chars": 969, "duration_sec": 16.5, "exit_code": 0, "response_chars": 2122}
 {"call_number": 8, "role": "security", "prompt_chars": 969, "duration_sec": 45.7, "exit_code": 0, "response_chars": 6145}
+{"call_number": 1, "role": "manager", "prompt_chars": 3272, "duration_sec": 10.8, "exit_code": 0, "response_chars": 601}

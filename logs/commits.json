@@ -1,5 +1,11 @@
 [
   {
+    "hash": "e4dc99c",
+    "role": "security",
+    "time": 1784418721,
+    "message": "[security] Security review hardened username validation by rejecting non-ASCII confusable identifiers; JWT, password storage, and user-scoped authorization checks otherwise passed review."
+  },
+  {
     "hash": "f74367c",
     "role": "qa",
     "time": 1784418675,
@@ -172,11 +178,5 @@
     "role": "manager",
     "time": 1784339340,
     "message": "[manager] Sprint 3 retrospective complete"
-  },
-  {
-    "hash": "8ebdc55",
-    "role": "manager",
-    "time": 1784339325,
-    "message": "[manager] Sprint 3 is awaiting a small backend login-timing mitigation before security can complete sign-off."
   }
 ]

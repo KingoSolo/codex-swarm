@@ -2,7 +2,7 @@
   "sprint": {
     "number": 2,
     "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
-    "status": "in_progress"
+    "status": "complete"
   },
   "sprint_history": [
     {
@@ -107,7 +107,7 @@
       "depends_on": [
         "be-2"
       ],
-      "status": "todo"
+      "status": "done"
     }
   ],
   "agents": {
@@ -136,11 +136,14 @@
       "current_task": null
     },
     "security": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     }
   },
-  "files_owned": {},
+  "files_owned": {
+    "server.py": "security",
+    "test_api.py": "security"
+  },
   "messages": [
     {
       "from": "architect",
@@ -261,9 +264,19 @@
       "by": "qa",
       "decision": "No regression was evidenced, so no additional QA test file or code change was needed.",
       "sprint": 2
+    },
+    {
+      "by": "security",
+      "decision": "Restricted usernames to ASCII letters, digits, periods, underscores, and hyphens because SQLite NOCASE is ASCII-oriented and Unicode lookalikes could create visually confusable distinct accounts.",
+      "sprint": 2
+    },
+    {
+      "by": "security",
+      "decision": "Added a regression test for a Cyrillic-lookalike username; all 5 tests pass.",
+      "sprint": 2
     }
   ],
-  "retrospective": null,
+  "retrospective": "Sprint 2 completed with authentication implemented, verified, and hardened.",
   "blockers": [],
   "planning_frozen_sprint": 2
 }
