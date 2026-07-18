@@ -1,5 +1,10 @@
 [
   {
+    "hash": "fc59f9f",
+    "role": "backend",
+    "message": "[backend] Implemented standard-library registration/login, PBKDF2 password verification, HS256 JWTs, Bearer authentication, and user-scoped task CRUD."
+  },
+  {
     "hash": "9567d1b",
     "role": "database",
     "message": "[database] Added users storage, task ownership, foreign-key enforcement, indexing, and a safe migration for existing task databases."
@@ -143,10 +148,5 @@
     "hash": "fb1f5df",
     "role": "manager",
     "message": "[manager] Resolved the backend database-schema blocker and confirmed the implementation sequence: database complete, backend next, then frontend, QA, and security."
-  },
-  {
-    "hash": "0644f44",
-    "role": "database",
-    "message": "[database] Created and syntax-validated the SQLite schema for Kanban tasks, including status constraints, timestamps, an index, and automatic update timestamp handling."
   }
 ]

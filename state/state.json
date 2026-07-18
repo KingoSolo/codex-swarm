@@ -104,7 +104,7 @@
         "arch-2",
         "db-2"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "fe-2",
@@ -147,7 +147,7 @@
       "current_task": null
     },
     "backend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "frontend": {
@@ -193,6 +193,21 @@
       "from": "database",
       "to": "backend",
       "content": "Database auth schema is ready: users has id, case-insensitive unique username, password_hash BLOB, password_salt BLOB, created_at; tasks now has nullable user_id referencing users(id). Connections enable foreign keys, and unowned legacy tasks remain inaccessible when queries scope by user_id."
+    },
+    {
+      "from": "backend",
+      "to": "frontend",
+      "content": "Auth API ready: POST /api/auth/register and POST /api/auth/login require exactly {username,password}; both return {token,user}. Usernames are 3\u201364 chars using letters/numbers/._-, passwords are 8\u2013256 chars. Send Authorization: Bearer <token> for every /api/tasks request; 401 means show signed-out UI."
+    },
+    {
+      "from": "backend",
+      "to": "qa",
+      "content": "Set KANBAN_JWT_SECRET to at least 32 bytes in test setup. Auth coverage can use POST /api/auth/register/login; unauthenticated task routes return 401, and a second user receives 404 when mutating another user's task."
+    },
+    {
+      "from": "backend",
+      "to": "security",
+      "content": "Server uses PBKDF2-HMAC-SHA256 with 16-byte random salts and 310,000 iterations; JWTs are HS256, require sub/iat/exp, use constant-time signature comparison, expire after one hour, and require KANBAN_JWT_SECRET (minimum 32 bytes)."
     }
   ],
   "architecture_decisions": [
@@ -299,6 +314,16 @@
     {
       "by": "database",
       "decision": "Used BLOB columns for derived password hashes and salts, a case-insensitive unique username constraint, and an index on tasks.user_id.",
+      "sprint": 2
+    },
+    {
+      "by": "backend",
+      "decision": "The server refuses to start without a KANBAN_JWT_SECRET of at least 32 bytes.",
+      "sprint": 2
+    },
+    {
+      "by": "backend",
+      "decision": "Task update and deletion intentionally return 404 for another user's task to avoid exposing task existence.",
       "sprint": 2
     }
   ],
