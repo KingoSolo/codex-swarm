@@ -1,5 +1,10 @@
 [
   {
+    "hash": "cbf879c",
+    "role": "architect",
+    "message": "[architect] Audited the current authentication design and confirmed the database/API contract for standard-library JWT-based task isolation."
+  },
+  {
     "hash": "eef2033",
     "role": "architect",
     "message": "[architect] No architecture task is currently assigned; Sprint 3 delegation is awaiting assignment."
@@ -143,10 +148,5 @@
     "hash": "d298b57",
     "role": "backend",
     "message": "[backend] Implemented the Flask REST API backed by the database-owned schema, with validated task CRUD/status updates, JSON errors, and static UI serving."
-  },
-  {
-    "hash": "69c775b",
-    "role": "manager",
-    "message": "[manager] Confirmed that duplicate database tracking is complete and kept the sprint focused on the now-unblocked backend implementation."
   }
 ]
