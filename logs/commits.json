@@ -1,5 +1,11 @@
 [
   {
+    "hash": "ee96993",
+    "role": "architect",
+    "time": 1784418600,
+    "message": "[architect] Defined the JWT authentication contract and user-scoped task authorization behavior for Sprint 2."
+  },
+  {
     "hash": "ca59466",
     "role": "architect",
     "time": 1784418587,
@@ -172,11 +178,5 @@
     "role": "backend",
     "time": 1784338996,
     "message": "[backend] Verified that the existing backend implements the confirmed JWT contract, authenticated task routes, and cross-user task isolation; no server changes were needed."
-  },
-  {
-    "hash": "7610875",
-    "role": "database",
-    "time": 1784338963,
-    "message": "[database] Verified the users and task-ownership migration, including legacy-task preservation, username uniqueness, and foreign-key enforcement."
   }
 ]

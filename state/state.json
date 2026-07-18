@@ -59,7 +59,7 @@
       "title": "Define JWT authentication API contract and task authorization behavior",
       "owner": "architect",
       "depends_on": [],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "db-2",
@@ -116,7 +116,7 @@
       "current_task": null
     },
     "architect": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "backend": {
@@ -141,7 +141,26 @@
     }
   },
   "files_owned": {},
-  "messages": [],
+  "messages": [
+    {
+      "from": "architect",
+      "to": "database",
+      "content": "Contract: users require integer id, case-insensitive unique username, password_hash, password_salt, and created_at; tasks must carry nullable/migrated user_id referencing users.",
+      "time": 1784418600.3151739
+    },
+    {
+      "from": "architect",
+      "to": "backend",
+      "content": "Contract: POST /api/auth/register and POST /api/auth/login accept exactly username/password and return {token,user:{id,username}}. Task endpoints require Authorization: Bearer <JWT>; return 401 for missing/invalid/expired tokens and scope all task reads/mutations by authenticated user_id.",
+      "time": 1784418600.315179
+    },
+    {
+      "from": "architect",
+      "to": "frontend",
+      "content": "Contract: authenticate through /api/auth/register or /api/auth/login, retain the returned JWT only in sessionStorage, and attach Authorization: Bearer <token> to all /api/tasks requests. On 401, clear session and present sign-in UI.",
+      "time": 1784418600.31518
+    }
+  ],
   "architecture_decisions": [
     {
       "by": "architect",
@@ -201,6 +220,26 @@
     {
       "by": "architect",
       "decision": "Keep static/index.html responsible for session token storage and Authorization headers.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Use standard-library HS256 JWTs signed with a deployment-provided secret of at least 32 bytes; include integer subject, issued-at, and expiry claims.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Use PBKDF2-HMAC-SHA256 with a per-user random salt for password storage; never persist plaintext passwords.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Use 201 for successful registration, 200 for successful login and authenticated task reads/updates, 401 for authentication failures, and 404 for a task absent from the authenticated user\u2019s scope.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Authorize at every task SQL query using user_id, so another authenticated user cannot list, edit, or delete another user\u2019s tasks.",
       "sprint": 2
     }
   ],
