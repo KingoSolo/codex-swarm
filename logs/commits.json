@@ -1,5 +1,11 @@
 [
   {
+    "hash": "cd73ef3",
+    "role": "qa",
+    "time": 1784417423,
+    "message": "[qa] Ran manual pass."
+  },
+  {
     "hash": "1e9cff3",
     "role": "frontend",
     "time": 1784417423,
@@ -172,11 +178,5 @@
     "role": "database",
     "time": 1784301358,
     "message": "[database] `database.py` already provides the required SQLite connection, schema initialization, validation, and task repository functions."
-  },
-  {
-    "hash": "12e5abd",
-    "role": "frontend",
-    "time": 1784301348,
-    "message": "[frontend] Consolidated the Kanban frontend into the requested single static `index.html` with inline vanilla JavaScript and CSS."
   }
 ]

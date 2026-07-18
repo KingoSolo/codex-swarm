@@ -30,6 +30,13 @@
         "be-1"
       ],
       "status": "done"
+    },
+    {
+      "id": "auto-qa-s1",
+      "title": "Final qa pass",
+      "owner": "qa",
+      "depends_on": [],
+      "status": "done"
     }
   ],
   "agents": {
@@ -54,7 +61,7 @@
       "current_task": null
     },
     "qa": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "security": {
@@ -76,6 +83,12 @@
     }
   ],
   "retrospective": null,
-  "blockers": [],
+  "blockers": [
+    {
+      "role": "qa",
+      "text": "Found a minor UI refresh bug.",
+      "sprint": 1
+    }
+  ],
   "planning_frozen_sprint": 1
 }
