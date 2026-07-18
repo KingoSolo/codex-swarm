@@ -1,5 +1,11 @@
 [
   {
+    "hash": "c3bef57",
+    "role": "manager",
+    "time": 1784417444,
+    "message": "[manager] Sprint 2 retrospective complete"
+  },
+  {
     "hash": "1267802",
     "role": "security",
     "time": 1784417444,
@@ -172,11 +178,5 @@
     "role": "manager",
     "time": 1784337001,
     "message": "[manager] Planned Sprint 2 into architecture, data, API, UI, QA, and security workstreams for standard-library JWT authentication."
-  },
-  {
-    "hash": "e38cafb",
-    "role": "manager",
-    "time": 1784303498,
-    "message": "[manager] Sprint 1 retrospective complete"
   }
 ]
