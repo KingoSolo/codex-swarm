@@ -224,8 +224,33 @@
       "by": "security",
       "decision": "Retain the existing 16 KiB request-body limit and resolved-path containment check for static files.",
       "sprint": 1
+    },
+    {
+      "by": "architect",
+      "decision": "Use Python standard-library hashlib.pbkdf2_hmac with a random per-user salt for password storage; never store plaintext passwords.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Implement compact JWTs with base64url JSON, HS256 HMAC signatures, and constant-time signature comparison. Require sub, iat, and exp claims; reject malformed, expired, or wrong-algorithm tokens.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Load the JWT signing secret from an environment variable at server startup and do not hard-code it or return it in API responses.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Register/login are public POST routes; every task route requires a Bearer token and uses its subject to enforce task ownership.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Keep the frontend as one static HTML file and hold the access token in sessionStorage rather than persistent localStorage.",
+      "sprint": 2
     }
   ],
   "retrospective": null,
-  "planning_frozen_sprint": 1
+  "planning_frozen_sprint": 2
 }
