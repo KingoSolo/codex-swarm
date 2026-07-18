@@ -78,7 +78,7 @@
         "arch-2",
         "db-2"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "fe-2",
@@ -120,7 +120,7 @@
       "current_task": null
     },
     "backend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "frontend": {
@@ -245,6 +245,11 @@
     {
       "by": "database",
       "decision": "Kept user_id nullable so existing pre-authentication task rows can migrate without data loss; authenticated application queries will scope tasks to a user.",
+      "sprint": 2
+    },
+    {
+      "by": "backend",
+      "decision": "Preserved the existing implementation because it matches the architecture contract and tests authentication rejection plus cross-user task isolation.",
       "sprint": 2
     }
   ],

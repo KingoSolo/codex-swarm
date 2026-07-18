@@ -1,5 +1,11 @@
 [
   {
+    "hash": "747856e",
+    "role": "backend",
+    "time": 1784418637,
+    "message": "[backend] Verified server.py already fulfills be-2 with registration, login, signed expiring JWT validation, mandatory bearer authentication, and user-scoped task CRUD; all four regression tests pass."
+  },
+  {
     "hash": "60f8b03",
     "role": "database",
     "time": 1784418619,
@@ -172,11 +178,5 @@
     "role": "qa",
     "time": 1784339155,
     "message": "[qa] Replaced the legacy API regression test with four passing authentication, authorization-isolation, token-rejection, password-storage, and frontend-auth smoke tests."
-  },
-  {
-    "hash": "4989211",
-    "role": "frontend",
-    "time": 1784339092,
-    "message": "[frontend] Completed the authentication UI with registration, login, session-scoped JWT storage, authenticated task requests, sign-out, and 401 recovery."
   }
 ]
