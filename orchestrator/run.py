@@ -32,6 +32,28 @@ _call_count = [0]
 ROLE_ORDER = ["manager", "architect", "backend", "frontend", "database", "qa", "security"]
 
 
+def new_state():
+    """The single source of truth for what a fresh project's state looks like.
+    Both --reset and load_state's self-heal path use this — never hand-build
+    the dict anywhere else."""
+    return {
+        "sprint": {
+            "number": 1,
+            "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
+            "status": "not_started",
+        },
+        "sprint_history": [],
+        "tasks": [],
+        "agents": {role: {"status": "idle", "current_task": None}
+                   for role in ["manager", "architect", "backend", "frontend", "database", "qa", "security"]},
+        "files_owned": {},
+        "messages": [],
+        "architecture_decisions": [],
+        "retrospective": None,
+        "blockers": [],
+        "planning_frozen_sprint": None,
+    }
+
 def check_call_budget():
     if _total_calls[0] >= MAX_TOTAL_CALLS:
         print(f"\n!!! HARD STOP: reached {MAX_TOTAL_CALLS} Codex calls this run. Exiting safely to protect credits.")
@@ -40,7 +62,15 @@ def check_call_budget():
 
 
 def load_state():
-    return json.loads(STATE_PATH.read_text())
+    defaults = new_state()
+    if not STATE_PATH.exists():
+        STATE_PATH.write_text(json.dumps(defaults, indent=2))
+        return defaults
+    try:
+        loaded = json.loads(STATE_PATH.read_text())
+    except json.JSONDecodeError:
+        return defaults
+    return {**defaults, **loaded}  # any key missing from the file falls back to default
 
 
 def validate_state(state):
@@ -174,7 +204,7 @@ def apply_turn(state, role, output, planning_open=False):
     for f in output.get("files_changed", []):
         state["files_owned"][f] = role
     for msg in output.get("messages", []):
-        state["messages"].append({"from": role, "to": msg["to"], "content": msg["content"]})
+        state["messages"].append({"from": role, "to": msg["to"], "content": msg["content"], "time": _time.time()})
     add_tasks(state, output.get("new_tasks", []), allow=planning_open)
     for d in output.get("decisions", []):
         state["architecture_decisions"].append({"by": role, "decision": d, "sprint": state["sprint"]["number"]})
@@ -190,12 +220,13 @@ def git_commit(role, summary):
          "commit", "-m", f"[{role}] {summary}", "--allow-empty"],
         cwd=ROOT, check=False, capture_output=True,
     )
-    log = subprocess.run(["git", "log", "--pretty=format:%h|%an|%s", "-30"], cwd=ROOT, capture_output=True, text=True)
+    log = subprocess.run(["git", "log", "--pretty=format:%h|%an|%ct|%s", "-30"],
+                          cwd=ROOT, capture_output=True, text=True)
     commits = []
     for line in log.stdout.splitlines():
-        parts = line.split("|", 2)
-        if len(parts) == 3:
-            commits.append({"hash": parts[0], "role": parts[1], "message": parts[2]})
+        parts = line.split("|", 3)
+        if len(parts) == 4:
+            commits.append({"hash": parts[0], "role": parts[1], "time": int(parts[2]), "message": parts[3]})
     (ROOT / "logs" / "commits.json").write_text(json.dumps(commits, indent=2))
 
 
@@ -337,5 +368,13 @@ def run_sprint(goal_override=None):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--reset":
+        STATE_PATH.write_text(json.dumps(new_state(), indent=2))
+        if SESSION_ID_PATH.exists():
+            SESSION_ID_PATH.unlink()
+        if USAGE_LOG_PATH.exists():
+            USAGE_LOG_PATH.unlink()
+        print("State reset to a fresh project. Session ID and usage log cleared.")
+        sys.exit(0)
     goal_arg = sys.argv[1] if len(sys.argv) > 1 else None
     run_sprint(goal_arg)
