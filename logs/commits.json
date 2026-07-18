@@ -1,5 +1,11 @@
 [
   {
+    "hash": "8a49dc8",
+    "role": "frontend",
+    "time": 1784418658,
+    "message": "[frontend] Verified static/index.html already fulfills fe-2 with register/login controls, sessionStorage JWT retention, bearer authentication on task calls, and a 401 sign-out flow."
+  },
+  {
     "hash": "747856e",
     "role": "backend",
     "time": 1784418637,
@@ -172,11 +178,5 @@
     "role": "security",
     "time": 1784339177,
     "message": "[security] Security review found one concrete account-enumeration risk in login timing; JWT validation, password derivation, token storage, and task authorization otherwise meet the intended local-app design."
-  },
-  {
-    "hash": "31207d5",
-    "role": "qa",
-    "time": 1784339155,
-    "message": "[qa] Replaced the legacy API regression test with four passing authentication, authorization-isolation, token-rejection, password-storage, and frontend-auth smoke tests."
   }
 ]

@@ -88,7 +88,7 @@
         "arch-2",
         "be-2"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "qa-2",
@@ -124,7 +124,7 @@
       "current_task": null
     },
     "frontend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "database": {
@@ -250,6 +250,11 @@
     {
       "by": "backend",
       "decision": "Preserved the existing implementation because it matches the architecture contract and tests authentication rejection plus cross-user task isolation.",
+      "sprint": 2
+    },
+    {
+      "by": "frontend",
+      "decision": "Preserved the existing single-file UI because it matches the accepted backend contract; the frontend authentication smoke test passes.",
       "sprint": 2
     }
   ],

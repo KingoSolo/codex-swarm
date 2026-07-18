@@ -10,3 +10,4 @@
 {"call_number": 4, "role": "database", "prompt_chars": 1103, "duration_sec": 18.6, "exit_code": 0, "response_chars": 5895}
 {"call_number": 5, "role": "backend", "prompt_chars": 1424, "duration_sec": 18.6, "exit_code": 0, "response_chars": 2188}
 {"call_number": 6, "role": "frontend", "prompt_chars": 1263, "duration_sec": 21.0, "exit_code": 0, "response_chars": 2002}
+{"call_number": 7, "role": "qa", "prompt_chars": 969, "duration_sec": 16.5, "exit_code": 0, "response_chars": 2122}
