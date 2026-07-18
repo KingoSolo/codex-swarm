@@ -1,1 +1,2 @@
 {"call_number": 1, "role": "database", "prompt_chars": 919, "duration_sec": 25.9, "exit_code": 0, "response_chars": 13554}
+{"call_number": 2, "role": "backend", "prompt_chars": 1115, "duration_sec": 20.8, "exit_code": 0, "response_chars": 17780}

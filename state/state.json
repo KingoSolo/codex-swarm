@@ -11,7 +11,7 @@
       "title": "Create tasks table schema (id, title, status, created_at) in database.py",
       "owner": "database",
       "depends_on": [],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "be-1",
@@ -50,7 +50,7 @@
       "current_task": null
     },
     "database": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "qa": {
@@ -68,6 +68,11 @@
     {
       "by": "architect",
       "decision": "Python stdlib http.server + sqlite3 for backend, single static HTML+vanilla JS file for frontend. No external dependencies (sandbox has no network access).",
+      "sprint": 1
+    },
+    {
+      "by": "database",
+      "decision": "Preserved the existing compatible schema implementation because it already satisfies db-1.",
       "sprint": 1
     }
   ],
