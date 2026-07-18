@@ -1,5 +1,11 @@
 [
   {
+    "hash": "60f8b03",
+    "role": "database",
+    "time": 1784418619,
+    "message": "[database] Verified database.py already satisfies db-2: it initializes the users table and migrates tasks with a foreign-key user_id plus an ownership index."
+  },
+  {
     "hash": "ee96993",
     "role": "architect",
     "time": 1784418600,
@@ -172,11 +178,5 @@
     "role": "frontend",
     "time": 1784339092,
     "message": "[frontend] Completed the authentication UI with registration, login, session-scoped JWT storage, authenticated task requests, sign-out, and 401 recovery."
-  },
-  {
-    "hash": "1920ad4",
-    "role": "backend",
-    "time": 1784338996,
-    "message": "[backend] Verified that the existing backend implements the confirmed JWT contract, authenticated task routes, and cross-user task isolation; no server changes were needed."
   }
 ]

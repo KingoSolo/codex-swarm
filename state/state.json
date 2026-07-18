@@ -68,7 +68,7 @@
       "depends_on": [
         "arch-2"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "be-2",
@@ -128,7 +128,7 @@
       "current_task": null
     },
     "database": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "qa": {
@@ -240,6 +240,11 @@
     {
       "by": "architect",
       "decision": "Authorize at every task SQL query using user_id, so another authenticated user cannot list, edit, or delete another user\u2019s tasks.",
+      "sprint": 2
+    },
+    {
+      "by": "database",
+      "decision": "Kept user_id nullable so existing pre-authentication task rows can migrate without data loss; authenticated application queries will scope tasks to a user.",
       "sprint": 2
     }
   ],
