@@ -29,7 +29,7 @@
       "depends_on": [
         "be-1"
       ],
-      "status": "todo"
+      "status": "done"
     }
   ],
   "agents": {
@@ -46,7 +46,7 @@
       "current_task": null
     },
     "frontend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "database": {
@@ -64,7 +64,8 @@
   },
   "files_owned": {
     "database.py": "database",
-    "server.py": "backend"
+    "server.py": "backend",
+    "index.html": "frontend"
   },
   "messages": [],
   "architecture_decisions": [
