@@ -1,5 +1,11 @@
 [
   {
+    "hash": "a4cd574",
+    "role": "qa",
+    "time": 1784417444,
+    "message": "[qa] Ran manual pass."
+  },
+  {
     "hash": "be485ca",
     "role": "architect",
     "time": 1784417443,
@@ -172,11 +178,5 @@
     "role": "security",
     "time": 1784303477,
     "message": "[security] Reviewed API, database, and frontend input paths; no exploitable security regression requiring a code change was found."
-  },
-  {
-    "hash": "06ec8c0",
-    "role": "qa",
-    "time": 1784303455,
-    "message": "[qa] Added and passed an in-process API lifecycle regression test covering create, list, edit/status movement, delete, and invalid-status handling."
   }
 ]
