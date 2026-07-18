@@ -1,49 +1,140 @@
 {
   "sprint": {
-    "number": 1,
-    "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
-    "status": "complete"
+    "number": 2,
+    "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
+    "status": "in_progress"
   },
-  "sprint_history": [],
+  "sprint_history": [
+    {
+      "number": 1,
+      "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
+      "tasks": [
+        {
+          "id": "db-1",
+          "title": "Create tasks table schema (id, title, status, created_at) in database.py",
+          "owner": "database",
+          "depends_on": [],
+          "status": "done"
+        },
+        {
+          "id": "be-1",
+          "title": "Implement REST API in server.py: create/list/update/delete tasks, move between statuses",
+          "owner": "backend",
+          "depends_on": [
+            "db-1"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "fe-1",
+          "title": "Build Kanban board UI in index.html (3 columns, click-to-move) consuming the API",
+          "owner": "frontend",
+          "depends_on": [
+            "be-1"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "auto-qa-s1",
+          "title": "Final qa pass",
+          "owner": "qa",
+          "depends_on": [],
+          "status": "done"
+        },
+        {
+          "id": "auto-security-s1",
+          "title": "Final security pass",
+          "owner": "security",
+          "depends_on": [],
+          "status": "done"
+        }
+      ],
+      "messages": [
+        {
+          "from": "database",
+          "to": "backend",
+          "content": "database.py now exposes initialize_database(), get_connection(), utc_timestamp(), DATABASE_PATH, and VALID_STATUSES; tasks uses id, title, status, created_at with valid statuses todo/in_progress/done."
+        },
+        {
+          "from": "backend",
+          "to": "frontend",
+          "content": "API ready: GET/POST /api/tasks; PATCH or PUT /api/tasks/:id; DELETE /api/tasks/:id. Tasks return id, title, status (todo|in_progress|done), created_at. POST requires title and accepts optional status; PATCH accepts title and/or status."
+        },
+        {
+          "from": "frontend",
+          "to": "manager",
+          "content": "Frontend is complete and consumes the implemented task API; the board supports Todo, In Progress, and Done workflows."
+        },
+        {
+          "from": "qa",
+          "to": "frontend",
+          "content": "QA found a minor UX gap: edit-form submission closes the dialog even when the PATCH request fails because mutate() catches errors internally. Keeping it open on failed saves would let users retry immediately."
+        },
+        {
+          "from": "security",
+          "to": "manager",
+          "content": "Security review passed: API limits JSON request bodies, validates task fields/statuses, uses SQLite parameters for values, escapes frontend task text via textContent, and constrains static files to the static directory."
+        }
+      ],
+      "retrospective": "Sprint retrospective: Architecture established the stdlib contract; database delivered the constrained schema; backend implemented validated CRUD; frontend integrated the three-column board; QA added and passed lifecycle coverage while noting the failed-save dialog UX gap; security verified input, SQL, rendering, and static-path safeguards; manager coordinated the completed handoffs."
+    }
+  ],
   "tasks": [
     {
-      "id": "db-1",
-      "title": "Create tasks table schema (id, title, status, created_at) in database.py",
-      "owner": "database",
+      "id": "arch-2",
+      "title": "Define the standard-library authentication design: user model, password hashing, signed JWT claims/expiry, API contract, and task ownership rules.",
+      "owner": "architect",
       "depends_on": [],
-      "status": "done"
+      "status": "todo"
     },
     {
-      "id": "be-1",
-      "title": "Implement REST API in server.py: create/list/update/delete tasks, move between statuses",
+      "id": "db-2",
+      "title": "Add a users schema and migrate task ownership in database.py, including unique usernames and secure password-hash storage fields.",
+      "owner": "database",
+      "depends_on": [
+        "arch-2"
+      ],
+      "status": "todo"
+    },
+    {
+      "id": "be-2",
+      "title": "Implement register/login endpoints, standard-library JWT signing and verification, and Bearer-token protection plus per-user scoping for task endpoints in server.py.",
       "owner": "backend",
       "depends_on": [
-        "db-1"
+        "arch-2",
+        "db-2"
       ],
-      "status": "done"
+      "status": "todo"
     },
     {
-      "id": "fe-1",
-      "title": "Build Kanban board UI in index.html (3 columns, click-to-move) consuming the API",
+      "id": "fe-2",
+      "title": "Add register/login UI and authenticated task requests in static/index.html, retaining a token only for the browser session and handling unauthenticated responses.",
       "owner": "frontend",
       "depends_on": [
-        "be-1"
+        "arch-2",
+        "be-2"
       ],
-      "status": "done"
+      "status": "todo"
     },
     {
-      "id": "auto-qa-s1",
-      "title": "Final qa pass",
+      "id": "qa-2",
+      "title": "Add regression coverage for registration, login, token expiry/invalid-token rejection, protected task endpoints, and task isolation between users.",
       "owner": "qa",
-      "depends_on": [],
-      "status": "done"
+      "depends_on": [
+        "be-2",
+        "fe-2"
+      ],
+      "status": "todo"
     },
     {
-      "id": "auto-security-s1",
-      "title": "Final security pass",
+      "id": "security-2",
+      "title": "Review password hashing, JWT signing/verification, token handling, authorization boundaries, and auth error responses after implementation.",
       "owner": "security",
-      "depends_on": [],
-      "status": "done"
+      "depends_on": [
+        "arch-2",
+        "be-2"
+      ],
+      "status": "todo"
     }
   ],
   "agents": {
@@ -56,23 +147,23 @@
       "current_task": null
     },
     "backend": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "frontend": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "database": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "qa": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "security": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     }
   },
@@ -82,33 +173,7 @@
     "static/index.html": "frontend",
     "test_api.py": "qa"
   },
-  "messages": [
-    {
-      "from": "database",
-      "to": "backend",
-      "content": "database.py now exposes initialize_database(), get_connection(), utc_timestamp(), DATABASE_PATH, and VALID_STATUSES; tasks uses id, title, status, created_at with valid statuses todo/in_progress/done."
-    },
-    {
-      "from": "backend",
-      "to": "frontend",
-      "content": "API ready: GET/POST /api/tasks; PATCH or PUT /api/tasks/:id; DELETE /api/tasks/:id. Tasks return id, title, status (todo|in_progress|done), created_at. POST requires title and accepts optional status; PATCH accepts title and/or status."
-    },
-    {
-      "from": "frontend",
-      "to": "manager",
-      "content": "Frontend is complete and consumes the implemented task API; the board supports Todo, In Progress, and Done workflows."
-    },
-    {
-      "from": "qa",
-      "to": "frontend",
-      "content": "QA found a minor UX gap: edit-form submission closes the dialog even when the PATCH request fails because mutate() catches errors internally. Keeping it open on failed saves would let users retry immediately."
-    },
-    {
-      "from": "security",
-      "to": "manager",
-      "content": "Security review passed: API limits JSON request bodies, validates task fields/statuses, uses SQLite parameters for values, escapes frontend task text via textContent, and constrains static files to the static directory."
-    }
-  ],
+  "messages": [],
   "architecture_decisions": [
     {
       "by": "architect",
@@ -161,6 +226,6 @@
       "sprint": 1
     }
   ],
-  "retrospective": "Sprint retrospective: Architecture established the stdlib contract; database delivered the constrained schema; backend implemented validated CRUD; frontend integrated the three-column board; QA added and passed lifecycle coverage while noting the failed-save dialog UX gap; security verified input, SQL, rendering, and static-path safeguards; manager coordinated the completed handoffs.",
+  "retrospective": null,
   "planning_frozen_sprint": 1
 }

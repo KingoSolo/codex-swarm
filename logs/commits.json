@@ -1,5 +1,10 @@
 [
   {
+    "hash": "ab92fd7",
+    "role": "manager",
+    "message": "[manager] Planned Sprint 2 into architecture, data, API, UI, QA, and security workstreams for standard-library JWT authentication."
+  },
+  {
     "hash": "e38cafb",
     "role": "manager",
     "message": "[manager] Sprint 1 retrospective complete"
@@ -143,10 +148,5 @@
     "hash": "2fdf6bf",
     "role": "manager",
     "message": "[manager] Initialized the sprint with architecture discovery and parallel backend/frontend implementation; database, QA, and security work are queued for the next available agents."
-  },
-  {
-    "hash": "91ef605",
-    "role": "Solomon Adeniran",
-    "message": "updated demo project"
   }
 ]
