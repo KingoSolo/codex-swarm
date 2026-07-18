@@ -1,5 +1,11 @@
 [
   {
+    "hash": "ca59466",
+    "role": "architect",
+    "time": 1784418587,
+    "message": "[architect] Authentication architecture is already represented by the manager\u2019s dependency-ordered Sprint 2 plan; no additional task was assigned."
+  },
+  {
     "hash": "f1395ab",
     "role": "manager",
     "time": 1784418576,
@@ -172,11 +178,5 @@
     "role": "database",
     "time": 1784338963,
     "message": "[database] Verified the users and task-ownership migration, including legacy-task preservation, username uniqueness, and foreign-key enforcement."
-  },
-  {
-    "hash": "cbf879c",
-    "role": "architect",
-    "time": 1784338940,
-    "message": "[architect] Audited the current authentication design and confirmed the database/API contract for standard-library JWT-based task isolation."
   }
 ]

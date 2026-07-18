@@ -6,3 +6,4 @@
 {"call_number": 6, "role": "manager", "prompt_chars": 2917, "duration_sec": 8.5, "exit_code": 0, "response_chars": 643}
 {"call_number": 1, "role": "manager", "prompt_chars": 1670, "duration_sec": 14.5, "exit_code": 0, "response_chars": 1649}
 {"call_number": 2, "role": "architect", "prompt_chars": 967, "duration_sec": 10.8, "exit_code": 0, "response_chars": 1145}
+{"call_number": 3, "role": "architect", "prompt_chars": 1054, "duration_sec": 12.5, "exit_code": 0, "response_chars": 1961}

@@ -187,9 +187,24 @@
       "by": "security",
       "decision": "Security regression suite passes: 4 tests.",
       "sprint": 1
+    },
+    {
+      "by": "architect",
+      "decision": "Keep server.py responsible for JWT issuance/validation and request authorization.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Keep database.py responsible for users and task ownership schema/migrations.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Keep static/index.html responsible for session token storage and Authorization headers.",
+      "sprint": 2
     }
   ],
   "retrospective": null,
   "blockers": [],
-  "planning_frozen_sprint": 1
+  "planning_frozen_sprint": 2
 }
