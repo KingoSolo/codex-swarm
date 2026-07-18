@@ -19,6 +19,7 @@
     .card { background: white; border: 1px solid #dbe1ec; border-radius: 8px; padding: .75rem; } .card h3 { margin: 0 0 .35rem; }
     .card footer { margin-top: .7rem; } .card select { min-width: 0; }
     .empty { color: #748198; text-align: center; } .notice { padding: .75rem; background: #feecee; color: #9c1731; border-radius: 6px; }
+    .account { display: flex; justify-content: flex-end; align-items: center; gap: .7rem; margin-top: -2.5rem; }
     dialog { width: min(94vw, 550px); border: 0; border-radius: 12px; padding: 1.2rem; } dialog::backdrop { background: #17203388; }
     @media (max-width: 720px) { main { padding: 1rem; } .board { grid-template-columns: 1fr; } }
   </style>
@@ -26,24 +27,41 @@
 <body>
   <main>
     <h1>Flowboard</h1><p class="subtitle">Keep the next useful thing moving.</p>
-    <form id="create-form"><label>Title<input id="new-title" maxlength="200" required placeholder="What needs to happen?"></label>
-      <button>Add to Todo</button></form>
     <p id="notice" class="notice" role="status" hidden></p>
-    <section class="board" aria-label="Kanban board">
-      <section class="column"><header><h2>Todo</h2><span id="todo-count" class="count">0</span></header><div id="todo-tasks" class="tasks"></div></section>
-      <section class="column"><header><h2>In Progress</h2><span id="in_progress-count" class="count">0</span></header><div id="in_progress-tasks" class="tasks"></div></section>
-      <section class="column"><header><h2>Done</h2><span id="done-count" class="count">0</span></header><div id="done-tasks" class="tasks"></div></section>
+    <section id="auth-panel" aria-labelledby="auth-heading"><form id="auth-form"><h2 id="auth-heading">Sign in</h2>
+      <label>Username<input id="username" minlength="3" maxlength="64" required autocomplete="username"></label>
+      <label>Password<input id="password" type="password" minlength="8" maxlength="256" required autocomplete="current-password"></label>
+      <button id="auth-submit">Sign in</button><button id="auth-toggle" class="secondary" type="button">Create an account</button></form></section>
+    <section id="app" hidden>
+      <div class="account"><span id="current-user">Signed in</span><button id="sign-out" class="secondary" type="button">Sign out</button></div>
+      <form id="create-form"><label>Title<input id="new-title" maxlength="200" required placeholder="What needs to happen?"></label>
+        <button>Add to Todo</button></form>
+      <section class="board" aria-label="Kanban board">
+        <section class="column"><header><h2>Todo</h2><span id="todo-count" class="count">0</span></header><div id="todo-tasks" class="tasks"></div></section>
+        <section class="column"><header><h2>In Progress</h2><span id="in_progress-count" class="count">0</span></header><div id="in_progress-tasks" class="tasks"></div></section>
+        <section class="column"><header><h2>Done</h2><span id="done-count" class="count">0</span></header><div id="done-tasks" class="tasks"></div></section>
+      </section>
     </section>
   </main>
   <dialog id="editor"><form id="edit-form"><label>Title<input id="edit-title" maxlength="200" required></label><div class="dialog-actions"><button class="secondary" type="button" id="cancel">Cancel</button><button>Save changes</button></div></form></dialog>
   <script>
     const statuses = [["todo", "Todo"], ["in_progress", "In Progress"], ["done", "Done"]];
     const notice = document.querySelector("#notice"), editor = document.querySelector("#editor");
-    let tasks = [], editingId = null;
+    const authPanel = document.querySelector("#auth-panel"), app = document.querySelector("#app");
+    let tasks = [], editingId = null, authMode = "login", token = sessionStorage.getItem("kanban-token");
     function alertUser(message) { notice.textContent = message; notice.hidden = !message; }
+    function showAuth(message = "") { token = null; tasks = []; sessionStorage.removeItem("kanban-token"); authPanel.hidden = false; app.hidden = true; if (editor.open) editor.close(); alertUser(message); }
+    function showApp(user) { authPanel.hidden = true; app.hidden = false; document.querySelector("#current-user").textContent = user ? `Signed in as ${user.username}` : "Signed in"; }
     async function api(path, options = {}) {
-      const response = await fetch(path, { headers: { "Content-Type": "application/json" }, ...options });
-      if (!response.ok) { const body = await response.json().catch(() => ({})); throw Error(body.error || "Request failed."); }
+      const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(path, { ...options, headers });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        const message = body.error || "Request failed.";
+        if (response.status === 401) showAuth("Your session has ended. Please sign in again.");
+        throw Error(response.status === 401 ? "Your session has ended. Please sign in again." : message);
+      }
       return response.status === 204 ? null : response.json();
     }
     function card(task) {
@@ -59,13 +77,18 @@
     function render() {
       statuses.forEach(([key, label]) => { const column = document.querySelector(`#${key}-tasks`), items = tasks.filter(task => task.status === key); column.replaceChildren(...(items.length ? items.map(card) : [Object.assign(document.createElement("p"), { className: "empty", textContent: `No tasks ${label.toLowerCase()}.` })])); document.querySelector(`#${key}-count`).textContent = items.length; });
     }
-    async function reload() { try { alertUser(""); tasks = await api("/api/tasks"); render(); } catch (error) { alertUser(error.message); } }
-    async function mutate(id, fields) { try { await api(`/api/tasks/${id}`, { method: "PATCH", body: JSON.stringify(fields) }); await reload(); } catch (error) { alertUser(error.message); } }
+    async function reload() { if (!token) return showAuth(); try { alertUser(""); tasks = await api("/api/tasks"); render(); } catch (error) { alertUser(error.message); } }
+    async function mutate(id, fields) { try { await api(`/api/tasks/${id}`, { method: "PATCH", body: JSON.stringify(fields) }); await reload(); return true; } catch (error) { alertUser(error.message); return false; } }
     function openEditor(task) { editingId = task.id; document.querySelector("#edit-title").value = task.title; editor.showModal(); }
     async function removeTask(task) { if (!confirm(`Delete “${task.title}”?`)) return; try { await api(`/api/tasks/${task.id}`, { method: "DELETE" }); await reload(); } catch (error) { alertUser(error.message); } }
+    function setAuthMode(mode) { authMode = mode; const register = mode === "register"; document.querySelector("#auth-heading").textContent = register ? "Create account" : "Sign in"; document.querySelector("#auth-submit").textContent = register ? "Register" : "Sign in"; document.querySelector("#auth-toggle").textContent = register ? "I already have an account" : "Create an account"; document.querySelector("#password").autocomplete = register ? "new-password" : "current-password"; alertUser(""); }
+    document.querySelector("#auth-form").onsubmit = async event => { event.preventDefault(); const username = document.querySelector("#username").value.trim(), password = document.querySelector("#password").value; try { const result = await api(`/api/auth/${authMode}`, { method: "POST", body: JSON.stringify({ username, password }) }); token = result.token; sessionStorage.setItem("kanban-token", token); event.target.reset(); showApp(result.user); await reload(); } catch (error) { alertUser(error.message); } };
+    document.querySelector("#auth-toggle").onclick = () => setAuthMode(authMode === "login" ? "register" : "login");
+    document.querySelector("#sign-out").onclick = () => showAuth("You have signed out.");
     document.querySelector("#create-form").onsubmit = async event => { event.preventDefault(); const title = document.querySelector("#new-title").value.trim(); if (!title) return alertUser("A task title is required."); try { await api("/api/tasks", { method: "POST", body: JSON.stringify({ title }) }); event.target.reset(); await reload(); } catch (error) { alertUser(error.message); } };
-    document.querySelector("#edit-form").onsubmit = async event => { event.preventDefault(); const title = document.querySelector("#edit-title").value.trim(); if (!title) return alertUser("A task title is required."); await mutate(editingId, { title }); editor.close(); };
-    document.querySelector("#cancel").onclick = () => editor.close(); reload();
+    document.querySelector("#edit-form").onsubmit = async event => { event.preventDefault(); const title = document.querySelector("#edit-title").value.trim(); if (!title) return alertUser("A task title is required."); if (await mutate(editingId, { title })) editor.close(); };
+    document.querySelector("#cancel").onclick = () => editor.close();
+    if (token) { showApp(); reload(); } else showAuth();
   </script>
 </body>
 </html>
