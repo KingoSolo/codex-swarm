@@ -1,5 +1,15 @@
 [
   {
+    "hash": "fdc900a",
+    "role": "manager",
+    "message": "[manager] Reviewed blockers, no new tasks needed."
+  },
+  {
+    "hash": "2659155",
+    "role": "Solomon Adeniran",
+    "message": "Add gitignore"
+  },
+  {
     "hash": "222a997",
     "role": "manager",
     "message": "[manager] Sprint 3 retrospective complete"
@@ -138,15 +148,5 @@
     "hash": "97af460",
     "role": "manager",
     "message": "[manager] Database completion removes the backend blocker; backend implementation and subsequent QA/security review are now scheduled."
-  },
-  {
-    "hash": "0ce00f0",
-    "role": "database",
-    "message": "[database] Implemented and verified the SQLite-backed task repository with schema creation, validation, CRUD, status constraints, and timestamps."
-  },
-  {
-    "hash": "d0f8d82",
-    "role": "frontend",
-    "message": "[frontend] The existing static Kanban UI already implements task creation, editing, movement, deletion, and API refresh behavior against the supplied contract."
   }
 ]
