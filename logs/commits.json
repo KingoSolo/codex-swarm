@@ -1,5 +1,10 @@
 [
   {
+    "hash": "4989211",
+    "role": "frontend",
+    "message": "[frontend] Completed the authentication UI with registration, login, session-scoped JWT storage, authenticated task requests, sign-out, and 401 recovery."
+  },
+  {
     "hash": "1920ad4",
     "role": "backend",
     "message": "[backend] Verified that the existing backend implements the confirmed JWT contract, authenticated task routes, and cross-user task isolation; no server changes were needed."
@@ -143,10 +148,5 @@
     "hash": "ac9c0e4",
     "role": "manager",
     "message": "[manager] Sprint 1 retrospective complete"
-  },
-  {
-    "hash": "1d87371",
-    "role": "frontend",
-    "message": "[frontend] Confirmed the requested board UI is already implemented and JavaScript syntax validation passes; no duplicate frontend changes were needed."
   }
 ]
