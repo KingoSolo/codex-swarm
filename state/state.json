@@ -194,7 +194,7 @@
       "depends_on": [
         "arch-3"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "be-3",
@@ -253,7 +253,7 @@
       "current_task": null
     },
     "database": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "qa": {
@@ -286,6 +286,11 @@
       "from": "architect",
       "to": "frontend",
       "content": "Complete the pending auth UI against the confirmed contract: sessionStorage token only, Authorization Bearer header on task requests, and signed-out handling for 401 responses."
+    },
+    {
+      "from": "database",
+      "to": "backend",
+      "content": "Database verification passed: legacy tasks migrate with NULL user_id, usernames are case-insensitively unique, and foreign keys reject unknown task owners. Continue filtering every authenticated task operation by user_id."
     }
   ],
   "architecture_decisions": [
@@ -417,6 +422,11 @@
     {
       "by": "architect",
       "decision": "Keep task ownership server-enforced in every SELECT, INSERT, UPDATE, and DELETE; unauthenticated access returns 401 and cross-user mutations return 404.",
+      "sprint": 3
+    },
+    {
+      "by": "database",
+      "decision": "No database changes were needed; the existing migration meets the confirmed authentication and ownership contract.",
       "sprint": 3
     }
   ],

@@ -1,5 +1,10 @@
 [
   {
+    "hash": "7610875",
+    "role": "database",
+    "message": "[database] Verified the users and task-ownership migration, including legacy-task preservation, username uniqueness, and foreign-key enforcement."
+  },
+  {
     "hash": "cbf879c",
     "role": "architect",
     "message": "[architect] Audited the current authentication design and confirmed the database/API contract for standard-library JWT-based task isolation."
@@ -143,10 +148,5 @@
     "hash": "313bd07",
     "role": "manager",
     "message": "[manager] Backend is complete and frontend has been instructed to integrate; QA is now queued behind the known unavailable Flask dependency while security can begin a static review."
-  },
-  {
-    "hash": "d298b57",
-    "role": "backend",
-    "message": "[backend] Implemented the Flask REST API backed by the database-owned schema, with validated task CRUD/status updates, JSON errors, and static UI serving."
   }
 ]
