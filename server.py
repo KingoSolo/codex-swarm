@@ -95,12 +95,29 @@ def verify_token(token: str) -> int:
 class KanbanHandler(BaseHTTPRequestHandler):
     server_version = "KanbanHTTP/1.0"
 
+    def _send_security_headers(self, *, html: bool = False) -> None:
+        """Add browser protections to API and static-file responses."""
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "same-origin")
+        if html:
+            # The single-file UI contains its own script and styles, so these
+            # directives must temporarily allow inline content.  All external
+            # resources, plugins, frames, and form targets remain disallowed.
+            self.send_header(
+                "Content-Security-Policy",
+                "default-src 'self'; script-src 'self' 'unsafe-inline'; "
+                "style-src 'self' 'unsafe-inline'; object-src 'none'; "
+                "base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
+            )
+
     def _send_json(self, status: HTTPStatus, body: object | None = None) -> None:
         content = b"" if body is None else json.dumps(body).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(content)))
         self.send_header("Cache-Control", "no-store")
+        self._send_security_headers()
         self.end_headers()
         if content:
             self.wfile.write(content)
@@ -207,6 +224,7 @@ class KanbanHandler(BaseHTTPRequestHandler):
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", f"{content_type}; charset=utf-8")
         self.send_header("Content-Length", str(len(content)))
+        self._send_security_headers(html=candidate.suffix == ".html")
         self.end_headers()
         self.wfile.write(content)
 
