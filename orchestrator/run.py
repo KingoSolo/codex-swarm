@@ -3,10 +3,9 @@
 Codex Org orchestrator.
 
 Lifecycle: each sprint has exactly ONE planning phase that produces a frozen
-task graph (plan_sprint). After that, no agent — including the manager — can
-add new tasks; any attempt is dropped and logged. The manager's role in the
-dev loop is purely reactive: unblock/reassign existing tasks, never invent
-new ones. Duplicate task IDs are rejected before every save.
+task graph (plan_sprint). After that, only the adaptive manager may create
+architect-validated recovery tasks; every such intervention is persisted.
+Duplicate task IDs are rejected before every save.
 """
 import json
 import os
@@ -27,6 +26,7 @@ SESSION_ID_PATH = ROOT / "logs" / "session_id.txt"
 USAGE_LOG_PATH = ROOT / "logs" / "usage_log.jsonl"
 MOCK = os.environ.get("CODEX_ORG_MOCK", "1") == "1"
 MAX_TOTAL_CALLS = int(os.environ.get("CODEX_ORG_MAX_CALLS", "12"))
+BLOCKER_THRESHOLD_SECONDS = float(os.environ.get("CODEX_ORG_BLOCKER_THRESHOLD_SECONDS", "60"))
 
 (ROOT / "logs").mkdir(parents=True, exist_ok=True)
 
@@ -71,6 +71,10 @@ def new_state():
         "retrospective": None,
         "blockers": [],
         "task_events": [],
+        "replanning_events": [],
+        "reassignment_history": [],
+        "dependency_changes": [],
+        "adaptive": {"blocker_threshold_seconds": BLOCKER_THRESHOLD_SECONDS, "next_recovery": 1},
         "planning_frozen_sprint": None,
     }
 
@@ -94,7 +98,9 @@ def load_state():
             f"Cannot load persisted state at {STATE_PATH}: {location}. "
             "The file was not changed; repair or restore it before rerunning."
         ) from exc
-    return {**defaults, **loaded}  # any key missing from the file falls back to default
+    state = {**defaults, **loaded}  # any key missing from the file falls back to default
+    ensure_adaptive_state(state)
+    return state
 
 
 def validate_state(state):
@@ -105,6 +111,16 @@ def validate_state(state):
             f"Duplicate task IDs detected: {dupes}. Refusing to save state — "
             f"this means planning ran more than once. Fix before continuing."
         )
+
+
+def ensure_adaptive_state(state):
+    """Backfill Sprint 5 adaptive fields for live and archived-compatible state."""
+    state.setdefault("replanning_events", [])
+    state.setdefault("reassignment_history", [])
+    state.setdefault("dependency_changes", [])
+    state.setdefault("adaptive", {"blocker_threshold_seconds": BLOCKER_THRESHOLD_SECONDS, "next_recovery": 1})
+    state["adaptive"].setdefault("blocker_threshold_seconds", BLOCKER_THRESHOLD_SECONDS)
+    state["adaptive"].setdefault("next_recovery", 1)
 
 
 def atomic_write_text(path, content):
@@ -139,6 +155,7 @@ def atomic_write_text(path, content):
 
 
 def save_state(state):
+    ensure_adaptive_state(state)
     validate_state(state)
     atomic_write_text(STATE_PATH, json.dumps(state, indent=2))
 
@@ -369,23 +386,228 @@ def add_tasks(state, new_tasks, allow=True):
     if not allow:
         print(f"  [planning frozen] dropped {len(new_tasks)} proposed task(s) — planning already closed this sprint.")
         return
+    if not isinstance(new_tasks, list):
+        print("  [warning] invalid task proposal payload — skipped.")
+        return
     existing_ids = {t["id"] for t in state["tasks"]}
-    for t in new_tasks:
-        if t["id"] in existing_ids:
-            print(f"  [warning] duplicate task id '{t['id']}' proposed — skipped.")
+    allowed_owners = set(ROLE_ORDER)
+    for proposal in new_tasks:
+        if not isinstance(proposal, dict):
+            print("  [warning] non-object task proposal — skipped.")
             continue
-        t["status"] = "todo"
-        state["tasks"].append(t)
-        record_task_status(state, t, "todo")
-        existing_ids.add(t["id"])
+        task_id = proposal.get("id")
+        title = proposal.get("title")
+        owner = proposal.get("owner")
+        dependencies = proposal.get("depends_on", [])
+        if (
+            not isinstance(task_id, str) or not task_id
+            or not isinstance(title, str) or not title.strip()
+            or owner not in allowed_owners
+            or not isinstance(dependencies, list)
+            or any(not isinstance(dependency, str) for dependency in dependencies)
+        ):
+            print("  [warning] malformed task proposal — skipped.")
+            continue
+        if task_id in existing_ids:
+            print(f"  [warning] duplicate task id '{task_id}' proposed — skipped.")
+            continue
+        # The frozen plan is dependency ordered, so every dependency must
+        # already have been accepted. This also prevents dangling links and
+        # cross-proposal cycles from being persisted.
+        if any(dependency not in existing_ids for dependency in dependencies):
+            print(f"  [warning] task '{task_id}' has an unknown dependency — skipped.")
+            continue
+        task = {**proposal, "depends_on": list(dependencies), "status": "todo"}
+        if dependency_cycle([*state["tasks"], task]):
+            print(f"  [warning] task '{task_id}' would create a dependency cycle — skipped.")
+            continue
+        state["tasks"].append(task)
+        record_task_status(state, task, "todo")
+        existing_ids.add(task_id)
 
 
 def record_task_status(state, task, status):
     """Record task-state transitions so a completed sprint can be replayed."""
     state.setdefault("task_events", []).append({
         "task_id": task["id"], "status": status, "time": _time.time(),
-        "sprint": state["sprint"]["number"],
+        "sprint": state["sprint"]["number"], "owner": task.get("owner"),
     })
+
+
+def record_replanning_event(state, action, text, **details):
+    """Persist one manager/architect intervention for activity and replay."""
+    event = {
+        "action": action, "text": text, "by": details.pop("by", "manager"),
+        "time": _time.time(), "sprint": state["sprint"]["number"], **details,
+    }
+    state.setdefault("replanning_events", []).append(event)
+    return event
+
+
+def dependency_cycle(tasks):
+    """Return whether task dependencies contain a cycle."""
+    by_id = {task["id"]: task for task in tasks}
+    visiting, visited = set(), set()
+
+    def visit(task_id):
+        if task_id in visiting:
+            return True
+        if task_id in visited:
+            return False
+        visiting.add(task_id)
+        cyclic = any(dep in by_id and visit(dep) for dep in by_id[task_id].get("depends_on", []))
+        visiting.remove(task_id)
+        visited.add(task_id)
+        return cyclic
+
+    return any(visit(task_id) for task_id in by_id)
+
+
+def descendants_of(state, task_id):
+    """Find every downstream task, including indirect dependencies."""
+    descendants, frontier = set(), [task_id]
+    while frontier:
+        dependency = frontier.pop()
+        for task in state["tasks"]:
+            if dependency in task.get("depends_on", []) and task["id"] not in descendants:
+                descendants.add(task["id"])
+                frontier.append(task["id"])
+    return descendants
+
+
+def pause_downstream_tasks(state, blocked_task):
+    changed = False
+    for task_id in descendants_of(state, blocked_task["id"]):
+        task = next(task for task in state["tasks"] if task["id"] == task_id)
+        if task["status"] != "todo":
+            continue
+        task["status"] = "paused"
+        record_task_status(state, task, "paused")
+        record_replanning_event(state, "pause", f"Paused downstream task '{task['title']}' until '{blocked_task['title']}' is recovered.", task_id=task_id, blocked_by=blocked_task["id"])
+        changed = True
+    return changed
+
+
+def reassign_task(state, task, new_owner, reason):
+    """Reassign a task with durable audit history when it is safe to do so."""
+    if task["owner"] == new_owner or task["status"] not in {"todo", "blocked", "paused"}:
+        return False
+    previous_owner = task["owner"]
+    task["owner"] = new_owner
+    entry = {"task_id": task["id"], "from": previous_owner, "to": new_owner, "reason": reason,
+             "time": _time.time(), "sprint": state["sprint"]["number"]}
+    state.setdefault("reassignment_history", []).append(entry)
+    record_replanning_event(state, "reassign", f"Reassigned '{task['title']}' from {previous_owner} to {new_owner}: {reason}", task_id=task["id"], **{"from": previous_owner, "to": new_owner})
+    send_manager_message(state, new_owner, f"New assignment: '{task['title']}'. {reason}")
+    return True
+
+
+def create_recovery_task(state, blocked_task):
+    """Create a manager intervention that the architect validates before use."""
+    if any(task.get("recovery_for") == blocked_task["id"] for task in state["tasks"]):
+        return None
+    adaptive = state["adaptive"]
+    recovery_id = f"recovery-s{state['sprint']['number']}-{adaptive['next_recovery']}"
+    adaptive["next_recovery"] += 1
+    recovery = {
+        "id": recovery_id, "title": f"Recover blocked work: {blocked_task['title']}",
+        "owner": "architect", "depends_on": [], "status": "todo", "recovery_for": blocked_task["id"],
+        "manager_created": True, "validated_by_architect": False,
+    }
+    state["tasks"].append(recovery)
+    record_task_status(state, recovery, "todo")
+    record_replanning_event(state, "recovery_created", f"Created recovery task '{recovery['title']}' for blocked task '{blocked_task['title']}'.", task_id=recovery_id, recovery_for=blocked_task["id"])
+    return recovery
+
+
+def validate_recovery_tasks(state):
+    """Architect validation adds recovery dependencies and rejects cycles."""
+    changed = False
+    by_id = {task["id"]: task for task in state["tasks"]}
+    for recovery in state["tasks"]:
+        if not recovery.get("manager_created") or recovery.get("validated_by_architect"):
+            continue
+        blocked_task = by_id.get(recovery.get("recovery_for"))
+        if blocked_task is None:
+            continue
+        previous_dependencies = list(blocked_task.get("depends_on", []))
+        if recovery["id"] not in blocked_task["depends_on"]:
+            blocked_task["depends_on"].append(recovery["id"])
+        if dependency_cycle(state["tasks"]):
+            blocked_task["depends_on"] = previous_dependencies
+            recovery["status"] = "blocked"
+            record_task_status(state, recovery, "blocked")
+            record_replanning_event(state, "recovery_rejected", f"Architect rejected recovery task '{recovery['title']}' because it would create a dependency cycle.", by="architect", task_id=recovery["id"])
+            changed = True
+            continue
+        recovery["validated_by_architect"] = True
+        change = {"task_id": blocked_task["id"], "before": previous_dependencies, "after": list(blocked_task["depends_on"]),
+                  "reason": f"Architect validated recovery task {recovery['id']}", "time": _time.time(), "sprint": state["sprint"]["number"]}
+        state.setdefault("dependency_changes", []).append(change)
+        state["architecture_decisions"].append({"by": "architect", "decision": f"Validated recovery task {recovery['id']} for {blocked_task['id']} without a dependency cycle.", "sprint": state["sprint"]["number"]})
+        record_replanning_event(state, "dependency_update", f"Architect validated recovery for '{blocked_task['title']}' and updated its dependencies.", by="architect", task_id=blocked_task["id"], recovery_task_id=recovery["id"])
+        changed = True
+    return changed
+
+
+def resume_recovered_tasks(state):
+    """Resume recovered blocked work and paused downstream tasks automatically."""
+    by_id = {task["id"]: task for task in state["tasks"]}
+    changed = False
+    for task in state["tasks"]:
+        recovery_dependencies = [by_id[dep] for dep in task.get("depends_on", []) if dep in by_id and by_id[dep].get("recovery_for") == task["id"]]
+        if task["status"] == "blocked" and recovery_dependencies and all(dep["status"] == "done" for dep in recovery_dependencies):
+            task["status"] = "todo"
+            record_task_status(state, task, "todo")
+            for blocker in state["blockers"]:
+                if blocker.get("task_id") == task["id"] and not blocker.get("resolved_at"):
+                    blocker["resolved_at"] = _time.time()
+                    blocker["recovered"] = True
+            record_replanning_event(state, "recovered", f"Recovered blocker for '{task['title']}'; the task is ready to resume.", task_id=task["id"])
+            changed = True
+        if task["status"] == "paused" and all(by_id.get(dep, {}).get("status") == "done" for dep in task.get("depends_on", [])):
+            task["status"] = "todo"
+            record_task_status(state, task, "todo")
+            record_replanning_event(state, "resume", f"Resumed paused task '{task['title']}' after its dependencies cleared.", task_id=task["id"])
+            changed = True
+    return changed
+
+
+def monitor_adaptive_sprint(state, now=None):
+    """Continuously apply deterministic manager recovery and resumption rules."""
+    ensure_adaptive_state(state)
+    now = _time.time() if now is None else now
+    threshold = float(state["adaptive"]["blocker_threshold_seconds"])
+    changed = resume_recovered_tasks(state)
+    for task in state["tasks"]:
+        if task["status"] != "blocked":
+            continue
+        blocked_events = [event for event in state.get("task_events", []) if event.get("task_id") == task["id"] and event.get("status") == "blocked"]
+        blocked_at = blocked_events[-1]["time"] if blocked_events else now
+        if now - blocked_at < threshold:
+            continue
+        changed |= pause_downstream_tasks(state, task)
+        for owner in task.get("fallback_owners", []):
+            if owner == task["owner"] or any(candidate["owner"] == owner and candidate["status"] == "in_progress" for candidate in state["tasks"]):
+                continue
+            if all(next((candidate for candidate in state["tasks"] if candidate["id"] == dep), {}).get("status") == "done" for dep in task.get("depends_on", [])):
+                changed |= reassign_task(state, task, owner, "The original owner remained blocked beyond the configured threshold.")
+                break
+        recovery = create_recovery_task(state, task)
+        changed |= recovery is not None
+        if recovery is not None:
+            changed |= validate_recovery_tasks(state)
+    return changed
+
+
+def persist_replanning(state):
+    """Persist and separately attribute adaptive manager interventions in Git."""
+    latest = state["replanning_events"][-1]
+    save_state(state)
+    git_commit(
+        "manager", f"Adaptive replanning: {latest['action']}", state["sprint"]["number"],
+        {"files_changed": ["state/state.json"], "summary": latest["text"], "decisions": [latest["text"]]},
+    )
 
 
 def send_manager_message(state, recipient, content):
@@ -431,7 +653,7 @@ def send_review_handoff(state):
         send_manager_message(state, "security", "Security review request: implementation work is ready for authentication, authorization, and input-handling review.")
 
 
-def apply_turn(state, role, output, planning_open=False):
+def apply_turn(state, role, output, planning_open=False, task=None):
     state["agents"][role]["status"] = output.get("task_status", "done")
     for f in output.get("files_changed", []):
         state["files_owned"][f] = role
@@ -441,7 +663,10 @@ def apply_turn(state, role, output, planning_open=False):
     for d in output.get("decisions", []):
         state["architecture_decisions"].append({"by": role, "decision": d, "sprint": state["sprint"]["number"]})
     for b in output.get("blockers", []):
-        state["blockers"].append({"role": role, "text": b, "sprint": state["sprint"]["number"], "time": _time.time()})
+        blocker = {"role": role, "text": b, "sprint": state["sprint"]["number"], "time": _time.time()}
+        if task:
+            blocker["task_id"] = task["id"]
+        state["blockers"].append(blocker)
     return output.get("blockers", [])
 
 
@@ -600,7 +825,7 @@ def seed_sprint_1(state):
 
 def plan_sprint(state):
     """Exactly one planning phase per sprint. Produces a frozen task graph;
-    nothing after this point may add tasks except via a new sprint."""
+    after this point only architect-validated recovery tasks may be added."""
     if state.get("planning_frozen_sprint") == state["sprint"]["number"]:
         return  # already planned
 
@@ -629,6 +854,8 @@ def run_dev_loop(state, max_rounds=6):
     seen_blocker_signature = None
     for round_num in range(max_rounds):
         any_work = False
+        if monitor_adaptive_sprint(state):
+            persist_replanning(state)
         current_blockers = tuple(sorted(t["id"] for t in state["tasks"] if t["status"] == "blocked"))
 
         for role in ROLE_ORDER:
@@ -649,12 +876,14 @@ def run_dev_loop(state, max_rounds=6):
                 task["status"] = "in_progress"
                 record_task_status(state, task, "in_progress")
             output = call_codex(role, prompt)
-            blockers = apply_turn(state, role, output, planning_open=False)
+            blockers = apply_turn(state, role, output, planning_open=False, task=task)
             if task:
                 task["status"] = output.get("task_status", "done")
                 record_task_status(state, task, task["status"])
                 coordinate_completed_task(state, task)
                 send_review_handoff(state)
+            if monitor_adaptive_sprint(state):
+                persist_replanning(state)
             git_commit(role, output.get("summary", "update"), state["sprint"]["number"], output)
             save_state(state)
             any_work = True
@@ -680,9 +909,11 @@ def run_dev_loop(state, max_rounds=6):
             task["status"] = "in_progress"
             record_task_status(state, task, "in_progress")
             output = call_codex(role, prompt)
-            blockers = apply_turn(state, role, output, planning_open=False)
+            blockers = apply_turn(state, role, output, planning_open=False, task=task)
             task["status"] = output.get("task_status", "done")
             record_task_status(state, task, task["status"])
+            if monitor_adaptive_sprint(state):
+                persist_replanning(state)
             git_commit(role, output.get("summary", "final pass"), state["sprint"]["number"], output)
             save_state(state)
             if blockers:
@@ -727,6 +958,9 @@ def start_new_sprint(state, new_goal):
         "tasks": state["tasks"], "messages": state["messages"], "retrospective": state["retrospective"],
         "blockers": [b for b in state["blockers"] if b.get("sprint") == sprint_number],
         "task_events": [e for e in state.get("task_events", []) if e.get("sprint") == sprint_number],
+        "replanning_events": [e for e in state.get("replanning_events", []) if e.get("sprint") == sprint_number],
+        "reassignment_history": [e for e in state.get("reassignment_history", []) if e.get("sprint") == sprint_number],
+        "dependency_changes": [e for e in state.get("dependency_changes", []) if e.get("sprint") == sprint_number],
         "commits": [c for c in commits if c.get("sprint") == sprint_number],
         "started_at": state["sprint"].get("started_at"),
         "completed_at": state["sprint"].get("completed_at"),
@@ -736,6 +970,9 @@ def start_new_sprint(state, new_goal):
     state["messages"] = []
     state["retrospective"] = None
     state["task_events"] = []
+    state["replanning_events"] = []
+    state["reassignment_history"] = []
+    state["dependency_changes"] = []
     for role in state["agents"]:
         state["agents"][role] = {"status": "idle", "current_task": None}
     return state
