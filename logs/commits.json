@@ -1,5 +1,22 @@
 [
   {
+    "hash": "f3ead69",
+    "role": "security",
+    "time": 1784426480,
+    "message": "[security] Security review found no new evidenced authentication or authorization flaw; JWT validation and protected task isolation tests pass.",
+    "sprint": 2,
+    "summary": "Security review found no new evidenced authentication or authorization flaw; JWT validation and protected task isolation tests pass.",
+    "files_changed": [],
+    "decisions": [
+      "JWTs require HS256 signatures with a configured 32-byte minimum secret and enforce expiration; invalid and expired tokens are rejected.",
+      "Passwords use per-user random salts, PBKDF2-HMAC-SHA256, and constant-time hash comparisons.",
+      "Task SQL is parameterized and every task read, update, and delete is scoped to the authenticated user ID.",
+      "Validated syntax and ran `python3 -m unittest -v test_api.py` successfully (5 passing)."
+    ],
+    "blockers": [],
+    "new_tasks": []
+  },
+  {
     "hash": "9248e78",
     "role": "qa",
     "time": 1784426462,

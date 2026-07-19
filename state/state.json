@@ -2,9 +2,9 @@
   "sprint": {
     "number": 2,
     "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
-    "status": "in_progress",
+    "status": "complete",
     "started_at": 1784426433.143095,
-    "completed_at": null
+    "completed_at": 1784426489.789879
   },
   "sprint_history": [
     {
@@ -628,6 +628,13 @@
       "owner": "qa",
       "depends_on": [],
       "status": "done"
+    },
+    {
+      "id": "auto-security-s2",
+      "title": "Final security pass",
+      "owner": "security",
+      "depends_on": [],
+      "status": "done"
     }
   ],
   "agents": {
@@ -656,7 +663,7 @@
       "current_task": null
     },
     "security": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     }
   },
@@ -742,9 +749,29 @@
       "by": "qa",
       "decision": "No new regression or evidenced gap was found in the current JWT authentication implementation.",
       "sprint": 2
+    },
+    {
+      "by": "security",
+      "decision": "JWTs require HS256 signatures with a configured 32-byte minimum secret and enforce expiration; invalid and expired tokens are rejected.",
+      "sprint": 2
+    },
+    {
+      "by": "security",
+      "decision": "Passwords use per-user random salts, PBKDF2-HMAC-SHA256, and constant-time hash comparisons.",
+      "sprint": 2
+    },
+    {
+      "by": "security",
+      "decision": "Task SQL is parameterized and every task read, update, and delete is scoped to the authenticated user ID.",
+      "sprint": 2
+    },
+    {
+      "by": "security",
+      "decision": "Validated syntax and ran `python3 -m unittest -v test_api.py` successfully (5 passing).",
+      "sprint": 2
     }
   ],
-  "retrospective": null,
+  "retrospective": "Sprint 2 completed its available QA and security review tasks; no implementation tasks were created in the frozen plan.",
   "blockers": [],
   "task_events": [
     {
@@ -763,6 +790,24 @@
       "task_id": "auto-qa-s2",
       "status": "done",
       "time": 1784426462.704551,
+      "sprint": 2
+    },
+    {
+      "task_id": "auto-security-s2",
+      "status": "todo",
+      "time": 1784426462.805768,
+      "sprint": 2
+    },
+    {
+      "task_id": "auto-security-s2",
+      "status": "in_progress",
+      "time": 1784426462.80598,
+      "sprint": 2
+    },
+    {
+      "task_id": "auto-security-s2",
+      "status": "done",
+      "time": 1784426480.040266,
       "sprint": 2
     }
   ],

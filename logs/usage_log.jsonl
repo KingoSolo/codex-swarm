@@ -8,3 +8,4 @@
 {"call_number": 2, "role": "architect", "prompt_chars": 994, "duration_sec": 8.5, "exit_code": 0, "response_chars": 582, "sprint": 2}
 {"call_number": 3, "role": "qa", "prompt_chars": 1098, "duration_sec": 13.8, "exit_code": 0, "response_chars": 2000, "sprint": 2}
 {"call_number": 4, "role": "security", "prompt_chars": 1111, "duration_sec": 17.2, "exit_code": 0, "response_chars": 10185, "sprint": 2}
+{"call_number": 5, "role": "manager", "prompt_chars": 2223, "duration_sec": 9.6, "exit_code": 0, "response_chars": 792, "sprint": 2}
