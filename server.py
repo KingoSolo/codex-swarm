@@ -9,6 +9,7 @@ import hmac
 import json
 import mimetypes
 import os
+import re
 import secrets
 import sqlite3
 import time
@@ -17,7 +18,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
-from database import VALID_STATUSES, get_connection, initialize_database, utc_timestamp
+from database import VALID_STATUSES, initialize_database, managed_connection, utc_timestamp
 
 
 HOST = "127.0.0.1"
@@ -26,6 +27,23 @@ STATIC_DIR = Path(__file__).with_name("static").resolve()
 MAX_BODY_BYTES = 16_384
 PASSWORD_ITERATIONS = 310_000
 TOKEN_LIFETIME_SECONDS = 3_600
+# Fixed, non-secret values used only to equalize failed-login work when a user
+# does not exist. They must not be generated per request, or username lookup
+# timing would still reveal whether a database row was found.
+DUMMY_PASSWORD_SALT = bytes.fromhex("a7139d4ce2b86f40d75a91cb6e280f5d")
+DUMMY_PASSWORD_HASH = bytes.fromhex(
+    "ed7323c16c389a8b9677c4d94c3bd1adf6c3f2ea1f94c2f85d5f3f2a03d3b1a6"
+)
+
+
+def _inline_content_hash(tag: str) -> str:
+    """Return a CSP hash for the single inline static-app asset of ``tag``."""
+    source = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    match = re.search(rf"<{tag}>(.*?)</{tag}>", source, re.DOTALL)
+    if match is None:
+        raise RuntimeError(f"static index.html is missing its inline {tag}")
+    digest = hashlib.sha256(match.group(1).encode("utf-8")).digest()
+    return f"'sha256-{base64.b64encode(digest).decode('ascii')}'"
 
 
 def task_from_row(row: object) -> dict[str, object]:
@@ -101,13 +119,14 @@ class KanbanHandler(BaseHTTPRequestHandler):
         self.send_header("X-Frame-Options", "DENY")
         self.send_header("Referrer-Policy", "same-origin")
         if html:
-            # The single-file UI contains its own script and styles, so these
-            # directives must temporarily allow inline content.  All external
-            # resources, plugins, frames, and form targets remain disallowed.
+            # Permit only the exact inline style and script shipped with the
+            # single-file UI. This deliberately avoids unsafe-inline.
+            script_hash = _inline_content_hash("script")
+            style_hash = _inline_content_hash("style")
             self.send_header(
                 "Content-Security-Policy",
-                "default-src 'self'; script-src 'self' 'unsafe-inline'; "
-                "style-src 'self' 'unsafe-inline'; object-src 'none'; "
+                f"default-src 'self'; script-src 'self' {script_hash}; "
+                f"style-src 'self' {style_hash}; object-src 'none'; "
                 "base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
             )
 
@@ -235,7 +254,7 @@ class KanbanHandler(BaseHTTPRequestHandler):
         user_id = self._authenticated_user_id()
         if user_id is None:
             return
-        with get_connection() as connection:
+        with managed_connection() as connection:
             rows = connection.execute(
                 "SELECT id, title, status, created_at FROM tasks WHERE user_id = ? ORDER BY id DESC",
                 (user_id,),
@@ -270,7 +289,7 @@ class KanbanHandler(BaseHTTPRequestHandler):
         if status not in VALID_STATUSES:
             self._error(HTTPStatus.BAD_REQUEST, "status must be todo, in_progress, or done")
             return
-        with get_connection() as connection:
+        with managed_connection() as connection:
             cursor = connection.execute(
                 "INSERT INTO tasks (title, status, created_at, user_id) VALUES (?, ?, ?, ?)",
                 (title, status, utc_timestamp(), user_id),
@@ -288,7 +307,7 @@ class KanbanHandler(BaseHTTPRequestHandler):
         salt = secrets.token_bytes(16)
         password_hash = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, PASSWORD_ITERATIONS)
         try:
-            with get_connection() as connection:
+            with managed_connection() as connection:
                 cursor = connection.execute(
                     "INSERT INTO users (username, password_hash, password_salt, created_at) VALUES (?, ?, ?, ?)",
                     (username, password_hash, salt, utc_timestamp()),
@@ -303,15 +322,15 @@ class KanbanHandler(BaseHTTPRequestHandler):
         if credentials is None:
             return
         username, password = credentials
-        with get_connection() as connection:
+        with managed_connection() as connection:
             row = connection.execute(
                 "SELECT id, username, password_hash, password_salt FROM users WHERE username = ?", (username,)
             ).fetchone()
-        if row is None:
-            self._error(HTTPStatus.UNAUTHORIZED, "invalid username or password")
-            return
-        password_hash = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), row["password_salt"], PASSWORD_ITERATIONS)
-        if not hmac.compare_digest(password_hash, row["password_hash"]):
+        salt = row["password_salt"] if row is not None else DUMMY_PASSWORD_SALT
+        expected_hash = row["password_hash"] if row is not None else DUMMY_PASSWORD_HASH
+        password_hash = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, PASSWORD_ITERATIONS)
+        password_matches = hmac.compare_digest(password_hash, expected_hash)
+        if row is None or not password_matches:
             self._error(HTTPStatus.UNAUTHORIZED, "invalid username or password")
             return
         self._send_json(HTTPStatus.OK, {"token": create_token(row["id"]), "user": {"id": row["id"], "username": row["username"]}})
@@ -353,7 +372,7 @@ class KanbanHandler(BaseHTTPRequestHandler):
             values.append(payload["status"])
         values.append(task_id)
         values.append(user_id)
-        with get_connection() as connection:
+        with managed_connection() as connection:
             cursor = connection.execute(
                 f"UPDATE tasks SET {', '.join(updates)} WHERE id = ? AND user_id = ?", values
             )
@@ -373,7 +392,7 @@ class KanbanHandler(BaseHTTPRequestHandler):
         user_id = self._authenticated_user_id()
         if user_id is None:
             return
-        with get_connection() as connection:
+        with managed_connection() as connection:
             cursor = connection.execute("DELETE FROM tasks WHERE id = ? AND user_id = ?", (task_id, user_id))
         if cursor.rowcount == 0:
             self._error(HTTPStatus.NOT_FOUND, "task not found")

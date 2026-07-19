@@ -5,10 +5,12 @@ from __future__ import annotations
 import os
 import tempfile
 import unittest
+import hashlib
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import database
+import server
 from server import KanbanHandler, create_token
 
 
@@ -69,7 +71,7 @@ class KanbanApiTests(unittest.TestCase):
         self.assertEqual(registered["user"]["username"], "alice")
         self.assertIsInstance(registered["token"], str)
 
-        with database.get_connection() as connection:
+        with database.managed_connection() as connection:
             row = connection.execute("SELECT password_hash, password_salt FROM users WHERE username = ?", ("alice",)).fetchone()
         self.assertNotEqual(row["password_hash"], b"correct horse battery")
         self.assertNotEqual(row["password_salt"], b"correct horse battery")
@@ -81,6 +83,26 @@ class KanbanApiTests(unittest.TestCase):
         self.assertEqual(logged_in["user"]["username"], "alice")
         status, _ = self.request("POST", "/api/auth/login", {"username": "alice", "password": "wrong password"})
         self.assertEqual(status, 401)
+
+    def test_unknown_user_login_performs_dummy_pbkdf2_and_matches_failure_response(self) -> None:
+        self.register("alice")
+        password = "wrong password"
+        with patch("server.hashlib.pbkdf2_hmac", wraps=hashlib.pbkdf2_hmac) as derive:
+            known_status, known_response = self.request(
+                "POST", "/api/auth/login", {"username": "alice", "password": password}
+            )
+            unknown_status, unknown_response = self.request(
+                "POST", "/api/auth/login", {"username": "nobody", "password": password}
+            )
+
+        self.assertEqual((unknown_status, unknown_response), (known_status, known_response))
+        self.assertEqual((known_status, known_response), (401, {"error": "invalid username or password"}))
+        self.assertEqual(derive.call_count, 2)
+        unknown_call = derive.call_args_list[1].args
+        self.assertEqual(
+            unknown_call,
+            ("sha256", password.encode("utf-8"), server.DUMMY_PASSWORD_SALT, server.PASSWORD_ITERATIONS),
+        )
 
     def test_registration_rejects_confusable_unicode_username(self) -> None:
         status, _ = self.request(
@@ -130,6 +152,25 @@ class KanbanApiTests(unittest.TestCase):
         self.assertIn("Authorization", source)
         self.assertIn("/api/auth/", source)
         self.assertIn("response.status === 401", source)
+
+    def test_static_html_csp_allows_only_hashed_inline_assets(self) -> None:
+        headers: dict[str, str] = {}
+        handler = object.__new__(KanbanHandler)
+        handler.send_header = lambda name, value: headers.__setitem__(name, value)
+
+        handler._send_security_headers(html=True)
+
+        csp = headers["Content-Security-Policy"]
+        self.assertNotIn("unsafe-inline", csp)
+        self.assertGreaterEqual(csp.count("sha256-"), 2)
+
+    def test_managed_connection_closes_after_use(self) -> None:
+        connection = MagicMock()
+        with patch.object(database, "get_connection", return_value=connection):
+            with database.managed_connection() as yielded:
+                self.assertIs(yielded, connection)
+
+        connection.close.assert_called_once()
 
 
 if __name__ == "__main__":

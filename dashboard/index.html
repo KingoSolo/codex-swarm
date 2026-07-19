@@ -55,6 +55,7 @@
   .replay-knob { position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: #fff;
                  transform: translate(-50%, -50%); box-shadow: 0 0 6px rgba(76,201,240,0.8); pointer-events: none; }
   .replay-time { font-family: var(--mono); font-size: 11px; color: var(--dim); margin-top: 6px; }
+  .replay-warning { font-family: var(--mono); font-size: 11px; color: var(--blocked); margin-top: 6px; }
   .replay-tooltip { position: absolute; bottom: 16px; background: var(--panel-2); border: 1px solid var(--line);
                      border-radius: 4px; padding: 5px 9px; font-size: 11px; font-family: var(--mono); white-space: nowrap;
                      transform: translateX(-50%); display: none; z-index: 5; pointer-events: none; }
@@ -188,6 +189,7 @@
       <div class="replay-tooltip" id="replay-tooltip"></div>
     </div>
     <div class="replay-time" id="replay-time">00:00 / 00:00</div>
+    <div class="replay-warning" id="replay-warning" role="status" style="display:none;"></div>
   </div>
 
   <div class="completion-card" id="completion-card">
@@ -276,7 +278,8 @@ function combinedSprints(state) {
                      // Untagged logs are legacy data; retain them only for the live view.
                      commits: currentCommits.length ? currentCommits : allCommits,
                      retrospective: state.retrospective, started_at: state.sprint.started_at,
-                     completed_at: state.sprint.completed_at, live: true };
+                     completed_at: state.sprint.completed_at,
+                     commitHistoryError: state._commitHistoryError || null, live: true };
   return [...archived, current];
 }
 
@@ -305,13 +308,22 @@ function classifyEvent(content) {
   if (/ready|complete|done|finished|passed|shipped/i.test(content)) return { icon: '✅', downstreamVerb: 'automatically resumed work' };
   return { icon: '💬', downstreamVerb: 'notified' };
 }
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+}
+function safeTaskStatus(status) {
+  return ['todo', 'in_progress', 'blocked', 'done'].includes(status) ? status : 'todo';
+}
+function safeSprintStatus(status) {
+  return ['not_started', 'in_progress', 'complete'].includes(status) ? status : 'not_started';
+}
 
 function renderTabs(state) {
   const sprints = combinedSprints(state);
   const tabsEl = document.getElementById('tabs');
   tabsEl.innerHTML = sprints.map((s, i) => {
     const isActive = currentTabIndex(state) === i;
-    return `<div class="tab ${isActive ? 'active' : ''} ${s.live ? 'live' : ''}" data-idx="${i}">Sprint ${s.number}${s.live ? ' (live)' : ''}</div>`;
+    return `<div class="tab ${isActive ? 'active' : ''} ${s.live ? 'live' : ''}" data-idx="${i}">Sprint ${escapeHtml(s.number)}${s.live ? ' (live)' : ''}</div>`;
   }).join('');
   [...tabsEl.children].forEach(el => {
     el.addEventListener('click', () => {
@@ -357,7 +369,7 @@ function renderDepGraph(tasks, statusOverride) {
   const statusColor = { done: 'var(--done)', in_progress: 'var(--active)', blocked: 'var(--blocked)', todo: 'var(--todo)' };
   let edges = '';
   tasks.forEach(t => {
-    const tStatus = (statusOverride && statusOverride[t.id]) || t.status;
+    const tStatus = safeTaskStatus((statusOverride && statusOverride[t.id]) || t.status);
     (t.depends_on || []).forEach(dep => {
       if (!positions[dep]) return;
       const a = positions[dep], b = positions[t.id];
@@ -368,15 +380,35 @@ function renderDepGraph(tasks, statusOverride) {
   let nodes = '';
   tasks.forEach(t => {
     const p = positions[t.id];
-    const tStatus = (statusOverride && statusOverride[t.id]) || t.status;
+    const tStatus = safeTaskStatus((statusOverride && statusOverride[t.id]) || t.status);
     const color = statusColor[tStatus] || statusColor.todo;
     const wake = tStatus === 'in_progress' ? 'wake' : '';
     nodes += `<circle class="dep-node ${wake}" cx="${p.x}" cy="${p.y}" r="6" fill="${color}"/>
-      <text x="${p.x}" y="${p.y - 12}" text-anchor="middle" class="node-owner">${t.owner}</text>
-      <text x="${p.x}" y="${p.y + 20}" text-anchor="middle" class="node-label">${t.id}</text>`;
+      <text x="${p.x}" y="${p.y - 12}" text-anchor="middle" class="node-owner">${escapeHtml(t.owner)}</text>
+      <text x="${p.x}" y="${p.y + 20}" text-anchor="middle" class="node-label">${escapeHtml(t.id)}</text>`;
   });
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   svg.innerHTML = edges + nodes;
+}
+
+function replaySecond(value) {
+  const timestamp = Number(value);
+  if (!Number.isFinite(timestamp)) return 0;
+  return Math.floor(timestamp > 1e11 ? timestamp / 1000 : timestamp);
+}
+
+function replayEventPriority(event) {
+  if (event.type === 'task') {
+    return { todo: 0, in_progress: 1, blocked: 2, done: 3 }[event.data.status] ?? 0;
+  }
+  return { message: 4, blocker: 5, commit: 6 }[event.type] ?? 7;
+}
+
+function replayEventKey(event) {
+  if (event.type === 'task') return `${event.data.task_id}|${event.data.status}`;
+  if (event.type === 'commit') return `${event.data.hash || ''}|${event.data.role || ''}|${event.data.message || ''}`;
+  if (event.type === 'message') return `${event.data.from || ''}|${event.data.to || ''}|${event.data.content || ''}`;
+  return `${event.data.role || ''}|${event.data.text || ''}`;
 }
 
 function buildTimeline(view) {
@@ -402,15 +434,21 @@ function buildTimeline(view) {
     const anchorTime = roleEvents.length ? Math.max(...roleEvents.map(e => e.time)) : (events.length ? events[events.length-1].time : 0);
     add('blocker', b.time || anchorTime + 0.01, b);
   });
-  const priority = { task: 0, message: 1, blocker: 2, commit: 3 };
-  events.sort((a, b) => a.time - b.time || priority[a.type] - priority[b.type] || a.sequence - b.sequence);
-  const firstTime = events[0]?.time;
-  const lastTime = events[events.length - 1]?.time;
+  events.forEach(event => { event.replaySecond = replaySecond(event.time); });
+  events.sort((a, b) =>
+    a.replaySecond - b.replaySecond ||
+    replayEventPriority(a) - replayEventPriority(b) ||
+    replayEventKey(a).localeCompare(replayEventKey(b)) ||
+    a.sequence - b.sequence
+  );
+  const firstTime = events[0]?.replaySecond;
+  const lastTime = events[events.length - 1]?.replaySecond;
   const span = lastTime - firstTime;
   return events.map((event, index) => ({
     ...event,
+    order: index,
     // Preserve the recorded event spacing while fitting a sprint into the fixed replay duration.
-    replayAt: span > 0 ? ((event.time - firstTime) / span) * BASE_REPLAY_SECONDS
+    replayAt: span > 0 ? ((event.replaySecond - firstTime) / span) * BASE_REPLAY_SECONDS
                         : (index / Math.max(1, events.length - 1)) * BASE_REPLAY_SECONDS,
   }));
 }
@@ -451,7 +489,7 @@ function deriveStateAt(view, timeline, visibleCount) {
     } else if (lastTaskEvent.data.status === 'in_progress') {
       engineerPhase[role] = 'working';
     } else {
-      const hasCommitAfterTask = visible.some(event => event.type === 'commit' && event.data.role === role && event.time >= lastTaskEvent.time);
+      const hasCommitAfterTask = visible.some(event => event.type === 'commit' && event.data.role === role && event.order > lastTaskEvent.order);
       engineerPhase[role] = hasCommitAfterTask ? 'done' : 'review';
     }
   });
@@ -494,10 +532,11 @@ function renderStaticFrame(state) {
 function paintFrame(state, view, derived, commits, isReplayFrame) {
   renderTabs(state);
   renderCmdBar(state, view, derived, commits);
+  renderReplayWarning(view);
 
   document.getElementById('goal-text').textContent = view.goal;
   const badge = document.getElementById('status-badge');
-  const st = view.live ? state.sprint.status : 'complete';
+  const st = safeSprintStatus(view.live ? state.sprint.status : 'complete');
   badge.textContent = st.replace('_', ' ');
   badge.className = 'status-badge ' + st;
 
@@ -514,7 +553,7 @@ function paintFrame(state, view, derived, commits, isReplayFrame) {
   document.getElementById('board').innerHTML = cols.map(c => {
     const items = view.tasks.filter(t => derived.taskStatus[t.id] === c);
     return `<div class="board-col"><div class="col-title">${colTitle[c]} (${items.length})</div>
-      ${items.map(t => `<div class="task-chip ${derived.taskStatus[t.id]}">${t.title}<div class="owner">${t.owner}</div></div>`).join('') || '<span class="empty" style="font-size:11px;">—</span>'}
+      ${items.map(t => `<div class="task-chip ${safeTaskStatus(derived.taskStatus[t.id])}">${escapeHtml(t.title)}<div class="owner">${escapeHtml(t.owner)}</div></div>`).join('') || '<span class="empty" style="font-size:11px;">—</span>'}
     </div>`;
   }).join('');
 
@@ -522,21 +561,21 @@ function paintFrame(state, view, derived, commits, isReplayFrame) {
 
   const shownBlockers = isReplayFrame ? derived.visibleBlockers : (view.blockers || []);
   document.getElementById('blockers').innerHTML = shownBlockers.length
-    ? shownBlockers.map(b => `<div class="blocker-item"><div class="who">${b.role}</div>${b.text}</div>`).join('')
+    ? shownBlockers.map(b => `<div class="blocker-item"><div class="who">${escapeHtml(b.role)}</div>${escapeHtml(b.text)}</div>`).join('')
     : '<span class="empty">No blockers recorded</span>';
 
   const shownMessages = isReplayFrame ? derived.visibleMessages : view.messages;
   renderEventFeed(shownMessages);
 
   const shownCommits = isReplayFrame ? derived.visibleCommits : commits;
-  renderCommitFeed(shownCommits);
+  renderCommitFeed(shownCommits, view.commitHistoryError);
 
   const retroPanel = document.getElementById('retro-panel');
   if (view.retrospective && (!isReplayFrame || doneCount === total)) {
     retroPanel.style.display = 'block';
     const lines = Array.isArray(view.retrospective) ? view.retrospective : [{speaker: 'manager', line: view.retrospective}];
     document.getElementById('retro-body').innerHTML = lines.map(l =>
-      `<div class="retro-line"><span class="speaker">${l.speaker}:</span> ${l.line}</div>`).join('');
+      `<div class="retro-line"><span class="speaker">${escapeHtml(l.speaker)}:</span> ${escapeHtml(l.line)}</div>`).join('');
   } else {
     retroPanel.style.display = 'none';
   }
@@ -554,7 +593,7 @@ function renderCmdBar(state, view, derived, commits) {
     <div class="cmd-item">Tasks Running: <b>${runningTasks}</b></div>
     <div class="cmd-item">Blockers: <b>${blockedCount}</b></div>
     <div class="cmd-item">Commits: <b>${commitCount}</b></div>
-    <div class="cmd-item">Sprint: <b>${view.number}</b></div>
+    <div class="cmd-item">Sprint: <b>${escapeHtml(view.number)}</b></div>
   `;
 }
 
@@ -575,7 +614,7 @@ function renderCharCards(view, derived, commits, isReplayFrame) {
     const lastTaskEvent = derived.roleTaskEvents[role]?.at(-1);
     const replayTask = lastTaskEvent ? roleTasks.find(t => t.id === lastTaskEvent.data.task_id) : null;
     const task = activeTask || replayTask || roleTasks.find(t => derived.taskStatus[t.id] !== 'done') || roleTasks.at(-1);
-    const taskStatus = task ? derived.taskStatus[task.id] : 'todo';
+    const taskStatus = safeTaskStatus(task ? derived.taskStatus[task.id] : 'todo');
     const phase = derived.engineerPhase[role] || 'waiting';
     const waitingOn = (() => {
       if (!task) return 'Nothing';
@@ -594,9 +633,9 @@ function renderCharCards(view, derived, commits, isReplayFrame) {
     return `<div class="charcard" data-role="${role}">
       <div class="charcard-top"><span class="charcard-avatar">${ROLE_AVATAR[role]}</span><span class="charcard-name">${ROLE_LABEL[role]}</span>
         <span class="charcard-status-pill ${phase}">${phase}</span></div>
-      <div class="charcard-row"><div class="k">Current Task</div><div class="v">${task ? task.title : 'Awaiting assignment'}</div></div>
-      <div class="charcard-row"><div class="k">Waiting On</div><div class="v">${waitingOn}</div></div>
-      <div class="charcard-row"><div class="k">Latest Commit</div><div class="v commit">${latestCommit ? latestCommit.message : 'No commits yet'}</div></div>
+      <div class="charcard-row"><div class="k">Current Task</div><div class="v">${escapeHtml(task ? task.title : 'Awaiting assignment')}</div></div>
+      <div class="charcard-row"><div class="k">Waiting On</div><div class="v">${escapeHtml(waitingOn)}</div></div>
+      <div class="charcard-row"><div class="k">Latest Commit</div><div class="v commit">${escapeHtml(latestCommit ? latestCommit.message : 'No commits yet')}</div></div>
       <div class="charcard-row"><div class="k">Last Activity</div><div class="v">${relativeTime(lastEventTime, refTime)}</div></div>
     </div>`;
   }).join('');
@@ -609,25 +648,34 @@ function renderEventFeed(messages) {
     const cls = classifyEvent(m.content);
     return `<div class="event-card">
       <div class="event-time">${fmtTime(m.time)}</div>
-      <div class="event-body"><div class="who">${ROLE_LABEL[m.from] || m.from}</div>
-        <div class="headline">${cls.icon} ${m.content}</div>
-        <div class="downstream">${ROLE_LABEL[m.to] || m.to} ${cls.downstreamVerb}</div></div>
+      <div class="event-body"><div class="who">${escapeHtml(ROLE_LABEL[m.from] || m.from)}</div>
+        <div class="headline">${cls.icon} ${escapeHtml(m.content)}</div>
+        <div class="downstream">${escapeHtml(ROLE_LABEL[m.to] || m.to)} ${cls.downstreamVerb}</div></div>
     </div>`;
   }).join('');
 }
 
-function renderCommitFeed(commits) {
+function renderCommitFeed(commits, commitHistoryError = null) {
   const el = document.getElementById('commits');
-  el.innerHTML = commits.length ? commits.map((c,i) =>
-    `<div class="row" data-idx="${i}"><span class="role-tag">${fmtTime(c.time)}</span> ${c.role} ${c.hash} — ${c.message}</div>`
+  el.innerHTML = commitHistoryError
+    ? `<span class="empty">Commit history unavailable — ${escapeHtml(commitHistoryError)}. Git Activity and commit replay data cannot be displayed.</span>`
+    : commits.length ? commits.map((c,i) =>
+    `<div class="row" data-idx="${i}"><span class="role-tag">${fmtTime(c.time)}</span> ${escapeHtml(c.role)} ${escapeHtml(c.hash)} — ${escapeHtml(c.message)}</div>`
   ).join('') : '<span class="empty">No commits yet</span>';
   [...el.querySelectorAll('.row')].forEach(row => {
     row.addEventListener('click', () => showCommitModal(commits[parseInt(row.dataset.idx)]));
   });
 }
 
-function escapeHtml(value) {
-  return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+function renderReplayWarning(view) {
+  const warning = document.getElementById('replay-warning');
+  if (view.commitHistoryError) {
+    warning.textContent = `Commit history unavailable: ${view.commitHistoryError}. Replay continues without commit events.`;
+    warning.style.display = 'block';
+  } else {
+    warning.textContent = '';
+    warning.style.display = 'none';
+  }
 }
 
 function modalList(values, format = value => escapeHtml(value)) {
@@ -712,13 +760,13 @@ function computeSprintDuration(view) {
   if (timestampedEvents.length === 1) return { seconds: 0, label: null };
 
   const usage = liveState._usage || [];
-  const usageForSprint = usage.filter(u => Number(u.sprint) === Number(view.number));
-  const legacyUsage = usage.filter(u => u.sprint === undefined || u.sprint === null);
-  const usageEntries = usageForSprint.length ? usageForSprint : legacyUsage;
-  const total = usageEntries.reduce((sum, entry) => sum + (Number(entry.duration_sec) || 0), 0);
-  if (usageEntries.length) {
+  const hasSprintTag = entry => entry.sprint !== undefined && entry.sprint !== null && Number.isFinite(Number(entry.sprint));
+  const usageForSprint = usage.filter(entry => hasSprintTag(entry) && Number(entry.sprint) === Number(view.number));
+  if (usageForSprint.length) {
+    const total = usageForSprint.reduce((sum, entry) => sum + (Number(entry.duration_sec) || 0), 0);
     return { seconds: total, label: '(Codex execution time, approximate)' };
   }
+  if (usage.some(entry => !hasSprintTag(entry))) return { seconds: null, label: null, unknown: true };
   return { seconds: null, label: null };
 }
 
@@ -734,12 +782,12 @@ function fmtDurationHuman(sec) {
 function showCompletionSummary(view, derived) {
   const card = document.getElementById('completion-card');
   const dur = computeSprintDuration(view);
-  const durationDisplay = dur.seconds === null ? 'Not available' : `${fmtDurationHuman(dur.seconds)}${dur.label ? ' ' + dur.label : ''}`;
+  const durationDisplay = dur.unknown ? 'Unknown' : (dur.seconds === null ? 'Not available' : `${fmtDurationHuman(dur.seconds)}${dur.label ? ' ' + dur.label : ''}`);
   document.getElementById('completion-stats').innerHTML = `
     <div class="cstat"><div class="label">Duration</div><div class="value" style="${dur.seconds === null ? 'font-size:14px;color:var(--dim);' : ''}">${durationDisplay}</div></div>
     <div class="cstat"><div class="label">Tasks Completed</div><div class="value">${view.tasks.filter(t=>t.status==='done').length}/${view.tasks.length}</div></div>
     <div class="cstat"><div class="label">Messages Exchanged</div><div class="value">${derived.visibleMessages.length}</div></div>
-    <div class="cstat"><div class="label">Git Commits</div><div class="value">${derived.visibleCommits.length}</div></div>
+    <div class="cstat"><div class="label">Git Commits</div><div class="value" style="${view.commitHistoryError ? 'font-size:14px;color:var(--dim);' : ''}">${view.commitHistoryError ? 'Unavailable' : derived.visibleCommits.length}</div></div>
     <div class="cstat"><div class="label">Blockers Resolved</div><div class="value">${derived.visibleBlockers.length}</div></div>
   `;
   card.classList.add('show');
@@ -867,8 +915,11 @@ async function tick() {
   try {
     const cres = await fetch('../logs/commits.json?t=' + Date.now());
     liveState._commits = await cres.json();
+    if (!Array.isArray(liveState._commits)) throw new Error('expected a JSON list');
+    liveState._commitHistoryError = null;
   } catch (e) {
     liveState._commits = [];
+    liveState._commitHistoryError = 'logs/commits.json could not be loaded or parsed';
   }
   try {
     const ures = await fetch('../logs/usage_log.jsonl?t=' + Date.now());

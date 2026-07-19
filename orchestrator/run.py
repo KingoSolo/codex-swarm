@@ -11,9 +11,12 @@ new ones. Duplicate task IDs are rejected before every save.
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
+import tempfile
 import time as _time
+from contextlib import contextmanager
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -34,10 +37,22 @@ ROLE_ORDER = ["manager", "architect", "backend", "frontend", "database", "qa", "
 RETROSPECTIVE_SPRINT_RE = re.compile(r"\bSprint\s+(\d+)\s+retrospective\s+complete\b", re.IGNORECASE)
 
 
+class StateLoadError(RuntimeError):
+    """Raised when the persisted state cannot be safely loaded."""
+
+
+class CommitHistoryError(RuntimeError):
+    """Raised when commit metadata cannot be safely preserved."""
+
+
+class OrchestratorAlreadyRunningError(RuntimeError):
+    """Raised when another process holds the orchestrator state lock."""
+
+
 def new_state():
     """The single source of truth for what a fresh project's state looks like.
-    Both --reset and load_state's self-heal path use this — never hand-build
-    the dict anywhere else."""
+    Both --reset and load_state's initialization path use this — never
+    hand-build the dict anywhere else."""
     return {
         "sprint": {
             "number": 1,
@@ -69,12 +84,16 @@ def check_call_budget():
 def load_state():
     defaults = new_state()
     if not STATE_PATH.exists():
-        STATE_PATH.write_text(json.dumps(defaults, indent=2))
+        save_state(defaults)
         return defaults
     try:
         loaded = json.loads(STATE_PATH.read_text())
-    except json.JSONDecodeError:
-        return defaults
+    except (OSError, json.JSONDecodeError) as exc:
+        location = f"line {exc.lineno}, column {exc.colno}" if isinstance(exc, json.JSONDecodeError) else str(exc)
+        raise StateLoadError(
+            f"Cannot load persisted state at {STATE_PATH}: {location}. "
+            "The file was not changed; repair or restore it before rerunning."
+        ) from exc
     return {**defaults, **loaded}  # any key missing from the file falls back to default
 
 
@@ -88,9 +107,65 @@ def validate_state(state):
         )
 
 
+def atomic_write_text(path, content):
+    """Durably replace one text file without exposing a partial write.
+
+    The replacement retains the destination's permissions when it already
+    exists.  Both state and commit-history persistence use this single path so
+    their crash-safety guarantees cannot drift apart.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    existing_mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else None
+    file_descriptor, temporary_path = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
+    )
+    try:
+        with os.fdopen(file_descriptor, "w", encoding="utf-8") as temporary_file:
+            if existing_mode is not None:
+                os.fchmod(temporary_file.fileno(), existing_mode)
+            temporary_file.write(content)
+            temporary_file.flush()
+            os.fsync(temporary_file.fileno())
+        os.replace(temporary_path, path)
+        # Persist the directory entry as well as the file data.
+        directory_descriptor = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory_descriptor)
+        finally:
+            os.close(directory_descriptor)
+    finally:
+        if os.path.exists(temporary_path):
+            os.unlink(temporary_path)
+
+
 def save_state(state):
     validate_state(state)
-    STATE_PATH.write_text(json.dumps(state, indent=2))
+    atomic_write_text(STATE_PATH, json.dumps(state, indent=2))
+
+
+@contextmanager
+def orchestrator_lock():
+    """Hold an exclusive, portable lock for the entire stateful lifecycle."""
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = STATE_PATH.with_name(f"{STATE_PATH.stem}.lock")
+    try:
+        file_descriptor = os.open(lock_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError as exc:
+        raise OrchestratorAlreadyRunningError(
+            f"Another orchestrator is already running (lock: {lock_path}). "
+            "Wait for it to finish before starting another sprint."
+        ) from exc
+    try:
+        with os.fdopen(file_descriptor, "w", encoding="utf-8") as lock_file:
+            lock_file.write(f"pid={os.getpid()}\n")
+            lock_file.flush()
+            os.fsync(lock_file.fileno())
+        yield
+    finally:
+        try:
+            os.unlink(lock_path)
+        except FileNotFoundError:
+            pass
 
 
 def role_prompt(role):
@@ -105,21 +180,34 @@ def save_session_id(sid):
     SESSION_ID_PATH.write_text(sid)
 
 
-def build_prompt(role, state, task):
+def build_prompt(role, state, task, planning=False):
     inbox = [m for m in state["messages"] if m.get("to") == role]
     task_overview = ""
-    if role == "manager":
+    if role in {"manager", "architect"}:
         task_overview = f"""
-## All existing tasks (planning is frozen — never create a task that duplicates one already here)
+## Existing sprint tasks
 {json.dumps(state["tasks"], indent=2)}
 """
+    if planning:
+        planning_instruction = (
+            "You are in the one-time sprint planning phase. Create or complete the frozen, "
+            "dependency-ordered task graph for the sprint goal. Do not report blocked merely "
+            "because no implementation task is assigned."
+        )
+        if role == "manager":
+            planning_instruction += " The graph must include every relevant implementation and review discipline."
+        elif role == "architect":
+            planning_instruction += " Review the manager's graph and add only missing architecture, database, backend, frontend, QA, or security tasks."
+        current_task = planning_instruction
+    else:
+        current_task = json.dumps(task, indent=2) if task else "No task assigned right now. Report task_status: blocked if you have nothing to do."
     return f"""{role_prompt(role)}
 
 ## Sprint {state['sprint']['number']} goal
 {state['sprint']['goal']}
 {task_overview}
 ## Your current task
-{json.dumps(task, indent=2) if task else "No task assigned right now. Report task_status: blocked if you have nothing to do."}
+{current_task}
 
 ## Files currently owned by others (do not touch these)
 {json.dumps({f: o for f, o in state['files_owned'].items() if o != role}, indent=2)}
@@ -189,6 +277,7 @@ def infer_mock_disciplines(goal):
     frontend = has("frontend", "ui", "ux", "css", "layout", "screen", "page", "form", "button")
     backend = has("backend", "api", "endpoint", "server", "service", "webhook")
     database = has("database", "schema", "sql", "sqlite", "migration", "persist", "storage")
+    task_discovery = has("search", "filter", "sort", "sorting", "filtering")
     bugfix = has("bug", "fix", "regression", "crash", "error")
 
     if authentication:
@@ -197,6 +286,8 @@ def infer_mock_disciplines(goal):
         return {"manager", "qa"}
     if infrastructure:
         return {"architect", "backend", "security"}
+    if task_discovery:
+        return {"architect", "backend", "frontend", "qa"}
     if frontend and not (backend or database):
         return ({"architect"} if not bugfix else set()) | {"frontend", "qa"}
     if backend or database:
@@ -244,18 +335,16 @@ def call_codex_mock(role, prompt):
     _time.sleep(0.2)
     sprint, goal = mock_sprint_context(prompt)
     disciplines, tasks = mock_plan_for_goal(sprint, goal)
-    manager_tasks = [task for task in tasks if task["owner"] in {"manager", "architect"}]
-    implementation_tasks = [task for task in tasks if task["owner"] not in {"manager", "architect"}]
     canned = {
         "manager": {
             "summary": f"Created a deterministic plan for: {goal}", "task_status": "done",
-            "new_tasks": manager_tasks,
+            "new_tasks": tasks,
             "messages": [{"to": "architect", "content": f"Design an implementation plan for: {goal}"}],
         },
         "architect": {
             "summary": f"Defined the implementation approach for: {goal}", "task_status": "done",
             "decisions": [f"Use the existing project stack to implement: {goal}"],
-            "new_tasks": implementation_tasks,
+            "new_tasks": [],
         },
         "backend": {"summary": f"Implemented service behavior for: {goal}", "task_status": "done", "files_changed": ["server.py"]},
         "database": {"summary": f"Updated data support for: {goal}", "task_status": "done", "files_changed": ["database.py"]},
@@ -376,9 +465,73 @@ def migrate_commit_sprints(commits, fallback_sprint):
     return changed
 
 
+def load_commit_history():
+    """Load commit metadata without ever discarding an unreadable history."""
+    history_path = ROOT / "logs" / "commits.json"
+    if not history_path.exists():
+        return []
+    try:
+        commits = json.loads(history_path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        location = f"line {exc.lineno}, column {exc.colno}" if isinstance(exc, json.JSONDecodeError) else str(exc)
+        raise CommitHistoryError(
+            f"Cannot load commit history at {history_path}: {location}. "
+            "The file was not changed; repair or restore it before continuing."
+        ) from exc
+    if not isinstance(commits, list):
+        raise CommitHistoryError(
+            f"Cannot load commit history at {history_path}: expected a JSON list. "
+            "The file was not changed; repair or restore it before continuing."
+        )
+    return commits
+
+
+def save_commit_history(commits):
+    """Persist commit metadata with the same atomicity as shared state."""
+    atomic_write_text(ROOT / "logs" / "commits.json", json.dumps(commits, indent=2))
+
+
+def agent_changed_paths(files_changed):
+    """Return safe, repository-relative paths declared by one agent.
+
+    Agent output is untrusted input: never permit it to stage the repository
+    root, git metadata, or a path outside the project.
+    """
+    paths = []
+    for changed_file in files_changed or []:
+        if not isinstance(changed_file, str) or not changed_file.strip():
+            continue
+        candidate = Path(changed_file)
+        candidate = candidate if candidate.is_absolute() else ROOT / candidate
+        try:
+            relative = candidate.resolve().relative_to(ROOT.resolve())
+        except ValueError:
+            continue
+        if not relative.parts or relative.parts[0] == ".git":
+            continue
+        relative_path = str(relative)
+        if relative_path not in paths:
+            paths.append(relative_path)
+    return paths
+
+
+def worktree_has_changes(paths):
+    """Whether any agent-declared paths have changes to commit."""
+    if not paths:
+        return False
+    status = subprocess.run(
+        ["git", "status", "--porcelain", "--", *paths],
+        cwd=ROOT, check=False, capture_output=True, text=True,
+    )
+    return bool(status.stdout.strip())
+
+
 def git_commit(role, summary, sprint_number=None, output=None):
     """Commit work and persist the agent output that produced that commit."""
     output = output or {}
+    changed_paths = agent_changed_paths(output.get("files_changed", []))
+    if not worktree_has_changes(changed_paths):
+        return False
     metadata = {
         "summary": summary,
         "files_changed": list(output.get("files_changed", [])),
@@ -386,19 +539,16 @@ def git_commit(role, summary, sprint_number=None, output=None):
         "blockers": list(output.get("blockers", [])),
         "new_tasks": list(output.get("new_tasks", [])),
     }
-    try:
-        existing_commits = json.loads((ROOT / "logs" / "commits.json").read_text())
-    except (OSError, json.JSONDecodeError):
-        existing_commits = []
+    existing_commits = load_commit_history()
     migrate_commit_sprints(existing_commits, sprint_number)
     known_sprints = {c.get("hash"): c.get("sprint") for c in existing_commits if c.get("sprint") is not None}
     metadata_keys = ("summary", "files_changed", "decisions", "blockers", "new_tasks")
     known_metadata = {c.get("hash"): {key: c[key] for key in metadata_keys if key in c} for c in existing_commits}
     before = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-    subprocess.run(["git", "add", "-A"], cwd=ROOT, check=False)
+    subprocess.run(["git", "add", "--", *changed_paths], cwd=ROOT, check=False)
     commit_result = subprocess.run(
         ["git", "-c", f"user.name={role}", "-c", f"user.email={role}@codex-org.local",
-         "commit", "-m", f"[{role}] {summary}", "--allow-empty"],
+         "commit", "--only", "-m", f"[{role}] {summary}", "--", *changed_paths],
         cwd=ROOT, check=False, capture_output=True,
     )
     after = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
@@ -418,7 +568,8 @@ def git_commit(role, summary, sprint_number=None, output=None):
             entry.update(metadata if parts[0] == new_hash else known_metadata.get(parts[0], {}))
             commits.append(entry)
     migrate_commit_sprints(commits, sprint_number)
-    (ROOT / "logs" / "commits.json").write_text(json.dumps(commits, indent=2))
+    save_commit_history(commits)
+    return new_hash is not None
 
 
 def next_ready_task(state, role):
@@ -456,13 +607,13 @@ def plan_sprint(state):
     if state["sprint"]["number"] == 1:
         seed_sprint_1(state)
     else:
-        prompt = build_prompt("manager", state, None)
+        prompt = build_prompt("manager", state, None, planning=True)
         output = call_codex("manager", prompt)
         add_tasks(state, output.get("new_tasks", []), allow=True)
         git_commit("manager", output.get("summary", "sprint planning"), state["sprint"]["number"], output)
         save_state(state)
 
-        prompt = build_prompt("architect", state, None)
+        prompt = build_prompt("architect", state, None, planning=True)
         output = call_codex("architect", prompt)
         add_tasks(state, output.get("new_tasks", []), allow=True)
         for d in output.get("decisions", []):
@@ -513,7 +664,7 @@ def run_dev_loop(state, max_rounds=6):
             break
 
     send_review_handoff(state)
-    final_roles = ["qa", "security"] if not MOCK else [
+    final_roles = ["qa", "security"] if not MOCK or state["sprint"]["number"] == 1 else [
         role for role in ["qa", "security"] if any(task["owner"] == role for task in state["tasks"])
     ]
     for role in final_roles:
@@ -546,22 +697,31 @@ def run_retrospective(state):
         "{speaker, line} objects, one or two lines per agent, based only on what actually happened."
     )
     retro = call_codex("manager", retro_prompt)
-    state["retrospective"] = retro.get("retrospective_dialogue", retro.get("summary"))
-    state["sprint"]["status"] = "complete"
-    state["sprint"]["completed_at"] = _time.time()
-    save_state(state)
-    git_commit("manager", f"Sprint {state['sprint']['number']} retrospective complete", state["sprint"]["number"], retro)
-    print(json.dumps(state["retrospective"], indent=2))
+    retrospective = retro.get("retrospective_dialogue", retro.get("summary"))
+    previous_retrospective = state["retrospective"]
+    previous_status = state["sprint"]["status"]
+    previous_completed_at = state["sprint"].get("completed_at")
+    try:
+        # Git/history is written before the state becomes terminal. If this
+        # fails, the sprint remains runnable and no completed state is saved.
+        git_commit("manager", f"Sprint {state['sprint']['number']} retrospective complete", state["sprint"]["number"], retro)
+        state["retrospective"] = retrospective
+        state["sprint"]["status"] = "complete"
+        state["sprint"]["completed_at"] = _time.time()
+        save_state(state)
+    except Exception:
+        state["retrospective"] = previous_retrospective
+        state["sprint"]["status"] = previous_status
+        state["sprint"]["completed_at"] = previous_completed_at
+        raise
+    print(json.dumps(retrospective, indent=2))
 
 
 def start_new_sprint(state, new_goal):
     sprint_number = state["sprint"]["number"]
-    try:
-        commits = json.loads((ROOT / "logs" / "commits.json").read_text())
-    except (OSError, json.JSONDecodeError):
-        commits = []
+    commits = load_commit_history()
     if migrate_commit_sprints(commits, sprint_number):
-        (ROOT / "logs" / "commits.json").write_text(json.dumps(commits, indent=2))
+        save_commit_history(commits)
     state["sprint_history"].append({
         "number": sprint_number, "goal": state["sprint"]["goal"],
         "tasks": state["tasks"], "messages": state["messages"], "retrospective": state["retrospective"],
@@ -582,9 +742,21 @@ def start_new_sprint(state, new_goal):
 
 
 def run_sprint(goal_override=None):
+    try:
+        with orchestrator_lock():
+            return _run_sprint(goal_override)
+    except OrchestratorAlreadyRunningError as exc:
+        print(exc)
+        return None
+
+
+def _run_sprint(goal_override=None):
     if MOCK:
         print("\n*** RUNNING IN MOCK MODE (CODEX_ORG_MOCK not set to 0) — no real Codex calls, no credits spent. ***\n")
     state = load_state()
+    if state["sprint"].get("status") == "complete" and not goal_override:
+        print(f"Sprint {state['sprint']['number']} is complete. Start a new sprint by supplying a new goal.")
+        return
     if goal_override:
         state = start_new_sprint(state, goal_override)
     state["sprint"]["status"] = "in_progress"
@@ -600,12 +772,17 @@ def run_sprint(goal_override=None):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--reset":
-        STATE_PATH.write_text(json.dumps(new_state(), indent=2))
-        if SESSION_ID_PATH.exists():
-            SESSION_ID_PATH.unlink()
-        if USAGE_LOG_PATH.exists():
-            USAGE_LOG_PATH.unlink()
-        print("State reset to a fresh project. Session ID and usage log cleared.")
+        try:
+            with orchestrator_lock():
+                save_state(new_state())
+                if SESSION_ID_PATH.exists():
+                    SESSION_ID_PATH.unlink()
+                if USAGE_LOG_PATH.exists():
+                    USAGE_LOG_PATH.unlink()
+                print("State reset to a fresh project. Session ID and usage log cleared.")
+        except OrchestratorAlreadyRunningError as exc:
+            print(exc)
+            sys.exit(1)
         sys.exit(0)
     goal_arg = sys.argv[1] if len(sys.argv) > 1 else None
     run_sprint(goal_arg)

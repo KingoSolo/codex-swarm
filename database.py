@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -19,9 +20,20 @@ def get_connection() -> sqlite3.Connection:
     return connection
 
 
+@contextmanager
+def managed_connection() -> sqlite3.Connection:
+    """Yield a transaction connection and always close it afterwards."""
+    connection = get_connection()
+    try:
+        with connection:
+            yield connection
+    finally:
+        connection.close()
+
+
 def initialize_database() -> None:
     """Create and migrate the task and user tables."""
-    with get_connection() as connection:
+    with managed_connection() as connection:
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS users (
