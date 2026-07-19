@@ -31,7 +31,7 @@
       "depends_on": [
         "be-1"
       ],
-      "status": "todo"
+      "status": "done"
     }
   ],
   "agents": {
@@ -48,7 +48,7 @@
       "current_task": null
     },
     "frontend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "database": {
@@ -101,6 +101,18 @@
       "to": "frontend",
       "content": "Dependency complete: 'Implement REST API in server.py: create/list/update/delete tasks, move between statuses' is done. You may now proceed with 'Build Kanban board UI in index.html (3 columns, click-to-move) consuming the API'.",
       "time": 1784426325.891883
+    },
+    {
+      "from": "manager",
+      "to": "qa",
+      "content": "QA handoff: implementation work is ready for regression and integration validation.",
+      "time": 1784426343.0315788
+    },
+    {
+      "from": "manager",
+      "to": "security",
+      "content": "Security review request: implementation work is ready for authentication, authorization, and input-handling review.",
+      "time": 1784426343.031595
     }
   ],
   "architecture_decisions": [
@@ -122,6 +134,16 @@
     {
       "by": "backend",
       "decision": "Validated the API suite with `python3 -m unittest -v test_api.py` (5 passing).",
+      "sprint": 1
+    },
+    {
+      "by": "frontend",
+      "decision": "Retained the existing single-file vanilla-JS UI: each task\u2019s status selector triggers PATCH to move it between Todo, In Progress, and Done.",
+      "sprint": 1
+    },
+    {
+      "by": "frontend",
+      "decision": "Validated the UI/API contract and ran `python3 -m unittest -v test_api.py` successfully (5 passing).",
       "sprint": 1
     }
   ],
@@ -168,6 +190,18 @@
       "task_id": "be-1",
       "status": "done",
       "time": 1784426325.89185,
+      "sprint": 1
+    },
+    {
+      "task_id": "fe-1",
+      "status": "in_progress",
+      "time": 1784426326.008244,
+      "sprint": 1
+    },
+    {
+      "task_id": "fe-1",
+      "status": "done",
+      "time": 1784426343.031517,
       "sprint": 1
     }
   ],
