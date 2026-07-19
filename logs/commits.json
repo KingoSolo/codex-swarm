@@ -1,5 +1,21 @@
 [
   {
+    "hash": "54d8bcb",
+    "role": "qa",
+    "time": 1784426587,
+    "message": "[qa] Sprint 4 drag-and-drop and optimistic-update behavior is not implemented; existing authentication regression tests still pass.",
+    "sprint": 4,
+    "summary": "Sprint 4 drag-and-drop and optimistic-update behavior is not implemented; existing authentication regression tests still pass.",
+    "files_changed": [],
+    "decisions": [
+      "Evidence: static/index.html contains no drag, drop, dragstart, dragover, draggable, or optimistic implementation; status updates await the API before reloading."
+    ],
+    "blockers": [
+      "No frontend implementation task exists for Sprint 4, so the requested drag-and-drop and optimistic UI behavior cannot be validated."
+    ],
+    "new_tasks": []
+  },
+  {
     "hash": "243ce50",
     "role": "architect",
     "time": 1784426575,
