@@ -152,11 +152,7 @@ test_api.py            API and security regression tests
 test_mock_planner.py   Orchestration, replay, and persistence regression tests
 ```
 
-## Demo GIF
 
-> Placeholder — add a walkthrough at `docs/images/codex-org-demo.gif`.
-
-![Codex Org demo](docs/images/codex-org-demo.gif)
 
 ## Roadmap
 
@@ -182,6 +178,3 @@ test_mock_planner.py   Orchestration, replay, and persistence regression tests
 - Add a durable event log for richer audit and replay recovery
 - Add browser-level integration tests for dashboard interactions
 
-## License
-
-No license file is currently included. Add a license, such as MIT or Apache-2.0, before distributing this project as open source.
