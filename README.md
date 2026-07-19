@@ -45,14 +45,9 @@ The orchestrator owns the lifecycle: it loads shared state, plans a sprint once,
 ## Screenshots
 
 
-```md
 ![Codex Org dashboard](images/dashboard.png)
-```
 
-
-```md
 ![Task Board](images/TaskBoard.png)
-```
 
 ## Replay Engine
 
@@ -161,9 +156,7 @@ test_mock_planner.py   Orchestration, replay, and persistence regression tests
 
 > Placeholder — add a walkthrough at `docs/images/codex-org-demo.gif`.
 
-```md
 ![Codex Org demo](docs/images/codex-org-demo.gif)
-```
 
 ## Roadmap
 
