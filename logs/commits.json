@@ -1,182 +1,212 @@
 [
   {
+    "hash": "85fe3ee",
+    "role": "manager",
+    "time": 1784418899,
+    "message": "[manager] Sprint 2 retrospective complete",
+    "sprint": 2
+  },
+  {
     "hash": "e4dc99c",
     "role": "security",
     "time": 1784418721,
-    "message": "[security] Security review hardened username validation by rejecting non-ASCII confusable identifiers; JWT, password storage, and user-scoped authorization checks otherwise passed review."
+    "message": "[security] Security review hardened username validation by rejecting non-ASCII confusable identifiers; JWT, password storage, and user-scoped authorization checks otherwise passed review.",
+    "sprint": 2
   },
   {
     "hash": "f74367c",
     "role": "qa",
     "time": 1784418675,
-    "message": "[qa] Sprint 2 QA passed: all four authentication regression tests succeed, covering registration/login, invalid or expired tokens, protected CRUD, cross-user isolation, and frontend auth integration."
+    "message": "[qa] Sprint 2 QA passed: all four authentication regression tests succeed, covering registration/login, invalid or expired tokens, protected CRUD, cross-user isolation, and frontend auth integration.",
+    "sprint": 2
   },
   {
     "hash": "8a49dc8",
     "role": "frontend",
     "time": 1784418658,
-    "message": "[frontend] Verified static/index.html already fulfills fe-2 with register/login controls, sessionStorage JWT retention, bearer authentication on task calls, and a 401 sign-out flow."
+    "message": "[frontend] Verified static/index.html already fulfills fe-2 with register/login controls, sessionStorage JWT retention, bearer authentication on task calls, and a 401 sign-out flow.",
+    "sprint": 2
   },
   {
     "hash": "747856e",
     "role": "backend",
     "time": 1784418637,
-    "message": "[backend] Verified server.py already fulfills be-2 with registration, login, signed expiring JWT validation, mandatory bearer authentication, and user-scoped task CRUD; all four regression tests pass."
+    "message": "[backend] Verified server.py already fulfills be-2 with registration, login, signed expiring JWT validation, mandatory bearer authentication, and user-scoped task CRUD; all four regression tests pass.",
+    "sprint": 2
   },
   {
     "hash": "60f8b03",
     "role": "database",
     "time": 1784418619,
-    "message": "[database] Verified database.py already satisfies db-2: it initializes the users table and migrates tasks with a foreign-key user_id plus an ownership index."
+    "message": "[database] Verified database.py already satisfies db-2: it initializes the users table and migrates tasks with a foreign-key user_id plus an ownership index.",
+    "sprint": 2
   },
   {
     "hash": "ee96993",
     "role": "architect",
     "time": 1784418600,
-    "message": "[architect] Defined the JWT authentication contract and user-scoped task authorization behavior for Sprint 2."
+    "message": "[architect] Defined the JWT authentication contract and user-scoped task authorization behavior for Sprint 2.",
+    "sprint": 2
   },
   {
     "hash": "ca59466",
     "role": "architect",
     "time": 1784418587,
-    "message": "[architect] Authentication architecture is already represented by the manager\u2019s dependency-ordered Sprint 2 plan; no additional task was assigned."
+    "message": "[architect] Authentication architecture is already represented by the manager\u2019s dependency-ordered Sprint 2 plan; no additional task was assigned.",
+    "sprint": 2
   },
   {
     "hash": "f1395ab",
     "role": "manager",
     "time": 1784418576,
-    "message": "[manager] Created a dependency-ordered Sprint 2 plan for JWT authentication and protected task access."
+    "message": "[manager] Created a dependency-ordered Sprint 2 plan for JWT authentication and protected task access.",
+    "sprint": 2
   },
   {
     "hash": "91400c0",
     "role": "manager",
     "time": 1784418513,
-    "message": "[manager] Sprint 1 retrospective complete"
+    "message": "[manager] Sprint 1 retrospective complete",
+    "sprint": 1
   },
   {
     "hash": "453ee79",
     "role": "security",
     "time": 1784418504,
-    "message": "[security] Security review found no evidenced Sprint 1 vulnerability requiring a code change; authentication, authorization, validation, and output handling are appropriately implemented for this scope."
+    "message": "[security] Security review found no evidenced Sprint 1 vulnerability requiring a code change; authentication, authorization, validation, and output handling are appropriately implemented for this scope.",
+    "sprint": 1
   },
   {
     "hash": "ae45b69",
     "role": "qa",
     "time": 1784418474,
-    "message": "[qa] QA pass completed: all four API/auth regression tests and Python compilation checks pass; no evidenced Sprint 1 regression was found."
+    "message": "[qa] QA pass completed: all four API/auth regression tests and Python compilation checks pass; no evidenced Sprint 1 regression was found.",
+    "sprint": 1
   },
   {
     "hash": "cbfde38",
     "role": "frontend",
     "time": 1784418432,
-    "message": "[frontend] Verified static/index.html already provides a responsive three-column Kanban board consuming the task API, with task creation, status movement via per-card controls, editing, deletion, and authentication handling."
+    "message": "[frontend] Verified static/index.html already provides a responsive three-column Kanban board consuming the task API, with task creation, status movement via per-card controls, editing, deletion, and authentication handling.",
+    "sprint": 1
   },
   {
     "hash": "3e44b8e",
     "role": "backend",
     "time": 1784418420,
-    "message": "[backend] Verified server.py already implements authenticated REST endpoints for listing, creating, editing/moving, and deleting tasks; all API regression tests pass."
+    "message": "[backend] Verified server.py already implements authenticated REST endpoints for listing, creating, editing/moving, and deleting tasks; all API regression tests pass.",
+    "sprint": 1
   },
   {
     "hash": "80c17ed",
     "role": "database",
     "time": 1784418399,
-    "message": "[database] Verified that database.py initializes the SQLite tasks table with id, title, status, and created_at (plus existing user ownership support); schema and API tests pass."
+    "message": "[database] Verified that database.py initializes the SQLite tasks table with id, title, status, and created_at (plus existing user ownership support); schema and API tests pass.",
+    "sprint": 1
   },
   {
     "hash": "c3bef57",
     "role": "manager",
     "time": 1784417444,
-    "message": "[manager] Sprint 2 retrospective complete"
+    "message": "[manager] Sprint 2 retrospective complete",
+    "sprint": 2
   },
   {
     "hash": "1267802",
     "role": "security",
     "time": 1784417444,
-    "message": "[security] Reviewed input handling."
+    "message": "[security] Reviewed input handling.",
+    "sprint": 2
   },
   {
     "hash": "a4cd574",
     "role": "qa",
     "time": 1784417444,
-    "message": "[qa] Ran manual pass."
+    "message": "[qa] Ran manual pass.",
+    "sprint": 2
   },
   {
     "hash": "be485ca",
     "role": "architect",
     "time": 1784417443,
-    "message": "[architect] Chose stdlib http.server + sqlite3 + vanilla JS."
+    "message": "[architect] Chose stdlib http.server + sqlite3 + vanilla JS.",
+    "sprint": 2
   },
   {
     "hash": "a047111",
     "role": "manager",
     "time": 1784417443,
-    "message": "[manager] Reviewed blockers, no new tasks needed."
+    "message": "[manager] Reviewed blockers, no new tasks needed.",
+    "sprint": 2
   },
   {
     "hash": "742167f",
     "role": "manager",
     "time": 1784417424,
-    "message": "[manager] Sprint 1 retrospective complete"
+    "message": "[manager] Sprint 1 retrospective complete",
+    "sprint": 1
   },
   {
     "hash": "0c39b25",
     "role": "security",
     "time": 1784417423,
-    "message": "[security] Reviewed input handling."
+    "message": "[security] Reviewed input handling.",
+    "sprint": 1
   },
   {
     "hash": "cd73ef3",
     "role": "qa",
     "time": 1784417423,
-    "message": "[qa] Ran manual pass."
+    "message": "[qa] Ran manual pass.",
+    "sprint": 1
   },
   {
     "hash": "1e9cff3",
     "role": "frontend",
     "time": 1784417423,
-    "message": "[frontend] Built board with three columns."
+    "message": "[frontend] Built board with three columns.",
+    "sprint": 1
   },
   {
     "hash": "43d0c77",
     "role": "backend",
     "time": 1784417422,
-    "message": "[backend] Implemented task CRUD + move endpoint."
+    "message": "[backend] Implemented task CRUD + move endpoint.",
+    "sprint": 1
   },
   {
     "hash": "0079bf3",
     "role": "database",
     "time": 1784417422,
-    "message": "[database] Created tasks table with status column."
+    "message": "[database] Created tasks table with status column.",
+    "sprint": 1
   },
   {
     "hash": "bc94039",
     "role": "Solomon Adeniran",
     "time": 1784417382,
-    "message": "feat:add reset flag"
+    "message": "feat:add reset flag",
+    "sprint": 1
   },
   {
     "hash": "99948e3",
     "role": "architect",
     "time": 1784417047,
-    "message": "[architect] Chose stdlib http.server + sqlite3 + vanilla JS."
+    "message": "[architect] Chose stdlib http.server + sqlite3 + vanilla JS.",
+    "sprint": 1
   },
   {
     "hash": "fdc900a",
     "role": "manager",
     "time": 1784417047,
-    "message": "[manager] Reviewed blockers, no new tasks needed."
+    "message": "[manager] Reviewed blockers, no new tasks needed.",
+    "sprint": 1
   },
   {
     "hash": "2659155",
     "role": "Solomon Adeniran",
     "time": 1784388542,
-    "message": "Add gitignore"
-  },
-  {
-    "hash": "222a997",
-    "role": "manager",
-    "time": 1784339340,
-    "message": "[manager] Sprint 3 retrospective complete"
+    "message": "Add gitignore",
+    "sprint": 1
   }
 ]

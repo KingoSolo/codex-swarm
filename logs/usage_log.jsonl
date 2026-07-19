@@ -1,15 +1,1 @@
-{"call_number": 1, "role": "database", "prompt_chars": 919, "duration_sec": 25.9, "exit_code": 0, "response_chars": 13554}
-{"call_number": 2, "role": "backend", "prompt_chars": 1115, "duration_sec": 20.8, "exit_code": 0, "response_chars": 17780}
-{"call_number": 3, "role": "frontend", "prompt_chars": 1026, "duration_sec": 12.2, "exit_code": 0, "response_chars": 11743}
-{"call_number": 4, "role": "qa", "prompt_chars": 1001, "duration_sec": 41.4, "exit_code": 0, "response_chars": 9014}
-{"call_number": 5, "role": "security", "prompt_chars": 1003, "duration_sec": 30.2, "exit_code": 0, "response_chars": 14285}
-{"call_number": 6, "role": "manager", "prompt_chars": 2917, "duration_sec": 8.5, "exit_code": 0, "response_chars": 643}
-{"call_number": 1, "role": "manager", "prompt_chars": 1670, "duration_sec": 14.5, "exit_code": 0, "response_chars": 1649}
-{"call_number": 2, "role": "architect", "prompt_chars": 967, "duration_sec": 10.8, "exit_code": 0, "response_chars": 1145}
-{"call_number": 3, "role": "architect", "prompt_chars": 1054, "duration_sec": 12.5, "exit_code": 0, "response_chars": 1961}
-{"call_number": 4, "role": "database", "prompt_chars": 1103, "duration_sec": 18.6, "exit_code": 0, "response_chars": 5895}
-{"call_number": 5, "role": "backend", "prompt_chars": 1424, "duration_sec": 18.6, "exit_code": 0, "response_chars": 2188}
-{"call_number": 6, "role": "frontend", "prompt_chars": 1263, "duration_sec": 21.0, "exit_code": 0, "response_chars": 2002}
-{"call_number": 7, "role": "qa", "prompt_chars": 969, "duration_sec": 16.5, "exit_code": 0, "response_chars": 2122}
-{"call_number": 8, "role": "security", "prompt_chars": 969, "duration_sec": 45.7, "exit_code": 0, "response_chars": 6145}
-{"call_number": 1, "role": "manager", "prompt_chars": 3272, "duration_sec": 10.8, "exit_code": 0, "response_chars": 601}
+{"call_number": 1, "role": "database", "prompt_chars": 919, "duration_sec": 21.9, "exit_code": 0, "response_chars": 31295, "sprint": 1}

@@ -13,22 +13,24 @@
     --mono: 'JetBrains Mono', monospace; --sans: 'Inter', -apple-system, sans-serif;
   }
   * { box-sizing: border-box; }
-  body { background: var(--bg); color: var(--ink); font-family: var(--sans); margin: 0; padding: 28px 32px 60px; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); margin: 0; padding: 26px 32px 60px; }
   .eyebrow { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin: 0 0 6px; }
-  h1 { font-size: 22px; margin: 0 0 18px; font-weight: 700; display: flex; align-items: center; gap: 14px; }
-  .replay-btn {
-    font-family: var(--mono); font-size: 12px; background: var(--active); color: #05171F;
-    border: none; border-radius: 5px; padding: 7px 16px; cursor: pointer; font-weight: 600;
-  }
-  .replay-btn:disabled { background: var(--line); color: var(--dim); cursor: default; }
-  .replay-clock { font-family: var(--mono); font-size: 12px; color: var(--active); }
+  h1 { font-size: 22px; margin: 0 0 16px; font-weight: 700; }
+
+  .cmd-bar { display: flex; gap: 20px; align-items: center; background: var(--panel); border: 1px solid var(--line);
+             border-radius: 8px; padding: 12px 20px; margin-bottom: 20px; flex-wrap: wrap; }
+  .cmd-item { font-size: 12.5px; color: var(--dim); }
+  .cmd-item b { color: var(--ink); font-weight: 600; }
+  .health-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .health-dot.healthy { background: var(--done); }
+  .health-dot.attention { background: var(--blocked); }
 
   .tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
   .tab { font-family: var(--mono); font-size: 12px; padding: 6px 14px; border-radius: 4px; border: 1px solid var(--line); color: var(--dim); cursor: pointer; background: var(--panel); }
   .tab.active { border-color: var(--active); color: var(--active); }
   .tab.live::before { content: '● '; color: var(--done); }
 
-  .header-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; margin-bottom: 22px; }
+  .header-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; margin-bottom: 20px; }
   .goal { font-size: 17px; margin: 0 0 14px; max-width: 780px; line-height: 1.4; }
   .status-badge { font-family: var(--mono); font-size: 11px; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; margin-right: 10px; }
   .status-badge.in_progress { background: rgba(76,201,240,0.15); color: var(--active); }
@@ -39,33 +41,50 @@
   .progress-fill { height: 100%; background: linear-gradient(90deg, var(--active), var(--done)); transition: width 0.4s ease; }
   .progress-label { font-family: var(--mono); font-size: 12px; color: var(--dim); white-space: nowrap; }
 
-  /* Manager spotlight */
-  .spotlight {
-    background: linear-gradient(135deg, rgba(76,201,240,0.08), var(--panel));
-    border: 1px solid var(--active); border-radius: 8px; padding: 18px 22px; margin-bottom: 24px;
-  }
-  .spotlight-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .replay-panel { background: var(--panel); border: 1px solid var(--active); border-radius: 8px; padding: 16px 20px; margin-bottom: 22px; }
+  .replay-title { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--active); margin-bottom: 12px; font-weight: 700; }
+  .replay-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .rbtn { font-family: var(--mono); font-size: 12px; background: var(--panel-2); color: var(--ink); border: 1px solid var(--line);
+          border-radius: 5px; padding: 6px 13px; cursor: pointer; }
+  .rbtn:hover { border-color: var(--active); }
+  .rbtn.primary { background: var(--active); color: #05171F; font-weight: 700; border-color: var(--active); }
+  .rbtn.speed.on { background: var(--active); color: #05171F; border-color: var(--active); }
+  .replay-bar-wrap { position: relative; }
+  .replay-track { height: 8px; background: var(--line); border-radius: 4px; cursor: pointer; position: relative; overflow: visible; touch-action: none; }
+  .replay-fill { height: 100%; background: linear-gradient(90deg, var(--active), var(--done)); border-radius: 4px; }
+  .replay-knob { position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: #fff;
+                 transform: translate(-50%, -50%); box-shadow: 0 0 6px rgba(76,201,240,0.8); pointer-events: none; }
+  .replay-time { font-family: var(--mono); font-size: 11px; color: var(--dim); margin-top: 6px; }
+  .replay-tooltip { position: absolute; bottom: 16px; background: var(--panel-2); border: 1px solid var(--line);
+                     border-radius: 4px; padding: 5px 9px; font-size: 11px; font-family: var(--mono); white-space: nowrap;
+                     transform: translateX(-50%); display: none; z-index: 5; pointer-events: none; }
+
+  .spotlight { background: linear-gradient(135deg, rgba(76,201,240,0.08), var(--panel)); border: 1px solid var(--active);
+               border-radius: 8px; padding: 18px 22px; margin-bottom: 24px; }
+  .spotlight-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
   .spotlight-avatar { font-size: 28px; }
   .spotlight-name { font-size: 15px; font-weight: 700; }
+  .spotlight-live { font-size: 14px; line-height: 1.5; padding: 10px 14px; background: rgba(0,0,0,0.2); border-radius: 6px; margin-bottom: 14px; }
   .spotlight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .spotlight-field .label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; color: var(--dim); letter-spacing: 0.06em; margin-bottom: 4px; }
-  .spotlight-field .value { font-size: 13.5px; line-height: 1.4; }
+  .spotlight-field .value { font-size: 13px; line-height: 1.4; }
   .spotlight-field .value.warn { color: var(--blocked); }
 
-  /* Character cards */
-  .specialists { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 26px; }
-  .charcard {
-    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px;
-    transition: border-color 0.3s, box-shadow 0.3s;
-  }
+  .specialists { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 26px; }
+  .charcard { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; transition: border-color 0.3s, box-shadow 0.3s; }
   .charcard.pulse { border-color: var(--active); box-shadow: 0 0 14px rgba(76,201,240,0.35); }
-  .charcard-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .charcard-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
   .charcard-avatar { font-size: 22px; }
-  .charcard-name { font-size: 13px; font-weight: 700; }
-  .charcard-task { font-size: 12px; color: var(--ink); min-height: 30px; line-height: 1.4; margin-bottom: 8px; }
-  .charcard-mood { font-family: var(--mono); font-size: 11px; margin-bottom: 6px; }
-  .charcard-meta { font-family: var(--mono); font-size: 10.5px; color: var(--dim); border-top: 1px solid var(--line); padding-top: 7px; margin-top: 2px; }
-  .charcard-meta .commit { display: block; margin-top: 3px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .charcard-name { font-size: 13px; font-weight: 700; flex: 1; }
+  .charcard-status-pill { font-family: var(--mono); font-size: 10px; padding: 2px 7px; border-radius: 3px; text-transform: uppercase; }
+  .charcard-status-pill.waiting { background: rgba(107,114,128,0.15); color: var(--dim); }
+  .charcard-status-pill.working { background: rgba(76,201,240,0.15); color: var(--active); }
+  .charcard-status-pill.review { background: rgba(242,169,59,0.15); color: var(--blocked); }
+  .charcard-status-pill.done { background: rgba(62,207,142,0.15); color: var(--done); }
+  .charcard-row { margin-bottom: 8px; }
+  .charcard-row .k { font-family: var(--mono); font-size: 9.5px; text-transform: uppercase; color: var(--dim); letter-spacing: 0.04em; margin-bottom: 2px; }
+  .charcard-row .v { font-size: 12px; line-height: 1.4; }
+  .charcard-row .v.commit { font-family: var(--mono); font-size: 11px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
   .grid.full { grid-template-columns: 1fr; }
@@ -75,16 +94,17 @@
   .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .board-col { background: var(--panel-2); border-radius: 6px; padding: 10px; min-height: 60px; }
   .board-col .col-title { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; letter-spacing: 0.04em; }
-  .task-chip { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--todo); border-radius: 4px; padding: 8px 10px; margin-bottom: 8px; font-size: 12px; line-height: 1.35; }
+  .task-chip { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--todo); border-radius: 4px;
+               padding: 8px 10px; margin-bottom: 8px; font-size: 12px; line-height: 1.35; transition: border-color 0.3s; }
   .task-chip.in_progress { border-left-color: var(--active); }
   .task-chip.blocked { border-left-color: var(--blocked); }
   .task-chip.done { border-left-color: var(--done); }
   .task-chip .owner { font-family: var(--mono); font-size: 10px; color: var(--dim); text-transform: uppercase; margin-top: 4px; }
 
-  /* Dramatic activity feed */
   .feed-events { max-height: 320px; overflow-y: auto; }
-  .event-card { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .event-card { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); animation: slideIn 0.35s ease; }
   .event-card:last-child { border-bottom: none; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
   .event-time { font-family: var(--mono); font-size: 11px; color: var(--dim); width: 48px; flex-shrink: 0; padding-top: 2px; }
   .event-body .who { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--active); margin-bottom: 2px; }
   .event-body .headline { font-size: 13px; line-height: 1.4; }
@@ -92,8 +112,9 @@
   .event-body .downstream::before { content: '↓'; position: absolute; left: 0; color: var(--line); }
   .empty { color: var(--dim); font-family: var(--mono); font-size: 12px; }
 
-  .feed { font-family: var(--mono); font-size: 12px; line-height: 1.75; max-height: 240px; overflow-y: auto; }
-  .feed .row { color: var(--ink); }
+  .feed { font-family: var(--mono); font-size: 12px; line-height: 1.9; max-height: 240px; overflow-y: auto; }
+  .feed .row { color: var(--ink); cursor: pointer; padding: 2px 4px; border-radius: 3px; }
+  .feed .row:hover { background: var(--panel-2); }
   .feed .role-tag { color: var(--done); }
 
   .blocker-item { border-left: 3px solid var(--blocked); background: var(--panel-2); border-radius: 4px; padding: 8px 12px; margin-bottom: 8px; font-size: 12.5px; }
@@ -102,9 +123,32 @@
   #depgraph { width: 100%; height: 260px; }
   .node-label { font-family: var(--mono); font-size: 10px; fill: var(--ink); }
   .node-owner { font-family: var(--mono); font-size: 9px; fill: var(--dim); }
+  .dep-edge { transition: stroke 0.4s, stroke-width 0.4s; }
+  .dep-edge.glow { stroke: var(--active) !important; stroke-width: 3; }
+  .dep-node { transition: fill 0.4s, r 0.3s; }
+  .dep-node.wake { r: 9; }
 
   .retro-line { font-family: var(--mono); font-size: 14px; margin-bottom: 12px; padding-left: 12px; border-left: 2px solid var(--active); }
   .retro-line .speaker { color: var(--active); text-transform: capitalize; font-weight: 600; }
+
+  .completion-card { background: linear-gradient(135deg, rgba(62,207,142,0.1), var(--panel)); border: 1px solid var(--done);
+                      border-radius: 8px; padding: 24px; margin-bottom: 22px; display: none; }
+  .completion-card.show { display: block; }
+  .completion-title { font-size: 16px; font-weight: 700; color: var(--done); margin-bottom: 16px; }
+  .completion-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 14px; }
+  .cstat .label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; color: var(--dim); margin-bottom: 4px; }
+  .cstat .value { font-size: 20px; font-weight: 700; }
+  .completion-next { font-family: var(--mono); font-size: 12px; color: var(--active); }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 50; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 24px; width: 420px; max-width: 90vw; }
+  .modal-box h3 { margin: 0 0 16px; font-size: 15px; }
+  .modal-row { margin-bottom: 10px; font-size: 12.5px; }
+  .modal-row .k { font-family: var(--mono); font-size: 10px; text-transform: uppercase; color: var(--dim); margin-bottom: 2px; }
+  .modal-row .v.na { color: var(--dim); font-style: italic; }
+  .modal-close { margin-top: 12px; font-family: var(--mono); font-size: 12px; background: var(--panel-2); color: var(--ink);
+                 border: 1px solid var(--line); border-radius: 5px; padding: 6px 14px; cursor: pointer; }
 
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
@@ -112,7 +156,9 @@
 </head>
 <body>
   <div class="eyebrow">Autonomous Engineering Organization</div>
-  <h1>Codex Org — Live <button class="replay-btn" id="replay-btn">▶ Replay Sprint</button> <span class="replay-clock" id="replay-clock"></span></h1>
+  <h1>Codex Org — Live</h1>
+
+  <div class="cmd-bar" id="cmd-bar"></div>
 
   <div class="tabs" id="tabs"></div>
 
@@ -124,13 +170,38 @@
     </div>
   </div>
 
+  <div class="replay-panel">
+    <div class="replay-title">Sprint Replay</div>
+    <div class="replay-controls">
+      <button class="rbtn primary" id="btn-playpause">▶ Play</button>
+      <button class="rbtn" id="btn-restart">⟲ Restart</button>
+      <button class="rbtn speed" id="btn-1x" data-speed="1">1x</button>
+      <button class="rbtn speed" id="btn-2x" data-speed="2">2x</button>
+      <button class="rbtn speed" id="btn-4x" data-speed="4">4x</button>
+      <button class="rbtn speed" id="btn-8x" data-speed="8">8x</button>
+    </div>
+    <div class="replay-bar-wrap">
+      <div class="replay-track" id="replay-track">
+        <div class="replay-fill" id="replay-fill" style="width:0%"></div>
+        <div class="replay-knob" id="replay-knob" style="left:0%"></div>
+      </div>
+      <div class="replay-tooltip" id="replay-tooltip"></div>
+    </div>
+    <div class="replay-time" id="replay-time">00:00 / 00:00</div>
+  </div>
+
+  <div class="completion-card" id="completion-card">
+    <div class="completion-title">✓ Sprint Complete</div>
+    <div class="completion-stats" id="completion-stats"></div>
+    <div class="completion-next">Ready for Next Sprint</div>
+  </div>
+
   <div class="spotlight">
     <div class="spotlight-top"><span class="spotlight-avatar">🧭</span><span class="spotlight-name">Engineering Manager</span></div>
+    <div class="spotlight-live" id="mgr-live">Awaiting sprint activity.</div>
     <div class="spotlight-grid">
-      <div class="spotlight-field"><div class="label">Current Decision</div><div class="value" id="mgr-decision">—</div></div>
       <div class="spotlight-field"><div class="label">Waiting For</div><div class="value" id="mgr-waiting">Nobody — sprint clear</div></div>
       <div class="spotlight-field"><div class="label">Blocked By</div><div class="value warn" id="mgr-blocked">—</div></div>
-      <div class="spotlight-field"><div class="label">Next Action</div><div class="value" id="mgr-next">—</div></div>
     </div>
   </div>
 
@@ -160,7 +231,7 @@
       <div class="feed-events" id="messages"></div>
     </div>
     <div class="panel">
-      <h2>Git Activity</h2>
+      <h2>Git Activity <span style="color:var(--dim); font-weight:400; text-transform:none;">(click a commit)</span></h2>
       <div class="feed" id="commits"></div>
     </div>
   </div>
@@ -172,54 +243,66 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+      <h3>Commit Detail</h3>
+      <div id="modal-body"></div>
+      <button class="modal-close" id="modal-close">Close</button>
+    </div>
+  </div>
+
 <script>
 const ROLES = ["architect","backend","frontend","database","qa","security"];
 const ROLE_LABEL = {manager:"Engineering Manager", architect:"Architect", backend:"Backend",
   frontend:"Frontend", database:"Database", qa:"QA", security:"Security"};
 const ROLE_AVATAR = {manager:"🧭", architect:"📐", backend:"⚙️", frontend:"🎨", database:"🗄️", qa:"🔍", security:"🛡️"};
-const MOOD = {
-  todo: {emoji:"😌", label:"Idle"}, idle: {emoji:"😌", label:"Idle"},
-  in_progress: {emoji:"🔥", label:"Focused"},
-  blocked: {emoji:"😤", label:"Blocked"},
-  done: {emoji:"✅", label:"Shipped"},
-};
+const BASE_REPLAY_SECONDS = 45;
 
 let liveState = null;
 let activeTabIndex = null;
-let replaying = false;
+let pollTimer = null;
+
+let replay = null;
+let replayClockHandle = null;
 
 function combinedSprints(state) {
   const archived = (state.sprint_history || []).map(s => ({...s, live: false}));
+  const allCommits = state._commits || [];
+  const currentCommits = allCommits.filter(c => c.sprint === state.sprint.number);
   const current = { number: state.sprint.number, goal: state.sprint.goal,
                      tasks: state.tasks, messages: state.messages,
-                     retrospective: state.retrospective, live: true };
+                     blockers: (state.blockers || []).filter(b => b.sprint === state.sprint.number),
+                     task_events: (state.task_events || []).filter(e => e.sprint === state.sprint.number),
+                     // Untagged logs are legacy data; retain them only for the live view.
+                     commits: currentCommits.length ? currentCommits : allCommits,
+                     retrospective: state.retrospective, started_at: state.sprint.started_at,
+                     completed_at: state.sprint.completed_at, live: true };
   return [...archived, current];
 }
 
-function currentView(state) {
+function currentTabIndex(state) {
   const sprints = combinedSprints(state);
-  const idx = activeTabIndex === null ? sprints.length - 1 : activeTabIndex;
-  return sprints[idx];
+  return activeTabIndex === null ? sprints.length - 1 : activeTabIndex;
 }
 
+function fmtClock(sec) {
+  const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
 function fmtTime(ts) {
   if (!ts) return '--:--';
-  const d = new Date(ts * 1000);
-  return d.toTimeString().slice(0,5);
+  return new Date(ts * 1000).toTimeString().slice(0,5);
 }
-
-function fmtDuration(sec) {
-  if (sec < 60) return `${Math.round(sec)}s`;
-  return `${Math.floor(sec/60)}m ${Math.round(sec%60)}s`;
+function relativeTime(eventTime, referenceTime) {
+  if (!eventTime) return 'No activity yet';
+  const diff = Math.max(0, referenceTime - eventTime);
+  if (diff < 60) return `${Math.round(diff)}s ago`;
+  if (diff < 3600) return `${Math.round(diff/60)}m ago`;
+  return `${Math.round(diff/3600)}h ago`;
 }
-
 function classifyEvent(content) {
-  if (/block|vulnerab|regression|issue|risk|timing|fail|enumerat/i.test(content)) {
-    return { icon: '⚠️', downstreamVerb: 'notified' };
-  }
-  if (/ready|complete|done|finished|passed|shipped/i.test(content)) {
-    return { icon: '✅', downstreamVerb: 'automatically resumed work' };
-  }
+  if (/block|vulnerab|regression|issue|risk|timing|fail|enumerat/i.test(content)) return { icon: '⚠️', downstreamVerb: 'notified' };
+  if (/ready|complete|done|finished|passed|shipped/i.test(content)) return { icon: '✅', downstreamVerb: 'automatically resumed work' };
   return { icon: '💬', downstreamVerb: 'notified' };
 }
 
@@ -227,15 +310,13 @@ function renderTabs(state) {
   const sprints = combinedSprints(state);
   const tabsEl = document.getElementById('tabs');
   tabsEl.innerHTML = sprints.map((s, i) => {
-    const isActive = (activeTabIndex === null && s.live) || (activeTabIndex === i);
+    const isActive = currentTabIndex(state) === i;
     return `<div class="tab ${isActive ? 'active' : ''} ${s.live ? 'live' : ''}" data-idx="${i}">Sprint ${s.number}${s.live ? ' (live)' : ''}</div>`;
   }).join('');
   [...tabsEl.children].forEach(el => {
     el.addEventListener('click', () => {
-      if (replaying) return;
-      const idx = parseInt(el.dataset.idx);
-      activeTabIndex = sprints[idx].live ? null : idx;
-      render(state);
+      activeTabIndex = sprints[parseInt(el.dataset.idx)].live ? null : parseInt(el.dataset.idx);
+      renderStaticFrame(state);
     });
   });
 }
@@ -257,7 +338,7 @@ function computeLayers(tasks) {
   return layer;
 }
 
-function renderDepGraph(tasks) {
+function renderDepGraph(tasks, statusOverride) {
   const svg = document.getElementById('depgraph');
   if (!tasks.length) { svg.innerHTML = ''; return; }
   const layer = computeLayers(tasks);
@@ -276,17 +357,21 @@ function renderDepGraph(tasks) {
   const statusColor = { done: 'var(--done)', in_progress: 'var(--active)', blocked: 'var(--blocked)', todo: 'var(--todo)' };
   let edges = '';
   tasks.forEach(t => {
+    const tStatus = (statusOverride && statusOverride[t.id]) || t.status;
     (t.depends_on || []).forEach(dep => {
       if (!positions[dep]) return;
       const a = positions[dep], b = positions[t.id];
-      edges += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="var(--line)" stroke-width="1.5"/>`;
+      const glow = tStatus !== 'todo' ? 'glow' : '';
+      edges += `<line class="dep-edge ${glow}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="var(--line)" stroke-width="1.5"/>`;
     });
   });
   let nodes = '';
   tasks.forEach(t => {
     const p = positions[t.id];
-    const color = statusColor[t.status] || statusColor.todo;
-    nodes += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="${color}"/>
+    const tStatus = (statusOverride && statusOverride[t.id]) || t.status;
+    const color = statusColor[tStatus] || statusColor.todo;
+    const wake = tStatus === 'in_progress' ? 'wake' : '';
+    nodes += `<circle class="dep-node ${wake}" cx="${p.x}" cy="${p.y}" r="6" fill="${color}"/>
       <text x="${p.x}" y="${p.y - 12}" text-anchor="middle" class="node-owner">${t.owner}</text>
       <text x="${p.x}" y="${p.y + 20}" text-anchor="middle" class="node-label">${t.id}</text>`;
   });
@@ -294,113 +379,160 @@ function renderDepGraph(tasks) {
   svg.innerHTML = edges + nodes;
 }
 
-function renderEventFeed(messages) {
-  const el = document.getElementById('messages');
-  if (!messages.length) { el.innerHTML = '<span class="empty">No activity yet</span>'; return; }
-  el.innerHTML = messages.slice(-20).reverse().map(m => {
-    const cls = classifyEvent(m.content);
-    return `<div class="event-card">
-      <div class="event-time">${fmtTime(m.time)}</div>
-      <div class="event-body">
-        <div class="who">${ROLE_LABEL[m.from] || m.from}</div>
-        <div class="headline">${cls.icon} ${m.content}</div>
-        <div class="downstream">${ROLE_LABEL[m.to] || m.to} ${cls.downstreamVerb}</div>
-      </div>
-    </div>`;
-  }).join('');
+function buildTimeline(view) {
+  const events = [];
+  const add = (type, time, data) => events.push({ type, time, data, sequence: events.length });
+  (view.messages || []).forEach(m => { if (m.time) add('message', m.time, m); });
+  (view.commits || []).forEach(c => { if (c.time) add('commit', c.time, c); });
+  (view.task_events || []).forEach(e => { if (e.time) add('task', e.time, e); });
+  // Older snapshots predate task_events. Derive deterministic transitions from
+  // their recorded agent activity so they still replay as Todo → In Progress → Done.
+  (view.tasks || []).forEach(task => {
+    const recorded = (view.task_events || []).filter(e => e.task_id === task.id);
+    if (recorded.length) return;
+    const ownerEvents = events.filter(e => (e.type === 'message' ? e.data.from : e.data.role) === task.owner);
+    if (!ownerEvents.length) return;
+    const first = Math.min(...ownerEvents.map(e => e.time));
+    const last = Math.max(...ownerEvents.map(e => e.time));
+    add('task', first - 0.001, { task_id: task.id, status: 'in_progress', synthetic: true });
+    add('task', last, { task_id: task.id, status: task.status, synthetic: true });
+  });
+  (view.blockers || []).forEach(b => {
+    const roleEvents = events.filter(e => (e.type === 'message' ? e.data.from : e.data.role) === b.role);
+    const anchorTime = roleEvents.length ? Math.max(...roleEvents.map(e => e.time)) : (events.length ? events[events.length-1].time : 0);
+    add('blocker', b.time || anchorTime + 0.01, b);
+  });
+  const priority = { task: 0, message: 1, blocker: 2, commit: 3 };
+  events.sort((a, b) => a.time - b.time || priority[a.type] - priority[b.type] || a.sequence - b.sequence);
+  const firstTime = events[0]?.time;
+  const lastTime = events[events.length - 1]?.time;
+  const span = lastTime - firstTime;
+  return events.map((event, index) => ({
+    ...event,
+    // Preserve the recorded event spacing while fitting a sprint into the fixed replay duration.
+    replayAt: span > 0 ? ((event.time - firstTime) / span) * BASE_REPLAY_SECONDS
+                        : (index / Math.max(1, events.length - 1)) * BASE_REPLAY_SECONDS,
+  }));
 }
 
-function roleWorkingTime(role, view) {
-  const events = [...view.messages.filter(m => m.from === role || m.to === role)];
-  if (!events.length) return null;
-  const times = events.map(e => e.time).filter(Boolean);
-  if (!times.length) return null;
-  const start = Math.min(...times);
-  const end = Math.max(...times);
-  return end - start;
+function deriveStateAt(view, timeline, visibleCount) {
+  const visible = timeline.slice(0, visibleCount);
+  const roleFirstEvent = {}, roleLastEvent = {};
+  visible.forEach(e => {
+    const role = e.type === 'message' ? e.data.from : (e.type === 'commit' ? e.data.role : e.data.role);
+    if (!role) return;
+    if (roleFirstEvent[role] === undefined) roleFirstEvent[role] = e.time;
+    roleLastEvent[role] = e.time;
+  });
+  const taskStatus = Object.fromEntries(view.tasks.map(t => [t.id, 'todo']));
+  const visibleTaskEvents = visible.filter(e => e.type === 'task').map(e => e.data);
+  if (timeline.some(e => e.type === 'task')) {
+    visibleTaskEvents.forEach(e => { if (taskStatus[e.task_id] !== undefined) taskStatus[e.task_id] = e.status; });
+  } else {
+    // Legacy snapshots have no task transitions; retain the previous best-effort display.
+    view.tasks.forEach(t => {
+      if (roleLastEvent[t.owner] !== undefined) taskStatus[t.id] = t.status;
+    });
+  }
+  const visibleBlockers = visible.filter(e => e.type === 'blocker').map(e => e.data);
+  const visibleMessages = visible.filter(e => e.type === 'message').map(e => e.data);
+  const visibleCommits = visible.filter(e => e.type === 'commit').map(e => e.data);
+  const tasksById = Object.fromEntries(view.tasks.map(task => [task.id, task]));
+  const roleTaskEvents = {};
+  visible.filter(event => event.type === 'task').forEach(event => {
+    const role = tasksById[event.data.task_id]?.owner;
+    if (role) (roleTaskEvents[role] ||= []).push(event);
+  });
+  const engineerPhase = {};
+  ROLES.forEach(role => {
+    const lastTaskEvent = roleTaskEvents[role]?.at(-1);
+    if (!lastTaskEvent || lastTaskEvent.data.status === 'todo') {
+      engineerPhase[role] = 'waiting';
+    } else if (lastTaskEvent.data.status === 'in_progress') {
+      engineerPhase[role] = 'working';
+    } else {
+      const hasCommitAfterTask = visible.some(event => event.type === 'commit' && event.data.role === role && event.time >= lastTaskEvent.time);
+      engineerPhase[role] = hasCommitAfterTask ? 'done' : 'review';
+    }
+  });
+  return { taskStatus, roleFirstEvent, roleLastEvent, roleTaskEvents, engineerPhase, visibleBlockers, visibleMessages, visibleCommits, visibleTaskEvents, refTime: visible.length ? visible[visible.length-1].time : (timeline[0] ? timeline[0].time : 0) };
 }
 
-function latestCommitForRole(role) {
-  if (!liveState || !liveState._commits) return null;
-  const list = liveState._commits.filter(c => c.role === role);
-  return list.length ? list[0] : null;
+function generateManagerSummary(view, derived) {
+  const { visibleBlockers, visibleMessages, taskStatus } = derived;
+  if (visibleBlockers.length) {
+    const b = visibleBlockers[visibleBlockers.length - 1];
+    return `${ROLE_LABEL[b.role]} flagged an issue: ${b.text}`;
+  }
+  const doneTasks = view.tasks.filter(t => taskStatus[t.id] === 'done');
+  const lastMsg = visibleMessages.length ? visibleMessages[visibleMessages.length - 1] : null;
+  if (lastMsg) {
+    const cls = classifyEvent(lastMsg.content);
+    if (cls.icon === '✅') {
+      const unlocked = view.tasks.find(t => (t.depends_on || []).some(d => view.tasks.find(dt => dt.id === d)?.owner === lastMsg.from) && taskStatus[t.id] === 'in_progress');
+      if (unlocked) return `${ROLE_LABEL[lastMsg.from]} completed. ${ROLE_LABEL[unlocked.owner]} has been unblocked.`;
+      return `${ROLE_LABEL[lastMsg.from]} completed their work.`;
+    }
+  }
+  if (view.tasks.length && doneTasks.length === view.tasks.length) return 'All engineers have shipped. Sprint objectives met.';
+  if (!view.tasks.length) return 'Awaiting sprint kickoff.';
+  return 'Monitoring active work — no issues reported.';
 }
 
-function renderCharCards(state, view) {
-  const container = document.getElementById('specialists');
-  container.innerHTML = ROLES.map(role => {
-    const task = view.tasks.find(t => t.owner === role && t.status !== 'done')
-              || view.tasks.filter(t => t.owner === role).slice(-1)[0];
-    const status = task ? task.status : 'idle';
-    const mood = MOOD[status] || MOOD.idle;
-    const dur = roleWorkingTime(role, view);
-    const commit = latestCommitForRole(role);
-    return `<div class="charcard" data-role="${role}">
-      <div class="charcard-top"><span class="charcard-avatar">${ROLE_AVATAR[role]}</span><span class="charcard-name">${ROLE_LABEL[role]}</span></div>
-      <div class="charcard-task">${task ? task.title : 'Waiting for assignment'}</div>
-      <div class="charcard-mood">${mood.emoji} ${mood.label}</div>
-      <div class="charcard-meta">${dur !== null ? `Active ${fmtDuration(dur)}` : 'No activity yet'}
-        ${commit ? `<span class="commit">${commit.hash} — ${commit.message}</span>` : ''}
-      </div>
-    </div>`;
-  }).join('');
+function renderStaticFrame(state) {
+  if (replay && replay.sprintIdx === currentTabIndex(state) && (replay.playing || replay.elapsed > 0)) {
+    renderReplayFrame();
+    return;
+  }
+  const sprints = combinedSprints(state);
+  const view = sprints[currentTabIndex(state)];
+  const commits = view.commits || [];
+  const derived = deriveStateAt(view, buildTimeline(view), Infinity);
+  paintFrame(state, view, derived, commits, false);
 }
 
-function renderSpotlight(state, view) {
-  const managerMsgs = view.messages.filter(m => m.from === 'manager');
-  const blockers = (state.blockers || []).filter(b => b.sprint === view.number);
-  const lastBlocker = blockers.length ? blockers[blockers.length - 1] : null;
-  const lastOut = managerMsgs.length ? managerMsgs[managerMsgs.length - 1] : null;
-  const blockedTask = view.tasks.find(t => t.status === 'blocked');
-
-  document.getElementById('mgr-decision').textContent =
-    lastOut ? lastOut.content : (view.tasks.length ? 'Sprint planned, monitoring execution.' : 'Awaiting sprint kickoff.');
-  document.getElementById('mgr-waiting').textContent =
-    blockedTask ? `${ROLE_LABEL[blockedTask.owner]} — ${blockedTask.title}` : 'Nobody — sprint clear';
-  document.getElementById('mgr-blocked').textContent = lastBlocker ? lastBlocker.text : 'No active blockers';
-  document.getElementById('mgr-next').textContent =
-    lastOut ? lastOut.content : 'Monitoring for blockers';
-}
-
-function render(state) {
-  const view = currentView(state);
-  const isLive = view.live;
+function paintFrame(state, view, derived, commits, isReplayFrame) {
   renderTabs(state);
+  renderCmdBar(state, view, derived, commits);
 
   document.getElementById('goal-text').textContent = view.goal;
   const badge = document.getElementById('status-badge');
-  const st = isLive ? state.sprint.status : 'complete';
+  const st = view.live ? state.sprint.status : 'complete';
   badge.textContent = st.replace('_', ' ');
   badge.className = 'status-badge ' + st;
 
   const total = view.tasks.length;
-  const doneCount = view.tasks.filter(t => t.status === 'done').length;
+  const doneCount = view.tasks.filter(t => derived.taskStatus[t.id] === 'done').length;
   document.getElementById('progress-fill').style.width = total ? `${(doneCount/total*100).toFixed(0)}%` : '0%';
   document.getElementById('progress-label').textContent = `${doneCount} / ${total} tasks`;
 
-  renderSpotlight(state, view);
-  renderCharCards(state, view);
+  renderSpotlight(view, derived);
+  renderCharCards(view, derived, commits, isReplayFrame);
 
   const cols = ['todo', 'in_progress', 'blocked', 'done'];
   const colTitle = { todo: 'Todo', in_progress: 'In Progress', blocked: 'Blocked', done: 'Done' };
   document.getElementById('board').innerHTML = cols.map(c => {
-    const items = view.tasks.filter(t => t.status === c);
+    const items = view.tasks.filter(t => derived.taskStatus[t.id] === c);
     return `<div class="board-col"><div class="col-title">${colTitle[c]} (${items.length})</div>
-      ${items.map(t => `<div class="task-chip ${t.status}">${t.title}<div class="owner">${t.owner}</div></div>`).join('') || '<span class="empty" style="font-size:11px;">—</span>'}
+      ${items.map(t => `<div class="task-chip ${derived.taskStatus[t.id]}">${t.title}<div class="owner">${t.owner}</div></div>`).join('') || '<span class="empty" style="font-size:11px;">—</span>'}
     </div>`;
   }).join('');
 
-  renderDepGraph(view.tasks);
+  renderDepGraph(view.tasks, derived.taskStatus);
 
-  const blockers = (state.blockers || []).filter(b => b.sprint === view.number);
-  document.getElementById('blockers').innerHTML = blockers.length
-    ? blockers.map(b => `<div class="blocker-item"><div class="who">${b.role}</div>${b.text}</div>`).join('')
+  const shownBlockers = isReplayFrame ? derived.visibleBlockers : (view.blockers || []);
+  document.getElementById('blockers').innerHTML = shownBlockers.length
+    ? shownBlockers.map(b => `<div class="blocker-item"><div class="who">${b.role}</div>${b.text}</div>`).join('')
     : '<span class="empty">No blockers recorded</span>';
 
-  renderEventFeed(view.messages);
+  const shownMessages = isReplayFrame ? derived.visibleMessages : view.messages;
+  renderEventFeed(shownMessages);
+
+  const shownCommits = isReplayFrame ? derived.visibleCommits : commits;
+  renderCommitFeed(shownCommits);
 
   const retroPanel = document.getElementById('retro-panel');
-  if (view.retrospective) {
+  if (view.retrospective && (!isReplayFrame || doneCount === total)) {
     retroPanel.style.display = 'block';
     const lines = Array.isArray(view.retrospective) ? view.retrospective : [{speaker: 'manager', line: view.retrospective}];
     document.getElementById('retro-body').innerHTML = lines.map(l =>
@@ -410,66 +542,321 @@ function render(state) {
   }
 }
 
-/* ---------- Timeline Playback ---------- */
-function buildTimeline(view) {
-  const events = [];
-  view.messages.forEach(m => events.push({ type: 'message', time: m.time || 0, data: m }));
-  (liveState._commits || []).forEach(c => events.push({ type: 'commit', time: c.time || 0, data: c }));
-  return events.filter(e => e.time).sort((a,b) => a.time - b.time);
+function renderCmdBar(state, view, derived, commits) {
+  const activeEngineers = ROLES.filter(r => derived.taskStatus[Object.values(view.tasks).find(t=>t.owner===r)?.id] === 'in_progress').length;
+  const runningTasks = view.tasks.filter(t => derived.taskStatus[t.id] === 'in_progress').length;
+  const blockedCount = view.tasks.filter(t => derived.taskStatus[t.id] === 'blocked').length;
+  const commitCount = commits.length;
+  const healthy = blockedCount === 0;
+  document.getElementById('cmd-bar').innerHTML = `
+    <div class="cmd-item"><span class="health-dot ${healthy ? 'healthy' : 'attention'}"></span><b>${healthy ? 'Healthy' : 'Needs Attention'}</b></div>
+    <div class="cmd-item">Engineers Active: <b>${activeEngineers}</b></div>
+    <div class="cmd-item">Tasks Running: <b>${runningTasks}</b></div>
+    <div class="cmd-item">Blockers: <b>${blockedCount}</b></div>
+    <div class="cmd-item">Commits: <b>${commitCount}</b></div>
+    <div class="cmd-item">Sprint: <b>${view.number}</b></div>
+  `;
 }
 
-async function replaySprint() {
-  if (replaying) return;
-  const view = currentView(liveState);
+function renderSpotlight(view, derived) {
+  document.getElementById('mgr-live').textContent = generateManagerSummary(view, derived);
+  const blockedTask = view.tasks.find(t => derived.taskStatus[t.id] === 'blocked');
+  document.getElementById('mgr-waiting').textContent = blockedTask ? `${ROLE_LABEL[blockedTask.owner]} — ${blockedTask.title}` : 'Nobody — sprint clear';
+  const lastBlocker = derived.visibleBlockers.length ? derived.visibleBlockers[derived.visibleBlockers.length-1] : null;
+  document.getElementById('mgr-blocked').textContent = lastBlocker ? lastBlocker.text : 'No active blockers';
+}
+
+function renderCharCards(view, derived, commits, isReplayFrame) {
+  const container = document.getElementById('specialists');
+  const refTime = isReplayFrame ? derived.refTime : (Date.now()/1000);
+  container.innerHTML = ROLES.map(role => {
+    const roleTasks = view.tasks.filter(t => t.owner === role);
+    const activeTask = roleTasks.find(t => ['in_progress', 'blocked'].includes(derived.taskStatus[t.id]));
+    const lastTaskEvent = derived.roleTaskEvents[role]?.at(-1);
+    const replayTask = lastTaskEvent ? roleTasks.find(t => t.id === lastTaskEvent.data.task_id) : null;
+    const task = activeTask || replayTask || roleTasks.find(t => derived.taskStatus[t.id] !== 'done') || roleTasks.at(-1);
+    const taskStatus = task ? derived.taskStatus[task.id] : 'todo';
+    const phase = derived.engineerPhase[role] || 'waiting';
+    const waitingOn = (() => {
+      if (!task) return 'Nothing';
+      const blocker = derived.visibleBlockers.find(b => b.role === role);
+      if (taskStatus === 'blocked' && blocker) return blocker.text;
+      const unmetDeps = (task.depends_on || []).filter(d => derived.taskStatus[d] && derived.taskStatus[d] !== 'done');
+      if (unmetDeps.length) {
+        const depTask = view.tasks.find(t => t.id === unmetDeps[0]);
+        return depTask ? `${ROLE_LABEL[depTask.owner]} — ${depTask.title}` : 'Dependencies';
+      }
+      return phase === 'done' ? '—' : 'Nothing';
+    })();
+    const roleCommits = (isReplayFrame ? derived.visibleCommits : commits).filter(c => c.role === role);
+    const latestCommit = roleCommits.length ? roleCommits[0] : null;
+    const lastEventTime = derived.roleLastEvent[role];
+    return `<div class="charcard" data-role="${role}">
+      <div class="charcard-top"><span class="charcard-avatar">${ROLE_AVATAR[role]}</span><span class="charcard-name">${ROLE_LABEL[role]}</span>
+        <span class="charcard-status-pill ${phase}">${phase}</span></div>
+      <div class="charcard-row"><div class="k">Current Task</div><div class="v">${task ? task.title : 'Awaiting assignment'}</div></div>
+      <div class="charcard-row"><div class="k">Waiting On</div><div class="v">${waitingOn}</div></div>
+      <div class="charcard-row"><div class="k">Latest Commit</div><div class="v commit">${latestCommit ? latestCommit.message : 'No commits yet'}</div></div>
+      <div class="charcard-row"><div class="k">Last Activity</div><div class="v">${relativeTime(lastEventTime, refTime)}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderEventFeed(messages) {
+  const el = document.getElementById('messages');
+  if (!messages.length) { el.innerHTML = '<span class="empty">No activity yet — sprint hasn\'t started.</span>'; return; }
+  el.innerHTML = messages.slice(-20).reverse().map(m => {
+    const cls = classifyEvent(m.content);
+    return `<div class="event-card">
+      <div class="event-time">${fmtTime(m.time)}</div>
+      <div class="event-body"><div class="who">${ROLE_LABEL[m.from] || m.from}</div>
+        <div class="headline">${cls.icon} ${m.content}</div>
+        <div class="downstream">${ROLE_LABEL[m.to] || m.to} ${cls.downstreamVerb}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderCommitFeed(commits) {
+  const el = document.getElementById('commits');
+  el.innerHTML = commits.length ? commits.map((c,i) =>
+    `<div class="row" data-idx="${i}"><span class="role-tag">${fmtTime(c.time)}</span> ${c.role} ${c.hash} — ${c.message}</div>`
+  ).join('') : '<span class="empty">No commits yet</span>';
+  [...el.querySelectorAll('.row')].forEach(row => {
+    row.addEventListener('click', () => showCommitModal(commits[parseInt(row.dataset.idx)]));
+  });
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+}
+
+function modalList(values, format = value => escapeHtml(value)) {
+  if (!Array.isArray(values) || !values.length) return '<span class="v na">None recorded</span>';
+  return values.map(value => `<div class="v">${format(value)}</div>`).join('');
+}
+
+function showCommitModal(commit) {
+  const modalBody = document.getElementById('modal-body');
+  const summary = commit.summary || commit.message;
+  modalBody.innerHTML = `
+    <div class="modal-row"><div class="k">Role</div><div class="v">${escapeHtml(commit.role)}</div></div>
+    <div class="modal-row"><div class="k">Hash</div><div class="v">${escapeHtml(commit.hash)}</div></div>
+    <div class="modal-row"><div class="k">Time</div><div class="v">${fmtTime(commit.time)}</div></div>
+    <div class="modal-row"><div class="k">Summary</div><div class="v">${escapeHtml(summary)}</div></div>
+    <div class="modal-row"><div class="k">Files Changed</div>${modalList(commit.files_changed)}</div>
+    <div class="modal-row"><div class="k">Decisions</div>${modalList(commit.decisions)}</div>
+    <div class="modal-row"><div class="k">Blockers</div>${modalList(commit.blockers)}</div>
+    <div class="modal-row"><div class="k">New Tasks</div>${modalList(commit.new_tasks, task => `${escapeHtml(task.id)} — ${escapeHtml(task.title)} (${escapeHtml(task.owner)})`)}</div>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+document.getElementById('modal-close').addEventListener('click', () => document.getElementById('modal-overlay').classList.remove('show'));
+document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') e.currentTarget.classList.remove('show'); });
+
+function initReplay(state) {
+  const idx = currentTabIndex(state);
+  const sprints = combinedSprints(state);
+  const view = sprints[idx];
   const timeline = buildTimeline(view);
-  if (!timeline.length) { alert('No timestamped events yet to replay — run a sprint with the timestamp patch applied.'); return; }
+  replay = {
+    sprintIdx: idx,
+    view: JSON.parse(JSON.stringify(view)),
+    timeline,
+    elapsed: 0,
+    playing: false,
+    speed: 1,
+  };
+  document.getElementById('completion-card').classList.remove('show');
+}
 
-  replaying = true;
-  document.getElementById('replay-btn').disabled = true;
-  const feedEl = document.getElementById('messages');
-  feedEl.innerHTML = '';
+function renderReplayFrame() {
+  if (!replay) return;
+  const total = replay.timeline.length;
+  const frac = Math.min(1, replay.elapsed / BASE_REPLAY_SECONDS);
+  const visibleCount = total ? replay.timeline.filter(event => event.replayAt <= replay.elapsed + 0.0001).length : 0;
 
-  const TOTAL_MS = 45000;
-  const clockEl = document.getElementById('replay-clock');
+  document.getElementById('replay-fill').style.width = `${frac*100}%`;
+  document.getElementById('replay-knob').style.left = `${frac*100}%`;
+  document.getElementById('replay-time').textContent = `${fmtClock(replay.elapsed)} / ${fmtClock(BASE_REPLAY_SECONDS)}`;
+  document.getElementById('btn-playpause').textContent = replay.playing ? '⏸ Pause' : (replay.elapsed > 0 ? '▶ Resume' : '▶ Play');
+  ['1','2','4','8'].forEach(s => document.getElementById(`btn-${s}x`).classList.toggle('on', replay.speed === +s));
 
-  for (let i = 0; i < timeline.length; i++) {
-    const ev = timeline[i];
-    clockEl.textContent = `⏱ ${fmtTime(ev.time)}`;
+  const derived = deriveStateAt(replay.view, replay.timeline, visibleCount);
+  paintFrame(liveState, replay.view, derived, replay.view.commits || [], true);
 
-    if (ev.type === 'message') {
-      const cls = classifyEvent(ev.data.content);
-      const card = document.createElement('div');
-      card.className = 'event-card';
-      card.innerHTML = `<div class="event-time">${fmtTime(ev.data.time)}</div>
-        <div class="event-body"><div class="who">${ROLE_LABEL[ev.data.from] || ev.data.from}</div>
-        <div class="headline">${cls.icon} ${ev.data.content}</div>
-        <div class="downstream">${ROLE_LABEL[ev.data.to] || ev.data.to} ${cls.downstreamVerb}</div></div>`;
-      feedEl.prepend(card);
-      pulseCard(ev.data.from);
-    } else {
-      pulseCard(ev.data.role);
-    }
-    await new Promise(r => setTimeout(r, TOTAL_MS / timeline.length));
+  if (frac >= 1 && replay.playing) {
+    replay.playing = false;
+    stopReplayClock();
+    showCompletionSummary(replay.view, derived);
+    document.getElementById('btn-playpause').textContent = '▶ Play';
   }
-
-  clockEl.textContent = '✓ Replay complete';
-  document.getElementById('replay-btn').disabled = false;
-  replaying = false;
-  render(liveState);
 }
 
-function pulseCard(role) {
-  const card = document.querySelector(`.charcard[data-role="${role}"]`);
-  if (!card) return;
-  card.classList.add('pulse');
-  setTimeout(() => card.classList.remove('pulse'), 600);
+function computeSprintDuration(view) {
+  const asSeconds = value => {
+    if (value == null) return NaN;
+    const timestamp = Number(value);
+    return Number.isFinite(timestamp) && timestamp > 1e11 ? timestamp / 1000 : timestamp;
+  };
+  const timestampedEvents = [
+    ...(view.messages || []), ...(view.blockers || []),
+    ...(view.task_events || []), ...(view.commits || []),
+  ].map(event => asSeconds(event.time)).filter(Number.isFinite);
+  if (timestampedEvents.length >= 2) {
+    return { seconds: Math.max(...timestampedEvents) - Math.min(...timestampedEvents), label: null };
+  }
+  const startedAt = asSeconds(view.started_at), completedAt = asSeconds(view.completed_at);
+  if (view.started_at != null && view.completed_at != null && Number.isFinite(startedAt) && Number.isFinite(completedAt) && completedAt >= startedAt) {
+    return { seconds: completedAt - startedAt, label: null };
+  }
+  if (timestampedEvents.length === 1) return { seconds: 0, label: null };
+
+  const usage = liveState._usage || [];
+  const usageForSprint = usage.filter(u => Number(u.sprint) === Number(view.number));
+  const legacyUsage = usage.filter(u => u.sprint === undefined || u.sprint === null);
+  const usageEntries = usageForSprint.length ? usageForSprint : legacyUsage;
+  const total = usageEntries.reduce((sum, entry) => sum + (Number(entry.duration_sec) || 0), 0);
+  if (usageEntries.length) {
+    return { seconds: total, label: '(Codex execution time, approximate)' };
+  }
+  return { seconds: null, label: null };
 }
 
-document.getElementById('replay-btn').addEventListener('click', replaySprint);
+function fmtDurationHuman(sec) {
+  const rounded = Math.max(0, Math.round(sec));
+  if (rounded < 60) return `${rounded}s`;
+  const hours = Math.floor(rounded / 3600);
+  const minutes = Math.floor((rounded % 3600) / 60);
+  const seconds = rounded % 60;
+  return hours ? `${hours}h ${minutes}m ${seconds}s` : `${minutes}m ${seconds}s`;
+}
 
-/* ---------- Polling ---------- */
+function showCompletionSummary(view, derived) {
+  const card = document.getElementById('completion-card');
+  const dur = computeSprintDuration(view);
+  const durationDisplay = dur.seconds === null ? 'Not available' : `${fmtDurationHuman(dur.seconds)}${dur.label ? ' ' + dur.label : ''}`;
+  document.getElementById('completion-stats').innerHTML = `
+    <div class="cstat"><div class="label">Duration</div><div class="value" style="${dur.seconds === null ? 'font-size:14px;color:var(--dim);' : ''}">${durationDisplay}</div></div>
+    <div class="cstat"><div class="label">Tasks Completed</div><div class="value">${view.tasks.filter(t=>t.status==='done').length}/${view.tasks.length}</div></div>
+    <div class="cstat"><div class="label">Messages Exchanged</div><div class="value">${derived.visibleMessages.length}</div></div>
+    <div class="cstat"><div class="label">Git Commits</div><div class="value">${derived.visibleCommits.length}</div></div>
+    <div class="cstat"><div class="label">Blockers Resolved</div><div class="value">${derived.visibleBlockers.length}</div></div>
+  `;
+  card.classList.add('show');
+}
+
+
+
+function replayTick() {
+  if (!replay || !replay.playing) return;
+  const now = performance.now();
+  const deltaSec = (now - replay._lastTick) / 1000;
+  replay._lastTick = now;
+  replay.elapsed = Math.min(BASE_REPLAY_SECONDS, replay.elapsed + deltaSec * replay.speed);
+  renderReplayFrame();
+}
+
+function ensureClockRunning() {
+  if (replayClockHandle) return;
+  replayClockHandle = setInterval(replayTick, 100);
+}
+
+function stopReplayClock() {
+  if (!replayClockHandle) return;
+  clearInterval(replayClockHandle);
+  replayClockHandle = null;
+}
+
+function ensureReplayForActiveTab() {
+  if (!replay || replay.sprintIdx !== currentTabIndex(liveState)) initReplay(liveState);
+}
+
+document.getElementById('btn-playpause').addEventListener('click', () => {
+  ensureReplayForActiveTab();
+  if (replay.elapsed >= BASE_REPLAY_SECONDS) {
+    replay.elapsed = 0;
+    document.getElementById('completion-card').classList.remove('show');
+  }
+  replay.playing = !replay.playing;
+  replay._lastTick = performance.now();
+  if (replay.playing) ensureClockRunning(); else stopReplayClock();
+  renderReplayFrame();
+});
+document.getElementById('btn-restart').addEventListener('click', () => {
+  const speed = replay?.speed || 1;
+  initReplay(liveState);
+  replay.speed = speed;
+  replay.playing = true;
+  replay._lastTick = performance.now();
+  ensureClockRunning();
+  renderReplayFrame();
+});
+['1','2','4','8'].forEach(s => {
+  document.getElementById(`btn-${s}x`).addEventListener('click', () => {
+    ensureReplayForActiveTab();
+    replay.speed = +s;
+    renderReplayFrame();
+  });
+});
+
+const trackEl = document.getElementById('replay-track');
+const tooltipEl = document.getElementById('replay-tooltip');
+let scrubState = null;
+
+function seekReplay(clientX) {
+  ensureReplayForActiveTab();
+  const rect = trackEl.getBoundingClientRect();
+  const frac = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+  replay.elapsed = frac * BASE_REPLAY_SECONDS;
+  renderReplayFrame();
+}
+
+trackEl.addEventListener('pointerdown', (e) => {
+  ensureReplayForActiveTab();
+  scrubState = { pointerId: e.pointerId, resume: replay.playing };
+  replay.playing = false;
+  trackEl.setPointerCapture(e.pointerId);
+  seekReplay(e.clientX);
+});
+trackEl.addEventListener('pointermove', (e) => {
+  if (!scrubState || scrubState.pointerId !== e.pointerId) return;
+  seekReplay(e.clientX);
+});
+function finishScrub(e) {
+  if (!scrubState || scrubState.pointerId !== e.pointerId) return;
+  seekReplay(e.clientX);
+  const resume = scrubState.resume && replay.elapsed < BASE_REPLAY_SECONDS;
+  scrubState = null;
+  if (trackEl.hasPointerCapture(e.pointerId)) trackEl.releasePointerCapture(e.pointerId);
+  replay.playing = resume;
+  replay._lastTick = performance.now();
+  if (resume) ensureClockRunning();
+  renderReplayFrame();
+}
+trackEl.addEventListener('pointerup', finishScrub);
+trackEl.addEventListener('pointercancel', finishScrub);
+trackEl.addEventListener('click', (e) => {
+  if (scrubState) return;
+  seekReplay(e.clientX);
+});
+trackEl.addEventListener('mousemove', (e) => {
+  if (!replay || !replay.timeline.length) return;
+  const rect = trackEl.getBoundingClientRect();
+  const frac = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+  const total = replay.timeline.length;
+  const idx = Math.min(total - 1, Math.round(frac * total));
+  const ev = replay.timeline[idx];
+  if (!ev) return;
+  const desc = ev.type === 'message' ? `${ev.data.from} → ${ev.data.to}: ${ev.data.content}` :
+               ev.type === 'commit' ? `${ev.data.role}: ${ev.data.message}` :
+               ev.type === 'task' ? `${ev.data.task_id}: ${ev.data.status}` : `Blocker: ${ev.data.text}`;
+  tooltipEl.textContent = desc.length > 60 ? desc.slice(0,57)+'...' : desc;
+  tooltipEl.style.left = `${frac*100}%`;
+  tooltipEl.style.display = 'block';
+});
+trackEl.addEventListener('mouseleave', () => { tooltipEl.style.display = 'none'; });
+
 async function tick() {
-  if (replaying) return;
   try {
     const res = await fetch('../state/state.json?t=' + Date.now());
     liveState = await res.json();
@@ -479,16 +866,18 @@ async function tick() {
   }
   try {
     const cres = await fetch('../logs/commits.json?t=' + Date.now());
-    const commits = await cres.json();
-    liveState._commits = commits;
-    document.getElementById('commits').innerHTML = commits.map(c =>
-      `<div class="row"><span class="role-tag">${fmtTime(c.time)}</span> ${c.role} ${c.hash} — ${c.message}</div>`
-    ).join('') || '<span class="empty">No commits yet</span>';
+    liveState._commits = await cres.json();
   } catch (e) {
     liveState._commits = [];
-    document.getElementById('commits').innerHTML = '<span class="empty">Waiting for first commit...</span>';
   }
-  render(liveState);
+  try {
+    const ures = await fetch('../logs/usage_log.jsonl?t=' + Date.now());
+    const text = await ures.text();
+    liveState._usage = text.trim().split('\n').filter(Boolean).map(l => JSON.parse(l));
+  } catch (e) {
+    liveState._usage = [];
+  }
+  renderStaticFrame(liveState);
 }
 
 tick();
