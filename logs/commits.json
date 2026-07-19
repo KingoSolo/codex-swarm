@@ -1,5 +1,20 @@
 [
   {
+    "hash": "9248e78",
+    "role": "qa",
+    "time": 1784426462,
+    "message": "[qa] Sprint 2 authentication regression tests passed: registration, login, JWT rejection, protected task access, and per-user task isolation are all covered.",
+    "sprint": 2,
+    "summary": "Sprint 2 authentication regression tests passed: registration, login, JWT rejection, protected task access, and per-user task isolation are all covered.",
+    "files_changed": [],
+    "decisions": [
+      "Reviewed recent commits and ran `python3 -m unittest -v test_api.py`; all 5 tests passed.",
+      "No new regression or evidenced gap was found in the current JWT authentication implementation."
+    ],
+    "blockers": [],
+    "new_tasks": []
+  },
+  {
     "hash": "6fbeaf2",
     "role": "architect",
     "time": 1784426448,
