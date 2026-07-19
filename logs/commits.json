@@ -1,5 +1,22 @@
 [
   {
+    "hash": "2bbbfa7",
+    "role": "security",
+    "time": 1784426597,
+    "message": "[security] Security review cannot assess Sprint 4\u2019s drag-and-drop implementation because it is absent; the existing protected PATCH endpoint remains the only task-movement path.",
+    "sprint": 4,
+    "summary": "Security review cannot assess Sprint 4\u2019s drag-and-drop implementation because it is absent; the existing protected PATCH endpoint remains the only task-movement path.",
+    "files_changed": [],
+    "decisions": [
+      "Current status changes use the existing authenticated PATCH endpoint and retain server-side status validation.",
+      "A future optimistic implementation must restore the prior local task state if PATCH fails, preventing UI/server state divergence."
+    ],
+    "blockers": [
+      "No drag-and-drop or optimistic-update implementation exists in the frontend to review."
+    ],
+    "new_tasks": []
+  },
+  {
     "hash": "54d8bcb",
     "role": "qa",
     "time": 1784426587,

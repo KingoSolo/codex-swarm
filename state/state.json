@@ -2,9 +2,9 @@
   "sprint": {
     "number": 4,
     "goal": "Add drag-and-drop support to the Kanban board with optimistic UI updates",
-    "status": "in_progress",
+    "status": "complete",
     "started_at": 1784426559.861752,
-    "completed_at": null
+    "completed_at": 1784426607.210389
   },
   "sprint_history": [
     {
@@ -1162,6 +1162,13 @@
       "owner": "qa",
       "depends_on": [],
       "status": "blocked"
+    },
+    {
+      "id": "auto-security-s4",
+      "title": "Final security pass",
+      "owner": "security",
+      "depends_on": [],
+      "status": "blocked"
     }
   ],
   "agents": {
@@ -1190,7 +1197,7 @@
       "current_task": null
     },
     "security": {
-      "status": "idle",
+      "status": "blocked",
       "current_task": null
     }
   },
@@ -1215,6 +1222,12 @@
       "to": "manager",
       "content": "QA found Sprint 4 is incomplete: static/index.html has no draggable elements or drag/drop handlers. Status movement uses a select control, and mutate() waits for PATCH then reloads, so it is not optimistic.",
       "time": 1784426587.933086
+    },
+    {
+      "from": "security",
+      "to": "manager",
+      "content": "Security review is blocked because no Sprint 4 drag-and-drop or optimistic-update code exists. When added, retain authenticated PATCH requests, treat client drop data as untrusted, and roll back optimistic state on failed API responses.",
+      "time": 1784426597.793223
     }
   ],
   "architecture_decisions": [
@@ -1322,9 +1335,19 @@
       "by": "qa",
       "decision": "Evidence: static/index.html contains no drag, drop, dragstart, dragover, draggable, or optimistic implementation; status updates await the API before reloading.",
       "sprint": 4
+    },
+    {
+      "by": "security",
+      "decision": "Current status changes use the existing authenticated PATCH endpoint and retain server-side status validation.",
+      "sprint": 4
+    },
+    {
+      "by": "security",
+      "decision": "A future optimistic implementation must restore the prior local task state if PATCH fails, preventing UI/server state divergence.",
+      "sprint": 4
     }
   ],
-  "retrospective": null,
+  "retrospective": "Sprint 4 did not deliver drag-and-drop or optimistic updates because no implementation tasks were present in the frozen plan.",
   "blockers": [
     {
       "role": "qa",
@@ -1343,6 +1366,12 @@
       "text": "No frontend implementation task exists for Sprint 4, so the requested drag-and-drop and optimistic UI behavior cannot be validated.",
       "sprint": 4,
       "time": 1784426587.933096
+    },
+    {
+      "role": "security",
+      "text": "No drag-and-drop or optimistic-update implementation exists in the frontend to review.",
+      "sprint": 4,
+      "time": 1784426597.7932339
     }
   ],
   "task_events": [
@@ -1362,6 +1391,24 @@
       "task_id": "auto-qa-s4",
       "status": "blocked",
       "time": 1784426587.933109,
+      "sprint": 4
+    },
+    {
+      "task_id": "auto-security-s4",
+      "status": "todo",
+      "time": 1784426588.027442,
+      "sprint": 4
+    },
+    {
+      "task_id": "auto-security-s4",
+      "status": "in_progress",
+      "time": 1784426588.027661,
+      "sprint": 4
+    },
+    {
+      "task_id": "auto-security-s4",
+      "status": "blocked",
+      "time": 1784426597.793246,
       "sprint": 4
     }
   ],
