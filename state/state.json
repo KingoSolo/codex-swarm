@@ -22,7 +22,7 @@
       "depends_on": [
         "db-1"
       ],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "fe-1",
@@ -44,7 +44,7 @@
       "current_task": null
     },
     "backend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "frontend": {
@@ -89,6 +89,18 @@
       "to": "backend",
       "content": "Dependency complete: 'Create tasks table schema (id, title, status, created_at) in database.py' is done. You may now proceed with 'Implement REST API in server.py: create/list/update/delete tasks, move between statuses'.",
       "time": 1784426310.76237
+    },
+    {
+      "from": "backend",
+      "to": "frontend",
+      "content": "REST API is ready: authenticate with Bearer token; POST/GET /api/tasks, PATCH or PUT /api/tasks/{id}, DELETE /api/tasks/{id}. Accepted statuses: todo, in_progress, done.",
+      "time": 1784426325.891805
+    },
+    {
+      "from": "manager",
+      "to": "frontend",
+      "content": "Dependency complete: 'Implement REST API in server.py: create/list/update/delete tasks, move between statuses' is done. You may now proceed with 'Build Kanban board UI in index.html (3 columns, click-to-move) consuming the API'.",
+      "time": 1784426325.891883
     }
   ],
   "architecture_decisions": [
@@ -100,6 +112,16 @@
     {
       "by": "database",
       "decision": "Kept the existing compatible tasks schema, which already fulfilled db-1 and preserves the user_id column required by server.py.",
+      "sprint": 1
+    },
+    {
+      "by": "backend",
+      "decision": "Preserved the existing authenticated REST API implementation, including user-scoped task access and server-side status validation.",
+      "sprint": 1
+    },
+    {
+      "by": "backend",
+      "decision": "Validated the API suite with `python3 -m unittest -v test_api.py` (5 passing).",
       "sprint": 1
     }
   ],
@@ -134,6 +156,18 @@
       "task_id": "db-1",
       "status": "done",
       "time": 1784426310.762342,
+      "sprint": 1
+    },
+    {
+      "task_id": "be-1",
+      "status": "in_progress",
+      "time": 1784426310.88665,
+      "sprint": 1
+    },
+    {
+      "task_id": "be-1",
+      "status": "done",
+      "time": 1784426325.89185,
       "sprint": 1
     }
   ],
