@@ -2,9 +2,9 @@
   "sprint": {
     "number": 3,
     "goal": "Implement task search, filtering, and sorting",
-    "status": "in_progress",
+    "status": "complete",
     "started_at": 1784426489.92374,
-    "completed_at": null
+    "completed_at": 1784426559.7132108
   },
   "sprint_history": [
     {
@@ -879,6 +879,13 @@
       "owner": "qa",
       "depends_on": [],
       "status": "blocked"
+    },
+    {
+      "id": "auto-security-s3",
+      "title": "Final security pass",
+      "owner": "security",
+      "depends_on": [],
+      "status": "blocked"
     }
   ],
   "agents": {
@@ -907,7 +914,7 @@
       "current_task": null
     },
     "security": {
-      "status": "idle",
+      "status": "blocked",
       "current_task": null
     }
   },
@@ -932,6 +939,12 @@
       "to": "manager",
       "content": "QA found Sprint 3 is incomplete: server.py always lists a user's tasks as `ORDER BY id DESC` and does not parse search/filter/sort query parameters; static/index.html has no corresponding controls. Existing authentication tests still pass, but search/filter/sort require implementation tasks.",
       "time": 1784426520.343524
+    },
+    {
+      "from": "security",
+      "to": "manager",
+      "content": "Security cannot complete Sprint 3 feature review: no query parsing or UI controls for search/filter/sort exist. When implemented, whitelist sort fields/directions and parameterize search/status values while retaining the authenticated user_id predicate.",
+      "time": 1784426546.255311
     }
   ],
   "architecture_decisions": [
@@ -1024,15 +1037,31 @@
       "by": "qa",
       "decision": "Evidence: GET /api/tasks ignores query parameters and uses fixed `ORDER BY id DESC`; frontend filtering only groups tasks into fixed Kanban status columns.",
       "sprint": 3
+    },
+    {
+      "by": "security",
+      "decision": "Current task queries remain user-scoped and use a fixed ORDER BY id DESC; no dynamic SQL ordering or query-input handling has been added.",
+      "sprint": 3
+    },
+    {
+      "by": "security",
+      "decision": "Existing authentication regression suite passes (5 tests).",
+      "sprint": 3
     }
   ],
-  "retrospective": null,
+  "retrospective": "Sprint 3 did not deliver search, filtering, or sorting because the frozen task graph contained only QA and security review tasks.",
   "blockers": [
     {
       "role": "qa",
       "text": "No backend or frontend implementation task exists for Sprint 3, so QA cannot validate the requested search, filtering, and sorting behavior.",
       "sprint": 3,
       "time": 1784426520.343544
+    },
+    {
+      "role": "security",
+      "text": "Search, filtering, and sorting are absent from both server.py and static/index.html.",
+      "sprint": 3,
+      "time": 1784426546.255349
     }
   ],
   "task_events": [
@@ -1052,6 +1081,24 @@
       "task_id": "auto-qa-s3",
       "status": "blocked",
       "time": 1784426520.3435571,
+      "sprint": 3
+    },
+    {
+      "task_id": "auto-security-s3",
+      "status": "todo",
+      "time": 1784426520.444,
+      "sprint": 3
+    },
+    {
+      "task_id": "auto-security-s3",
+      "status": "in_progress",
+      "time": 1784426520.444198,
+      "sprint": 3
+    },
+    {
+      "task_id": "auto-security-s3",
+      "status": "blocked",
+      "time": 1784426546.2553558,
       "sprint": 3
     }
   ],
