@@ -2,9 +2,9 @@
   "sprint": {
     "number": 1,
     "goal": "Build a lightweight Kanban project management app: REST API + minimal web UI. Users can create tasks, move them between Todo, In Progress, and Done, edit task details, and delete tasks.",
-    "status": "in_progress",
+    "status": "complete",
     "started_at": 1784426288.87665,
-    "completed_at": null
+    "completed_at": 1784426432.987427
   },
   "sprint_history": [],
   "tasks": [
@@ -39,6 +39,13 @@
       "owner": "qa",
       "depends_on": [],
       "status": "done"
+    },
+    {
+      "id": "auto-security-s1",
+      "title": "Final security pass",
+      "owner": "security",
+      "depends_on": [],
+      "status": "done"
     }
   ],
   "agents": {
@@ -67,11 +74,13 @@
       "current_task": null
     },
     "security": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     }
   },
-  "files_owned": {},
+  "files_owned": {
+    "server.py": "security"
+  },
   "messages": [
     {
       "from": "manager",
@@ -162,9 +171,24 @@
       "by": "qa",
       "decision": "Attempted a real socket-based end-to-end smoke test, but the sandbox disallows local TCP binding (PermissionError); this is an environment limitation, not an application failure.",
       "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "Added nosniff, anti-framing, and referrer-policy headers to API and static responses.",
+      "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "Added a restrictive HTML Content Security Policy that accommodates the required single-file inline UI while blocking external resources, plugins, frames, and cross-origin form submissions.",
+      "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "Validated with 12 passing automated tests, a direct security-header assertion, and `git diff --check`.",
+      "sprint": 1
     }
   ],
-  "retrospective": null,
+  "retrospective": "Sprint 1 completed with all planned implementation, QA, and security tasks marked done.",
   "blockers": [],
   "task_events": [
     {
@@ -237,6 +261,24 @@
       "task_id": "auto-qa-s1",
       "status": "done",
       "time": 1784426374.037533,
+      "sprint": 1
+    },
+    {
+      "task_id": "auto-security-s1",
+      "status": "todo",
+      "time": 1784426374.158747,
+      "sprint": 1
+    },
+    {
+      "task_id": "auto-security-s1",
+      "status": "in_progress",
+      "time": 1784426374.158944,
+      "sprint": 1
+    },
+    {
+      "task_id": "auto-security-s1",
+      "status": "done",
+      "time": 1784426412.2626061,
       "sprint": 1
     }
   ],
