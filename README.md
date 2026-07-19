@@ -46,7 +46,7 @@ The orchestrator owns the lifecycle: it loads shared state, plans a sprint once,
 
 
 ```md
-![Codex Org dashboard](/images/dashboard.png)
+![Codex Org dashboard](images/dashboard.png)
 ```
 
 
