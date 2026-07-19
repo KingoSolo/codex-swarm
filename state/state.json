@@ -13,7 +13,7 @@
       "title": "Create tasks table schema (id, title, status, created_at) in database.py",
       "owner": "database",
       "depends_on": [],
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "be-1",
@@ -52,7 +52,7 @@
       "current_task": null
     },
     "database": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "qa": {
@@ -77,12 +77,29 @@
       "to": "frontend",
       "content": "Dependency notification: your task 'Build Kanban board UI in index.html (3 columns, click-to-move) consuming the API' will begin after Implement REST API in server.py: create/list/update/delete tasks, move between statuses is complete.",
       "time": 1784426288.877006
+    },
+    {
+      "from": "database",
+      "to": "backend",
+      "content": "Database schema is ready: tasks includes id, title, status, created_at; status is constrained to todo, in_progress, done. It also includes user_id for the existing authenticated API.",
+      "time": 1784426310.762292
+    },
+    {
+      "from": "manager",
+      "to": "backend",
+      "content": "Dependency complete: 'Create tasks table schema (id, title, status, created_at) in database.py' is done. You may now proceed with 'Implement REST API in server.py: create/list/update/delete tasks, move between statuses'.",
+      "time": 1784426310.76237
     }
   ],
   "architecture_decisions": [
     {
       "by": "architect",
       "decision": "Python stdlib http.server + sqlite3 for backend, single static HTML+vanilla JS file for frontend. No external dependencies (sandbox has no network access).",
+      "sprint": 1
+    },
+    {
+      "by": "database",
+      "decision": "Kept the existing compatible tasks schema, which already fulfilled db-1 and preserves the user_id column required by server.py.",
       "sprint": 1
     }
   ],
@@ -105,6 +122,18 @@
       "task_id": "fe-1",
       "status": "todo",
       "time": 1784426288.8769999,
+      "sprint": 1
+    },
+    {
+      "task_id": "db-1",
+      "status": "in_progress",
+      "time": 1784426288.8775349,
+      "sprint": 1
+    },
+    {
+      "task_id": "db-1",
+      "status": "done",
+      "time": 1784426310.762342,
       "sprint": 1
     }
   ],
