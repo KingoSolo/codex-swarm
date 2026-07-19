@@ -46,10 +46,13 @@ The orchestrator owns the lifecycle: it loads shared state, plans a sprint once,
 
 
 ```md
-
+![Codex Org dashboard](/images/dashboard.png)
 ```
 
-![alt text](dashboard-1.png)
+
+```md
+![Task Board](images/TaskBoard.png)
+```
 
 ## Replay Engine
 
