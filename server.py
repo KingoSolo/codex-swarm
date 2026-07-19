@@ -16,7 +16,7 @@ import time
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from database import VALID_STATUSES, initialize_database, managed_connection, utc_timestamp
 
@@ -27,6 +27,13 @@ STATIC_DIR = Path(__file__).with_name("static").resolve()
 MAX_BODY_BYTES = 16_384
 PASSWORD_ITERATIONS = 310_000
 TOKEN_LIFETIME_SECONDS = 3_600
+MAX_SEARCH_LENGTH = 100
+TASK_SORTS = {
+    "created_desc": "created_at DESC, id DESC",
+    "created_asc": "created_at ASC, id ASC",
+    "title_asc": "title COLLATE NOCASE ASC, id ASC",
+    "title_desc": "title COLLATE NOCASE DESC, id DESC",
+}
 # Fixed, non-secret values used only to equalize failed-login work when a user
 # does not exist. They must not be generated per request, or username lookup
 # timing would still reveal whether a database row was found.
@@ -177,6 +184,26 @@ class KanbanHandler(BaseHTTPRequestHandler):
             return None
         return task_id if task_id > 0 else None
 
+    def _task_query(self) -> tuple[str, str | None, str] | None:
+        """Validate and normalize the supported task-list query parameters."""
+        query = parse_qs(urlparse(self.path).query, keep_blank_values=True)
+        if set(query) - {"q", "status", "sort"} or any(len(values) != 1 for values in query.values()):
+            self._error(HTTPStatus.BAD_REQUEST, "unsupported or repeated query parameter")
+            return None
+        search = query.get("q", [""])[0].strip()
+        if len(search) > MAX_SEARCH_LENGTH:
+            self._error(HTTPStatus.BAD_REQUEST, "q must be 100 characters or fewer")
+            return None
+        status = query.get("status", [None])[0]
+        if status is not None and status not in VALID_STATUSES:
+            self._error(HTTPStatus.BAD_REQUEST, "status must be todo, in_progress, or done")
+            return None
+        sort = query.get("sort", ["created_desc"])[0]
+        if sort not in TASK_SORTS:
+            self._error(HTTPStatus.BAD_REQUEST, "sort is invalid")
+            return None
+        return search, status, sort
+
     @staticmethod
     def _valid_title(value: object) -> str | None:
         if not isinstance(value, str) or not (title := value.strip()):
@@ -254,10 +281,26 @@ class KanbanHandler(BaseHTTPRequestHandler):
         user_id = self._authenticated_user_id()
         if user_id is None:
             return
+        query = self._task_query()
+        if query is None:
+            return
+        search, status, sort = query
+        conditions = ["user_id = ?"]
+        values: list[object] = [user_id]
+        if search:
+            # Match the query literally so '%' and '_' in a task search do
+            # not become SQL wildcards.
+            escaped_search = search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+            conditions.append("title LIKE ? ESCAPE '\\' COLLATE NOCASE")
+            values.append(f"%{escaped_search}%")
+        if status is not None:
+            conditions.append("status = ?")
+            values.append(status)
         with managed_connection() as connection:
             rows = connection.execute(
-                "SELECT id, title, status, created_at FROM tasks WHERE user_id = ? ORDER BY id DESC",
-                (user_id,),
+                "SELECT id, title, status, created_at FROM tasks "
+                f"WHERE {' AND '.join(conditions)} ORDER BY {TASK_SORTS[sort]}",
+                values,
             ).fetchall()
         self._send_json(HTTPStatus.OK, [task_from_row(row) for row in rows])
 
