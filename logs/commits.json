@@ -1,5 +1,19 @@
 [
   {
+    "hash": "059925a",
+    "role": "manager",
+    "time": 1784426433,
+    "message": "[manager] Sprint 1 retrospective complete",
+    "sprint": 1,
+    "summary": "Sprint 1 retrospective complete",
+    "files_changed": [],
+    "decisions": [
+      "Retrospective dialogue: Manager \u2014 \u201cThe database-to-backend-to-frontend handoffs completed in dependency order, and no planned work was duplicated.\u201d Database \u2014 \u201cThe required task schema was already compatible with the authenticated API, so I verified it rather than changing it.\u201d Backend \u2014 \u201cThe task lifecycle API and ownership checks were present and the five API tests passed.\u201d Frontend \u2014 \u201cThe existing single-file UI already covered creation, movement, editing, deletion, and authenticated API use.\u201d QA \u2014 \u201cAll 12 automated tests passed; a real socket smoke test could not run because the sandbox rejected local TCP binding.\u201d Security \u2014 \u201cI added browser response security headers, then verified them alongside the full passing test suite.\u201d Architect \u2014 \u201cNo Sprint 1 architect completion report or blocker appears in the supplied log.\u201d"
+    ],
+    "blockers": [],
+    "new_tasks": []
+  },
+  {
     "hash": "109b349",
     "role": "security",
     "time": 1784426412,
