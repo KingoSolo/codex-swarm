@@ -1,5 +1,132 @@
 [
   {
+    "hash": "7889e79",
+    "role": "security",
+    "time": 1784432844,
+    "message": "[security] Hardened dynamic task generation by rejecting malformed, unauthorized, unknown-dependency, duplicate, and cycle-forming proposals before persistence.",
+    "sprint": 5,
+    "summary": "Hardened dynamic task generation by rejecting malformed, unauthorized, unknown-dependency, duplicate, and cycle-forming proposals before persistence.",
+    "files_changed": [
+      "orchestrator/run.py"
+    ],
+    "decisions": [
+      "Recovered a concrete validation gap: previously add_tasks only rejected duplicate IDs, allowing malformed owners or dangling dependencies from dynamic proposals.",
+      "Recovery tasks remain architect-owned and cycle-validated; the new gate also prevents invalid proposal data from entering durable state."
+    ],
+    "blockers": [],
+    "new_tasks": []
+  },
+  {
+    "hash": "ecda1db",
+    "role": "qa",
+    "time": 1784432623,
+    "message": "[qa] Added and passed Sprint 4 regression tests for drag/drop optimistic-update wiring, rollback order, and rejected status persistence.",
+    "sprint": 4,
+    "summary": "Added and passed Sprint 4 regression tests for drag/drop optimistic-update wiring, rollback order, and rejected status persistence.",
+    "files_changed": [
+      "test_api.py"
+    ],
+    "decisions": [
+      "Added a static interaction-contract test because the standard-library-only project has no browser automation harness; it verifies draggable cards, fixed drop targets, optimistic render before PATCH, and rollback after PATCH failure.",
+      "Added an API regression ensuring an invalid status update returns 400 without changing the stored task.",
+      "Validated with `python3 -m unittest -v test_api.py`: 11/11 tests passed."
+    ],
+    "blockers": [],
+    "new_tasks": []
+  },
+  {
+    "hash": "f2aa66c",
+    "role": "frontend",
+    "time": 1784432430,
+    "message": "[frontend] Implemented native drag-and-drop task movement with optimistic status updates and rollback in the Kanban UI.",
+    "sprint": 4,
+    "summary": "Implemented native drag-and-drop task movement with optimistic status updates and rollback in the Kanban UI.",
+    "files_changed": [
+      "static/index.html"
+    ],
+    "decisions": [
+      "Drops onto a task's existing status are ignored.",
+      "A failed PATCH restores a copied pre-move task state; a 401 keeps the existing signed-out behavior.",
+      "Verified static drag/drop and optimistic-update wiring, plus existing frontend authentication and CSP checks."
+    ],
+    "blockers": [],
+    "new_tasks": []
+  },
+  {
+    "hash": "37a498f",
+    "role": "qa",
+    "time": 1784432215,
+    "message": "[qa] Added and passed regression coverage for task search, filtering, sorting, validation, and user isolation.",
+    "sprint": 3,
+    "summary": "Added and passed regression coverage for task search, filtering, sorting, validation, and user isolation.",
+    "files_changed": [
+      "test_api.py"
+    ],
+    "decisions": [
+      "Added `test_task_search_filter_sort_and_user_isolation` to protect the Sprint 3 API contract.",
+      "Validated with `python3 -m unittest -v test_api.py`: 9/9 tests passed."
+    ],
+    "blockers": [],
+    "new_tasks": []
+  },
+  {
+    "hash": "7dbc26b",
+    "role": "frontend",
+    "time": 1784432185,
+    "message": "[frontend] Added search, status-filter, and sort controls to the single-file Kanban UI.",
+    "sprint": 3,
+    "summary": "Added search, status-filter, and sort controls to the single-file Kanban UI.",
+    "files_changed": [
+      "static/index.html"
+    ],
+    "decisions": [
+      "The UI sends only non-default supported query values, leaving the backend as the validation authority.",
+      "Search input is capped at 100 characters to match the API contract; responsive layout collapses the controls on small screens.",
+      "Targeted frontend auth/CSP checks and static search-control wiring checks passed."
+    ],
+    "blockers": [],
+    "new_tasks": []
+  },
+  {
+    "hash": "0279b77",
+    "role": "backend",
+    "time": 1784432146,
+    "message": "[backend] Implemented validated, user-scoped task search, status filtering, and allowlisted sorting in `server.py`.",
+    "sprint": 3,
+    "summary": "Implemented validated, user-scoped task search, status filtering, and allowlisted sorting in `server.py`.",
+    "files_changed": [
+      "server.py"
+    ],
+    "decisions": [
+      "Search is case-insensitive, limited to 100 characters, and treats %, _, and backslashes literally.",
+      "All query values use bound parameters; sort clauses come exclusively from a fixed server-side allowlist.",
+      "Listing remains scoped to the authenticated user_id before search and filter conditions."
+    ],
+    "blockers": [],
+    "new_tasks": []
+  },
+  {
+    "hash": "1d5bdf1",
+    "role": "Solomon Adeniran",
+    "time": 1784430544,
+    "message": "update:upgraded engineer avatars",
+    "sprint": 3
+  },
+  {
+    "hash": "21b5a48",
+    "role": "Solomon Adeniran",
+    "time": 1784430012,
+    "message": "feat: harden sprint orchestration and replay engine",
+    "sprint": 3
+  },
+  {
+    "hash": "c144664",
+    "role": "manager",
+    "time": 1784426607,
+    "message": "[manager] Sprint 4 retrospective complete",
+    "sprint": 4
+  },
+  {
     "hash": "2bbbfa7",
     "role": "security",
     "time": 1784426597,

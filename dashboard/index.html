@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Codex Org — Live</title>
+<title>Codex Org</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -16,6 +16,11 @@
   body { background: radial-gradient(circle at 15% -10%, rgba(76,201,240,.07), transparent 28rem), var(--bg); color: var(--ink); font-family: var(--sans); margin: 0; padding: 30px 36px 68px; letter-spacing: -.01em; }
   .eyebrow { font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: var(--active); font-weight: 700; margin: 0 0 7px; }
   h1 { font-size: 25px; letter-spacing: -.035em; margin: 0 0 20px; font-weight: 700; }
+  .brand-title { display: flex; align-items: center; gap: 10px; }
+  .live-badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10px; letter-spacing: .09em; font-weight: 700; color: var(--done); background: rgba(62,207,142,.12); border: 1px solid rgba(62,207,142,.28); border-radius: 999px; padding: 4px 8px; vertical-align: middle; }
+  .live-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 0 rgba(62,207,142,.45); animation: live-pulse 2.2s ease-out infinite; }
+  @keyframes live-pulse { 70% { box-shadow: 0 0 0 5px rgba(62,207,142,0); } 100% { box-shadow: 0 0 0 0 rgba(62,207,142,0); } }
+  @media (prefers-reduced-motion: reduce) { .live-badge::before { animation: none; } }
 
   .cmd-bar { display: flex; gap: 22px; align-items: center; background: rgba(16,20,29,.9); border: 1px solid var(--line);
              border-radius: 10px; padding: 13px 20px; margin-bottom: 22px; flex-wrap: wrap; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
@@ -63,6 +68,7 @@
   .replay-marker.commit { background: var(--done); color: var(--done); }
   .replay-marker.message { background: var(--active); color: var(--active); }
   .replay-marker.blocker { background: var(--blocked); color: var(--blocked); }
+  .replay-marker.replan { background: #B58CFF; color: #B58CFF; }
   .replay-marker.completion { width: 9px; height: 9px; background: var(--ink); color: var(--ink); }
   .replay-time { font-family: var(--mono); font-size: 11px; color: var(--dim); margin-top: 6px; }
   .replay-warning { font-family: var(--mono); font-size: 11px; color: var(--blocked); margin-top: 6px; }
@@ -95,6 +101,7 @@
   .charcard-status-pill.waiting { background: rgba(107,114,128,0.15); color: var(--dim); }
   .charcard-status-pill.working { background: rgba(76,201,240,0.15); color: var(--active); }
   .charcard-status-pill.review { background: rgba(242,169,59,0.15); color: var(--blocked); }
+  .charcard-status-pill.blocked { background: rgba(242,169,59,.18); color: var(--blocked); }
   .charcard-status-pill.done { background: rgba(62,207,142,0.15); color: var(--done); }
   .charcard-row { margin-bottom: 8px; }
   .charcard-row .k { font-family: var(--mono); font-size: 9.5px; text-transform: uppercase; color: var(--dim); letter-spacing: 0.04em; margin-bottom: 2px; }
@@ -116,6 +123,8 @@
   .task-chip.task-move { animation: taskMove .36s cubic-bezier(.2,.85,.25,1); }
   .task-chip.in_progress { border-left-color: var(--active); }
   .task-chip.blocked { border-left-color: var(--blocked); }
+  .task-chip.paused { border-left-color: var(--dim); opacity: .72; background: rgba(21,27,38,.72); }
+  .task-chip .reassigned-badge { display: inline-block; margin-top: 6px; padding: 2px 5px; border-radius: 999px; background: rgba(76,201,240,.12); color: var(--active); font-family: var(--mono); font-size: 9px; letter-spacing: .03em; }
   .task-chip.done { border-left-color: var(--done); }
   .task-chip .owner { font-family: var(--mono); font-size: 10px; color: var(--dim); text-transform: uppercase; margin-top: 4px; }
 
@@ -139,6 +148,8 @@
   .blocker-item { border-left: 3px solid var(--blocked); background: var(--panel-2); border-radius: 4px; padding: 8px 12px; margin-bottom: 8px; font-size: 12.5px; transition: opacity .22s ease, transform .22s ease, border-color .22s ease; }
   .blocker-item.blocker-enter { animation: blockerEnter .3s ease-out both; }
   .blocker-item.blocker-leave { animation: blockerLeave .22s ease-in both; pointer-events: none; }
+  .blocker-item.recovered { border-left-color: var(--done); opacity: .72; }
+  .blocker-item .recovered-label { color: var(--done); font-family: var(--mono); font-size: 9px; text-transform: uppercase; margin-left: 6px; }
   .blocker-item .who { font-family: var(--mono); font-size: 10.5px; color: var(--blocked); text-transform: uppercase; margin-bottom: 3px; }
 
   #depgraph { width: 100%; height: 260px; }
@@ -199,7 +210,7 @@
 </head>
 <body>
   <div class="eyebrow">Autonomous Engineering Organization</div>
-  <h1>Codex Org — Live</h1>
+  <h1 class="brand-title">Codex Org <span class="live-badge">LIVE</span></h1>
 
   <div class="cmd-bar" id="cmd-bar"></div>
 
@@ -325,6 +336,9 @@ function combinedSprints(state) {
                      tasks: state.tasks, messages: state.messages,
                      blockers: (state.blockers || []).filter(b => b.sprint === state.sprint.number),
                      task_events: (state.task_events || []).filter(e => e.sprint === state.sprint.number),
+                     replanning_events: (state.replanning_events || []).filter(e => e.sprint === state.sprint.number),
+                     reassignment_history: (state.reassignment_history || []).filter(e => e.sprint === state.sprint.number),
+                     dependency_changes: (state.dependency_changes || []).filter(e => e.sprint === state.sprint.number),
                      // Untagged logs are legacy data; retain them only for the live view.
                      commits: currentCommits.length ? currentCommits : allCommits,
                      retrospective: state.retrospective, started_at: state.sprint.started_at,
@@ -362,7 +376,7 @@ function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 }
 function safeTaskStatus(status) {
-  return ['todo', 'in_progress', 'blocked', 'done'].includes(status) ? status : 'todo';
+  return ['todo', 'in_progress', 'blocked', 'paused', 'done'].includes(status) ? status : 'todo';
 }
 function safeSprintStatus(status) {
   return ['not_started', 'in_progress', 'complete'].includes(status) ? status : 'not_started';
@@ -455,13 +469,14 @@ function replayEventPriority(event) {
   if (event.type === 'task') {
     return { todo: 0, in_progress: 1, blocked: 2, done: 3 }[event.data.status] ?? 0;
   }
-  return { message: 4, blocker: 5, commit: 6 }[event.type] ?? 7;
+  return { message: 4, replan: 5, blocker: 6, commit: 7 }[event.type] ?? 8;
 }
 
 function replayEventKey(event) {
   if (event.type === 'task') return `${event.data.task_id}|${event.data.status}`;
   if (event.type === 'commit') return `${event.data.hash || ''}|${event.data.role || ''}|${event.data.message || ''}`;
   if (event.type === 'message') return `${event.data.from || ''}|${event.data.to || ''}|${event.data.content || ''}`;
+  if (event.type === 'replan') return `${event.data.action || ''}|${event.data.task_id || ''}|${event.data.text || ''}`;
   return `${event.data.role || ''}|${event.data.text || ''}`;
 }
 
@@ -471,6 +486,7 @@ function buildTimeline(view) {
   (view.messages || []).forEach(m => { if (m.time) add('message', m.time, m); });
   (view.commits || []).forEach(c => { if (c.time) add('commit', c.time, c); });
   (view.task_events || []).forEach(e => { if (e.time) add('task', e.time, e); });
+  (view.replanning_events || []).forEach(e => { if (e.time) add('replan', e.time, e); });
   // Older snapshots predate task_events. Derive deterministic transitions from
   // their recorded agent activity so they still replay as Todo → In Progress → Done.
   (view.tasks || []).forEach(task => {
@@ -511,7 +527,7 @@ function deriveStateAt(view, timeline, visibleCount) {
   const visible = timeline.slice(0, visibleCount);
   const roleFirstEvent = {}, roleLastEvent = {};
   visible.forEach(e => {
-    const role = e.type === 'message' ? e.data.from : (e.type === 'commit' ? e.data.role : e.data.role);
+    const role = e.type === 'message' ? e.data.from : (e.type === 'replan' ? e.data.by : e.data.role);
     if (!role) return;
     if (roleFirstEvent[role] === undefined) roleFirstEvent[role] = e.time;
     roleLastEvent[role] = e.time;
@@ -527,27 +543,30 @@ function deriveStateAt(view, timeline, visibleCount) {
     });
   }
   const visibleBlockers = visible.filter(e => e.type === 'blocker').map(e => e.data);
+  const visibleReplans = visible.filter(e => e.type === 'replan').map(e => e.data);
   const visibleMessages = visible.filter(e => e.type === 'message').map(e => e.data);
   const visibleCommits = visible.filter(e => e.type === 'commit').map(e => e.data);
   const tasksById = Object.fromEntries(view.tasks.map(task => [task.id, task]));
   const roleTaskEvents = {};
   visible.filter(event => event.type === 'task').forEach(event => {
-    const role = tasksById[event.data.task_id]?.owner;
+    const role = event.data.owner || tasksById[event.data.task_id]?.owner;
     if (role) (roleTaskEvents[role] ||= []).push(event);
   });
   const engineerPhase = {};
   ROLES.forEach(role => {
     const lastTaskEvent = roleTaskEvents[role]?.at(-1);
-    if (!lastTaskEvent || lastTaskEvent.data.status === 'todo') {
+    if (!lastTaskEvent || ['todo', 'paused'].includes(lastTaskEvent.data.status)) {
       engineerPhase[role] = 'waiting';
     } else if (lastTaskEvent.data.status === 'in_progress') {
       engineerPhase[role] = 'working';
+    } else if (lastTaskEvent.data.status === 'blocked') {
+      engineerPhase[role] = 'blocked';
     } else {
       const hasCommitAfterTask = visible.some(event => event.type === 'commit' && event.data.role === role && event.order > lastTaskEvent.order);
       engineerPhase[role] = hasCommitAfterTask ? 'done' : 'review';
     }
   });
-  return { taskStatus, roleFirstEvent, roleLastEvent, roleTaskEvents, engineerPhase, visibleBlockers, visibleMessages, visibleCommits, visibleTaskEvents, refTime: visible.length ? visible[visible.length-1].time : (timeline[0] ? timeline[0].time : 0) };
+  return { taskStatus, roleFirstEvent, roleLastEvent, roleTaskEvents, engineerPhase, visibleBlockers, visibleReplans, visibleMessages, visibleCommits, visibleTaskEvents, refTime: visible.length ? visible[visible.length-1].time : (timeline[0] ? timeline[0].time : 0) };
 }
 
 function generateManagerSummary(view, derived) {
@@ -602,8 +621,8 @@ function paintFrame(state, view, derived, commits, isReplayFrame) {
   renderSpotlight(view, derived);
   renderCharCards(view, derived, commits, isReplayFrame);
 
-  const cols = ['todo', 'in_progress', 'blocked', 'done'];
-  const colTitle = { todo: 'Todo', in_progress: 'In Progress', blocked: 'Blocked', done: 'Done' };
+  const cols = ['todo', 'in_progress', 'paused', 'blocked', 'done'];
+  const colTitle = { todo: 'Todo', in_progress: 'In Progress', paused: 'Paused', blocked: 'Blocked', done: 'Done' };
   document.getElementById('board').innerHTML = cols.map(c => {
     const items = view.tasks.filter(t => derived.taskStatus[t.id] === c);
     return `<div class="board-col"><div class="col-title">${colTitle[c]} (${items.length})</div>
@@ -612,7 +631,9 @@ function paintFrame(state, view, derived, commits, isReplayFrame) {
         const key = `${view.number}:${t.id}`;
         const moved = renderedTaskStatuses.has(key) && renderedTaskStatuses.get(key) !== status;
         renderedTaskStatuses.set(key, status);
-        return `<div class="task-chip ${status}${moved ? ' task-move' : ''}">${escapeHtml(t.title)}<div class="owner">${escapeHtml(t.owner)}</div></div>`;
+        const reassignment = (view.reassignment_history || []).filter(entry => entry.task_id === t.id).at(-1);
+        const reassigned = reassignment ? `<div class="reassigned-badge">reassigned ${escapeHtml(reassignment.from)} → ${escapeHtml(reassignment.to)}</div>` : '';
+        return `<div class="task-chip ${status}${moved ? ' task-move' : ''}">${escapeHtml(t.title)}<div class="owner">${escapeHtml(t.owner)}</div>${reassigned}</div>`;
       }).join('') || '<span class="empty" style="font-size:11px;">—</span>'}
     </div>`;
   }).join('');
@@ -623,7 +644,8 @@ function paintFrame(state, view, derived, commits, isReplayFrame) {
   renderBlockerFeed(view.number, shownBlockers);
 
   const shownMessages = isReplayFrame ? derived.visibleMessages : view.messages;
-  renderEventFeed(shownMessages);
+  const shownReplans = isReplayFrame ? derived.visibleReplans : (view.replanning_events || []);
+  renderEventFeed(shownMessages, shownReplans);
 
   const shownCommits = isReplayFrame ? derived.visibleCommits : commits;
   renderCommitFeed(shownCommits, view.commitHistoryError);
@@ -670,6 +692,16 @@ function renderBlockerFeed(sprintNumber, blockers) {
       element.append(who, document.createTextNode(blocker.text));
       if (!seenBlockerKeys.has(key)) element.classList.add('blocker-enter');
       seenBlockerKeys.add(key);
+    }
+    element.classList.toggle('recovered', Boolean(blocker.recovered));
+    const existingLabel = element.querySelector('.recovered-label');
+    if (blocker.recovered && !existingLabel) {
+      const label = document.createElement('span');
+      label.className = 'recovered-label';
+      label.textContent = 'Recovered';
+      element.querySelector('.who').append(label);
+    } else if (!blocker.recovered && existingLabel) {
+      existingLabel.remove();
     }
     element.classList.remove('blocker-leave');
     container.append(element);
@@ -740,16 +772,19 @@ function renderCharCards(view, derived, commits, isReplayFrame) {
   }).join('');
 }
 
-function renderEventFeed(messages) {
+function renderEventFeed(messages, replanningEvents = []) {
   const el = document.getElementById('messages');
-  if (!messages.length) { el.innerHTML = '<span class="empty">No activity yet — sprint hasn\'t started.</span>'; return; }
-  el.innerHTML = messages.slice(-20).reverse().map(m => {
+  const feed = [...messages, ...replanningEvents.map(event => ({
+    from: event.by || 'manager', to: 'organization', content: event.text, time: event.time, replanning: true,
+  }))].sort((a, b) => a.time - b.time);
+  if (!feed.length) { el.innerHTML = '<span class="empty">No activity yet — sprint hasn\'t started.</span>'; return; }
+  el.innerHTML = feed.slice(-20).reverse().map(m => {
     const cls = classifyEvent(m.content);
     return `<div class="event-card">
       <div class="event-time">${fmtTime(m.time)}</div>
       <div class="event-body"><div class="who">${escapeHtml(ROLE_LABEL[m.from] || m.from)}</div>
         <div class="headline">${cls.icon} ${escapeHtml(m.content)}</div>
-        <div class="downstream">${escapeHtml(ROLE_LABEL[m.to] || m.to)} ${cls.downstreamVerb}</div></div>
+        <div class="downstream">${m.replanning ? 'Adaptive sprint decision recorded' : `${escapeHtml(ROLE_LABEL[m.to] || m.to)} ${cls.downstreamVerb}`}</div></div>
     </div>`;
   }).join('');
 }
@@ -829,7 +864,7 @@ function initReplay(state) {
 function renderReplayMarkers() {
   const markers = document.getElementById('replay-markers');
   if (!replay) { markers.innerHTML = ''; return; }
-  const markerEvents = replay.timeline.filter(event => ['commit', 'message', 'blocker'].includes(event.type));
+  const markerEvents = replay.timeline.filter(event => ['commit', 'message', 'blocker', 'replan'].includes(event.type));
   markers.innerHTML = markerEvents.map(event =>
     `<span class="replay-marker ${event.type}" data-replay-at="${event.replayAt}" style="left:${(event.replayAt / BASE_REPLAY_SECONDS) * 100}%"></span>`
   ).join('') + `<span class="replay-marker completion" data-replay-at="${BASE_REPLAY_SECONDS}" style="left:100%"></span>`;
@@ -867,16 +902,21 @@ function computeSprintDuration(view) {
     const timestamp = Number(value);
     return Number.isFinite(timestamp) && timestamp > 1e11 ? timestamp / 1000 : timestamp;
   };
+  // The sprint lifecycle timestamps are authoritative. Commit records can include
+  // legacy/inferred history whose wall-clock time predates the sprint itself.
+  const startedAt = asSeconds(view.started_at), completedAt = asSeconds(view.completed_at);
+  if (view.started_at != null && view.completed_at != null && Number.isFinite(startedAt) && Number.isFinite(completedAt) && completedAt >= startedAt) {
+    return { seconds: completedAt - startedAt, label: null };
+  }
+
+  // Older archived snapshots may not have lifecycle timestamps; use their
+  // recorded replay events before falling back to Codex execution durations.
   const timestampedEvents = [
     ...(view.messages || []), ...(view.blockers || []),
     ...(view.task_events || []), ...(view.commits || []),
   ].map(event => asSeconds(event.time)).filter(Number.isFinite);
   if (timestampedEvents.length >= 2) {
     return { seconds: Math.max(...timestampedEvents) - Math.min(...timestampedEvents), label: null };
-  }
-  const startedAt = asSeconds(view.started_at), completedAt = asSeconds(view.completed_at);
-  if (view.started_at != null && view.completed_at != null && Number.isFinite(startedAt) && Number.isFinite(completedAt) && completedAt >= startedAt) {
-    return { seconds: completedAt - startedAt, label: null };
   }
   if (timestampedEvents.length === 1) return { seconds: 0, label: null };
 
@@ -1035,7 +1075,8 @@ trackEl.addEventListener('mousemove', (e) => {
   if (!ev) return;
   const desc = ev.type === 'message' ? `${ev.data.from} → ${ev.data.to}: ${ev.data.content}` :
                ev.type === 'commit' ? `${ev.data.role}: ${ev.data.message}` :
-               ev.type === 'task' ? `${ev.data.task_id}: ${ev.data.status}` : `Blocker: ${ev.data.text}`;
+               ev.type === 'task' ? `${ev.data.task_id}: ${ev.data.status}` :
+               ev.type === 'replan' ? `Manager intervention: ${ev.data.text}` : `Blocker: ${ev.data.text}`;
   const timestamp = ev.time ? fmtTime(ev.time) : fmtClock(elapsed);
   tooltipEl.textContent = `${timestamp} · ${desc.length > 54 ? desc.slice(0,51)+'...' : desc}`;
   tooltipEl.style.left = `${frac*100}%`;

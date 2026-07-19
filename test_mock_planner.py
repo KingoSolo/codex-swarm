@@ -218,6 +218,82 @@ class MockPlanningFlowTests(unittest.TestCase):
         self.assertIsNone(state["retrospective"])
 
 
+class AdaptiveSprintTests(unittest.TestCase):
+    def blocked_state(self) -> dict[str, object]:
+        state = run.new_state()
+        state["sprint"] = {"number": 5, "goal": "Adaptive Sprint Management", "status": "in_progress"}
+        state["adaptive"]["blocker_threshold_seconds"] = 5
+        backend = {"id": "be-5", "title": "Implement adaptive API", "owner": "backend", "depends_on": [], "status": "blocked", "fallback_owners": ["frontend"]}
+        frontend = {"id": "fe-5", "title": "Build adaptive dashboard", "owner": "frontend", "depends_on": ["be-5"], "status": "todo"}
+        state["tasks"] = [backend, frontend]
+        state["task_events"] = [{"task_id": "be-5", "status": "blocked", "time": 0, "sprint": 5}]
+        return state
+
+    def test_automatic_replanning_creates_validated_recovery_and_pauses_downstream(self) -> None:
+        state = self.blocked_state()
+
+        self.assertTrue(run.monitor_adaptive_sprint(state, now=10))
+
+        recovery = next(task for task in state["tasks"] if task.get("recovery_for") == "be-5")
+        backend = state["tasks"][0]
+        self.assertTrue(recovery["validated_by_architect"])
+        self.assertIn(recovery["id"], backend["depends_on"])
+        self.assertEqual(backend["owner"], "frontend")
+        self.assertEqual(state["tasks"][1]["status"], "paused")
+        self.assertFalse(run.dependency_cycle(state["tasks"]))
+        self.assertIn("recovery_created", [event["action"] for event in state["replanning_events"]])
+        self.assertIn("pause", [event["action"] for event in state["replanning_events"]])
+        self.assertIn("reassign", [event["action"] for event in state["replanning_events"]])
+
+    def test_reassignment_history_is_persisted(self) -> None:
+        state = self.blocked_state()
+        backend = state["tasks"][0]
+
+        self.assertTrue(run.reassign_task(state, backend, "frontend", "Backend owner is unavailable."))
+        self.assertEqual(backend["owner"], "frontend")
+        self.assertEqual(state["reassignment_history"][0]["from"], "backend")
+        self.assertEqual(state["reassignment_history"][0]["to"], "frontend")
+        self.assertIn("reassign", [event["action"] for event in state["replanning_events"]])
+
+    def test_paused_dependency_chain_resumes_after_recovery(self) -> None:
+        state = self.blocked_state()
+        run.monitor_adaptive_sprint(state, now=10)
+        backend, frontend = state["tasks"][:2]
+        recovery = next(task for task in state["tasks"] if task.get("recovery_for") == backend["id"])
+        recovery["status"] = "done"
+
+        run.monitor_adaptive_sprint(state, now=11)
+        self.assertEqual(backend["status"], "todo")
+        backend["status"] = "done"
+        run.monitor_adaptive_sprint(state, now=12)
+        self.assertEqual(frontend["status"], "todo")
+        self.assertIn("resume", [event["action"] for event in state["replanning_events"]])
+
+    def test_adaptive_state_survives_save_and_load(self) -> None:
+        state = self.blocked_state()
+        run.monitor_adaptive_sprint(state, now=10)
+        with TemporaryDirectory() as temp_dir:
+            state_path = Path(temp_dir) / "state.json"
+            with patch.object(run, "STATE_PATH", state_path):
+                run.save_state(state)
+                loaded = run.load_state()
+
+        self.assertEqual(loaded["replanning_events"], state["replanning_events"])
+        self.assertEqual(loaded["reassignment_history"], state["reassignment_history"])
+        self.assertEqual(loaded["dependency_changes"], state["dependency_changes"])
+
+    def test_replanning_is_committed_as_manager_work(self) -> None:
+        state = self.blocked_state()
+        run.monitor_adaptive_sprint(state, now=10)
+        with patch.object(run, "save_state") as save_state, patch.object(run, "git_commit") as git_commit:
+            run.persist_replanning(state)
+
+        save_state.assert_called_once_with(state)
+        self.assertEqual(git_commit.call_args.args[0], "manager")
+        self.assertIn("Adaptive replanning", git_commit.call_args.args[1])
+        self.assertEqual(git_commit.call_args.args[3]["files_changed"], ["state/state.json"])
+
+
 class AgentCommitTests(unittest.TestCase):
     def test_commit_stages_only_declared_agent_files(self) -> None:
         calls = []
@@ -449,7 +525,7 @@ const phaseAt = count => deriveStateAt(view, timeline, count).engineerPhase.back
 if (input.payload) renderEventFeed([{ from: 'backend', to: 'qa', content: input.payload, time: 1 }]);
 if (input.commitHistoryError) renderCommitFeed([], input.commitHistoryError);
 console.log(JSON.stringify({
-  timeline: timeline.map(event => ({ type: event.type, status: event.data.status, hash: event.data.hash, order: event.order })),
+  timeline: timeline.map(event => ({ type: event.type, status: event.data.status, action: event.data.action, hash: event.data.hash, order: event.order })),
   phases: [phaseAt(1), phaseAt(2), phaseAt(3)],
   duration: computeSprintDuration(view),
   renderedMessageFeed: elements.messages?.innerHTML || '',
@@ -500,6 +576,25 @@ console.log(JSON.stringify({
         self.assertEqual(tagged["duration"]["seconds"], 12.5)
         self.assertEqual(tagged["duration"]["label"], "(Codex execution time, approximate)")
 
+    def test_lifecycle_timestamps_win_over_historical_commit_timestamps(self) -> None:
+        view = {
+            "number": 1,
+            "started_at": 1_784_431_609.884696,
+            "completed_at": 1_784_431_802.40007,
+            "tasks": [], "messages": [], "blockers": [], "task_events": [],
+            # Archived Git Activity can include a historical commit that was
+            # inferred into this sprint after the fact.
+            "commits": [
+                {"hash": "older", "time": 1_784_247_622},
+                {"hash": "current", "time": 1_784_431_792},
+            ],
+        }
+
+        duration = self.build_replay(view)["duration"]
+
+        self.assertAlmostEqual(duration["seconds"], 192.515374, places=6)
+        self.assertIsNone(duration["label"])
+
     def test_persisted_dashboard_payload_is_rendered_as_text(self) -> None:
         payload = "<img src=x onerror=alert(1)>"
         rendered = self.build_replay({
@@ -518,6 +613,14 @@ console.log(JSON.stringify({
 
         self.assertIn("Commit history unavailable", rendered)
         self.assertNotIn("No commits yet", rendered)
+
+    def test_replay_includes_manager_replanning_events(self) -> None:
+        replay = self.build_replay({
+            "tasks": [], "messages": [], "blockers": [], "task_events": [], "commits": [],
+            "replanning_events": [{"action": "pause", "text": "Paused frontend until backend recovers.", "by": "manager", "time": 10}],
+        })
+
+        self.assertEqual([(event["type"], event["action"]) for event in replay["timeline"]], [("replan", "pause")])
 
 
 if __name__ == "__main__":

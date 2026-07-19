@@ -1,10 +1,10 @@
 {
   "sprint": {
-    "number": 4,
-    "goal": "Add drag-and-drop support to the Kanban board with optimistic UI updates",
+    "number": 5,
+    "goal": "Implement autonomous manager replanning, blocker recovery, adaptive sprint planning, and dynamic task generation.",
     "status": "complete",
-    "started_at": 1784426559.861752,
-    "completed_at": 1784426607.210389
+    "started_at": 1784432690.357017,
+    "completed_at": 1784432853.981132
   },
   "sprint_history": [
     {
@@ -56,145 +56,181 @@
           "from": "manager",
           "to": "backend",
           "content": "Dependency notification: your task 'Implement REST API in server.py: create/list/update/delete tasks, move between statuses' will begin after Create tasks table schema (id, title, status, created_at) in database.py is complete.",
-          "time": 1784426288.8770041
+          "time": 1784431609.885427
         },
         {
           "from": "manager",
           "to": "frontend",
           "content": "Dependency notification: your task 'Build Kanban board UI in index.html (3 columns, click-to-move) consuming the API' will begin after Implement REST API in server.py: create/list/update/delete tasks, move between statuses is complete.",
-          "time": 1784426288.877006
+          "time": 1784431609.885429
         },
         {
           "from": "database",
           "to": "backend",
-          "content": "Database schema is ready: tasks includes id, title, status, created_at; status is constrained to todo, in_progress, done. It also includes user_id for the existing authenticated API.",
-          "time": 1784426310.762292
+          "content": "The required tasks schema is ready: `id` auto-increment primary key, required title and timestamp, and status constrained to todo/in_progress/done.",
+          "time": 1784431729.498541
         },
         {
           "from": "manager",
           "to": "backend",
           "content": "Dependency complete: 'Create tasks table schema (id, title, status, created_at) in database.py' is done. You may now proceed with 'Implement REST API in server.py: create/list/update/delete tasks, move between statuses'.",
-          "time": 1784426310.76237
+          "time": 1784431729.498589
         },
         {
           "from": "backend",
           "to": "frontend",
-          "content": "REST API is ready: authenticate with Bearer token; POST/GET /api/tasks, PATCH or PUT /api/tasks/{id}, DELETE /api/tasks/{id}. Accepted statuses: todo, in_progress, done.",
-          "time": 1784426325.891805
+          "content": "Task API is ready: authenticated GET/POST /api/tasks and PATCH/PUT/DELETE /api/tasks/{id}; task fields are title and status (todo, in_progress, done).",
+          "time": 1784431745.528245
         },
         {
           "from": "manager",
           "to": "frontend",
           "content": "Dependency complete: 'Implement REST API in server.py: create/list/update/delete tasks, move between statuses' is done. You may now proceed with 'Build Kanban board UI in index.html (3 columns, click-to-move) consuming the API'.",
-          "time": 1784426325.891883
+          "time": 1784431745.528298
+        },
+        {
+          "from": "frontend",
+          "to": "qa",
+          "content": "The UI is ready for validation: it uses GET/POST/PATCH/DELETE task endpoints, renders Todo/In Progress/Done columns, and supports status selection, editing, and deletion.",
+          "time": 1784431758.3451781
         },
         {
           "from": "manager",
           "to": "qa",
           "content": "QA handoff: implementation work is ready for regression and integration validation.",
-          "time": 1784426343.0315788
+          "time": 1784431758.3452349
         },
         {
           "from": "manager",
           "to": "security",
           "content": "Security review request: implementation work is ready for authentication, authorization, and input-handling review.",
-          "time": 1784426343.031595
+          "time": 1784431758.345245
+        },
+        {
+          "from": "qa",
+          "to": "manager",
+          "content": "QA passed the Sprint 1 Kanban implementation: all 8 API/UI regression tests pass, including authenticated create/list/status update/title edit/delete and task isolation. The full suite has 4 orchestrator-only errors due to `OrchestratorAlreadyRunningError` and sandbox-blocked Codex subprocess initialization, not Kanban code.",
+          "time": 1784431774.883059
+        },
+        {
+          "from": "security",
+          "to": "manager",
+          "content": "Security sign-off: task routes require valid Bearer tokens and scope all reads/mutations by user_id; parameterized SQLite queries, bounded JSON input, strict status/title validation, safe DOM text rendering, and response security headers are in place.",
+          "time": 1784431792.667386
         }
       ],
-      "retrospective": "Sprint 1 completed with all planned implementation, QA, and security tasks marked done.",
+      "retrospective": "Sprint 1 implementation, QA, and security review are complete; the Kanban app is ready within its local standard-library scope.",
       "blockers": [],
       "task_events": [
         {
           "task_id": "db-1",
           "status": "todo",
-          "time": 1784426288.876998,
-          "sprint": 1
+          "time": 1784431609.885419,
+          "sprint": 1,
+          "owner": "database"
         },
         {
           "task_id": "be-1",
           "status": "todo",
-          "time": 1784426288.8769999,
-          "sprint": 1
+          "time": 1784431609.885421,
+          "sprint": 1,
+          "owner": "backend"
         },
         {
           "task_id": "fe-1",
           "status": "todo",
-          "time": 1784426288.8769999,
-          "sprint": 1
+          "time": 1784431609.885422,
+          "sprint": 1,
+          "owner": "frontend"
         },
         {
           "task_id": "db-1",
           "status": "in_progress",
-          "time": 1784426288.8775349,
-          "sprint": 1
+          "time": 1784431711.5085208,
+          "sprint": 1,
+          "owner": "database"
         },
         {
           "task_id": "db-1",
           "status": "done",
-          "time": 1784426310.762342,
-          "sprint": 1
+          "time": 1784431729.498561,
+          "sprint": 1,
+          "owner": "database"
         },
         {
           "task_id": "be-1",
           "status": "in_progress",
-          "time": 1784426310.88665,
-          "sprint": 1
+          "time": 1784431729.500088,
+          "sprint": 1,
+          "owner": "backend"
         },
         {
           "task_id": "be-1",
           "status": "done",
-          "time": 1784426325.89185,
-          "sprint": 1
+          "time": 1784431745.5282729,
+          "sprint": 1,
+          "owner": "backend"
         },
         {
           "task_id": "fe-1",
           "status": "in_progress",
-          "time": 1784426326.008244,
-          "sprint": 1
+          "time": 1784431745.5298638,
+          "sprint": 1,
+          "owner": "frontend"
         },
         {
           "task_id": "fe-1",
           "status": "done",
-          "time": 1784426343.031517,
-          "sprint": 1
+          "time": 1784431758.345195,
+          "sprint": 1,
+          "owner": "frontend"
         },
         {
           "task_id": "auto-qa-s1",
           "status": "todo",
-          "time": 1784426343.125485,
-          "sprint": 1
+          "time": 1784431758.346988,
+          "sprint": 1,
+          "owner": "qa"
         },
         {
           "task_id": "auto-qa-s1",
           "status": "in_progress",
-          "time": 1784426343.125691,
-          "sprint": 1
+          "time": 1784431758.3473659,
+          "sprint": 1,
+          "owner": "qa"
         },
         {
           "task_id": "auto-qa-s1",
           "status": "done",
-          "time": 1784426374.037533,
-          "sprint": 1
+          "time": 1784431774.883085,
+          "sprint": 1,
+          "owner": "qa"
         },
         {
           "task_id": "auto-security-s1",
           "status": "todo",
-          "time": 1784426374.158747,
-          "sprint": 1
+          "time": 1784431774.884507,
+          "sprint": 1,
+          "owner": "security"
         },
         {
           "task_id": "auto-security-s1",
           "status": "in_progress",
-          "time": 1784426374.158944,
-          "sprint": 1
+          "time": 1784431774.88495,
+          "sprint": 1,
+          "owner": "security"
         },
         {
           "task_id": "auto-security-s1",
           "status": "done",
-          "time": 1784426412.2626061,
-          "sprint": 1
+          "time": 1784431792.667401,
+          "sprint": 1,
+          "owner": "security"
         }
       ],
+      "replanning_events": [],
+      "reassignment_history": [],
+      "dependency_changes": [],
       "commits": [
         {
           "hash": "059925a",
@@ -617,82 +653,315 @@
           "sprint": 1
         }
       ],
-      "started_at": 1784426288.87665,
-      "completed_at": 1784426432.987427
+      "started_at": 1784431609.884696,
+      "completed_at": 1784431802.40007
     },
     {
       "number": 2,
-      "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
+      "goal": "Add JWT-based user authentication: login, register, protect task endpoints.",
       "tasks": [
         {
-          "id": "auto-qa-s2",
-          "title": "Final qa pass",
-          "owner": "qa",
+          "id": "arch-2",
+          "title": "Define JWT authentication and protected-task API contract",
+          "owner": "architect",
           "depends_on": [],
           "status": "done"
         },
         {
-          "id": "auto-security-s2",
-          "title": "Final security pass",
+          "id": "db-2",
+          "title": "Add user storage and task ownership migration in database.py",
+          "owner": "database",
+          "depends_on": [
+            "arch-2"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "be-2",
+          "title": "Implement registration, login, JWT validation, and protected task endpoints in server.py",
+          "owner": "backend",
+          "depends_on": [
+            "db-2"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "fe-2",
+          "title": "Add registration/login UI and authenticated task API requests in static/index.html",
+          "owner": "frontend",
+          "depends_on": [
+            "be-2"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "qa-2",
+          "title": "Test authentication, protected task lifecycle, and user isolation",
+          "owner": "qa",
+          "depends_on": [
+            "fe-2"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "sec-2",
+          "title": "Review JWT handling, password storage, authorization, and client token handling",
           "owner": "security",
-          "depends_on": [],
+          "depends_on": [
+            "fe-2"
+          ],
           "status": "done"
         }
       ],
       "messages": [
         {
           "from": "manager",
+          "to": "backend",
+          "content": "Dependency notification: your task 'Implement registration, login, JWT validation, and protected task endpoints in server.py' will begin after Add user storage and task ownership migration in database.py is complete.",
+          "time": 1784431912.452233
+        },
+        {
+          "from": "manager",
+          "to": "frontend",
+          "content": "Dependency notification: your task 'Add registration/login UI and authenticated task API requests in static/index.html' will begin after Implement registration, login, JWT validation, and protected task endpoints in server.py is complete.",
+          "time": 1784431912.45224
+        },
+        {
+          "from": "architect",
+          "to": "database",
+          "content": "Implement users storage and a safe task ownership migration: tasks.user_id references users(id), preserving legacy task rows.",
+          "time": 1784431924.190028
+        },
+        {
+          "from": "architect",
+          "to": "backend",
+          "content": "Implement public register/login routes returning {token,user}; require valid expiring HS256 Bearer tokens on every task route and scope all task SQL by the authenticated user ID.",
+          "time": 1784431924.190034
+        },
+        {
+          "from": "architect",
+          "to": "frontend",
+          "content": "Use registration/login responses to store only the JWT in sessionStorage, add the Bearer authorization header to task requests, and clear the session on a 401.",
+          "time": 1784431924.1900349
+        },
+        {
+          "from": "manager",
+          "to": "database",
+          "content": "Dependency complete: 'Define JWT authentication and protected-task API contract' is done. You may now proceed with 'Add user storage and task ownership migration in database.py'.",
+          "time": 1784431924.190092
+        },
+        {
+          "from": "database",
+          "to": "backend",
+          "content": "User persistence and task ownership are ready: users have case-insensitive unique usernames, PBKDF2 hash/salt fields, and timestamps; tasks.user_id is a foreign key with an ownership index.",
+          "time": 1784431942.133146
+        },
+        {
+          "from": "manager",
+          "to": "backend",
+          "content": "Dependency complete: 'Add user storage and task ownership migration in database.py' is done. You may now proceed with 'Implement registration, login, JWT validation, and protected task endpoints in server.py'.",
+          "time": 1784431942.133219
+        },
+        {
+          "from": "backend",
+          "to": "frontend",
+          "content": "Authentication API is ready: POST /api/auth/register and /api/auth/login return {token,user}; task routes require Authorization: Bearer <token> and return 401 for invalid sessions.",
+          "time": 1784431960.921036
+        },
+        {
+          "from": "backend",
+          "to": "qa",
+          "content": "Backend authentication checks pass for registration/login, protected task CRUD, cross-user denial, tampered/expired tokens, and unknown-user login work equalization.",
+          "time": 1784431960.921037
+        },
+        {
+          "from": "manager",
+          "to": "frontend",
+          "content": "Dependency complete: 'Implement registration, login, JWT validation, and protected task endpoints in server.py' is done. You may now proceed with 'Add registration/login UI and authenticated task API requests in static/index.html'.",
+          "time": 1784431960.921089
+        },
+        {
+          "from": "frontend",
+          "to": "qa",
+          "content": "Authentication UI is ready for validation: users can register or sign in, the JWT is stored only in sessionStorage, task requests send Bearer authorization, sign-out clears the session, and 401 responses return to sign-in.",
+          "time": 1784431972.098651
+        },
+        {
+          "from": "manager",
+          "to": "qa",
+          "content": "Dependency complete: 'Add registration/login UI and authenticated task API requests in static/index.html' is done. You may now proceed with 'Test authentication, protected task lifecycle, and user isolation'.",
+          "time": 1784431972.098698
+        },
+        {
+          "from": "manager",
+          "to": "security",
+          "content": "Dependency complete: 'Add registration/login UI and authenticated task API requests in static/index.html' is done. You may now proceed with 'Review JWT handling, password storage, authorization, and client token handling'.",
+          "time": 1784431972.0987
+        },
+        {
+          "from": "manager",
           "to": "qa",
           "content": "QA handoff: implementation work is ready for regression and integration validation.",
-          "time": 1784426448.8791811
+          "time": 1784431972.098737
         },
         {
           "from": "manager",
           "to": "security",
           "content": "Security review request: implementation work is ready for authentication, authorization, and input-handling review.",
-          "time": 1784426448.8791838
+          "time": 1784431972.0987468
+        },
+        {
+          "from": "qa",
+          "to": "manager",
+          "content": "QA passed: all 8 authentication/API/UI regression tests pass, covering registration/login, password storage, protected CRUD, per-user task isolation, tampered/expired tokens, unknown-user login work equalization, frontend token handling, and CSP.",
+          "time": 1784431984.565778
+        },
+        {
+          "from": "qa",
+          "to": "security",
+          "content": "QA evidence is ready for review: `python3 -m unittest -v test_api.py` passed all 8 authentication and security-oriented regression tests.",
+          "time": 1784431984.565779
+        },
+        {
+          "from": "security",
+          "to": "manager",
+          "content": "Security sign-off: HS256-only JWT verification uses a required startup secret, expiry checks, and constant-time signature comparison; passwords use salted PBKDF2; task queries are user-scoped; session tokens are cleared on 401.",
+          "time": 1784432002.442378
         }
       ],
-      "retrospective": "Sprint 2 completed its available QA and security review tasks; no implementation tasks were created in the frozen plan.",
+      "retrospective": "Sprint 2 authentication work completed with passing QA and security sign-off.",
       "blockers": [],
       "task_events": [
         {
-          "task_id": "auto-qa-s2",
+          "task_id": "arch-2",
           "status": "todo",
-          "time": 1784426448.879197,
-          "sprint": 2
+          "time": 1784431900.880887,
+          "sprint": 2,
+          "owner": "architect"
         },
         {
-          "task_id": "auto-qa-s2",
-          "status": "in_progress",
-          "time": 1784426448.879424,
-          "sprint": 2
-        },
-        {
-          "task_id": "auto-qa-s2",
-          "status": "done",
-          "time": 1784426462.704551,
-          "sprint": 2
-        },
-        {
-          "task_id": "auto-security-s2",
+          "task_id": "db-2",
           "status": "todo",
-          "time": 1784426462.805768,
-          "sprint": 2
+          "time": 1784431900.880893,
+          "sprint": 2,
+          "owner": "database"
         },
         {
-          "task_id": "auto-security-s2",
+          "task_id": "be-2",
+          "status": "todo",
+          "time": 1784431900.880895,
+          "sprint": 2,
+          "owner": "backend"
+        },
+        {
+          "task_id": "fe-2",
+          "status": "todo",
+          "time": 1784431900.880896,
+          "sprint": 2,
+          "owner": "frontend"
+        },
+        {
+          "task_id": "qa-2",
+          "status": "todo",
+          "time": 1784431900.880896,
+          "sprint": 2,
+          "owner": "qa"
+        },
+        {
+          "task_id": "sec-2",
+          "status": "todo",
+          "time": 1784431900.8808992,
+          "sprint": 2,
+          "owner": "security"
+        },
+        {
+          "task_id": "arch-2",
           "status": "in_progress",
-          "time": 1784426462.80598,
-          "sprint": 2
+          "time": 1784431912.4540591,
+          "sprint": 2,
+          "owner": "architect"
         },
         {
-          "task_id": "auto-security-s2",
+          "task_id": "arch-2",
           "status": "done",
-          "time": 1784426480.040266,
-          "sprint": 2
+          "time": 1784431924.190048,
+          "sprint": 2,
+          "owner": "architect"
+        },
+        {
+          "task_id": "db-2",
+          "status": "in_progress",
+          "time": 1784431924.192079,
+          "sprint": 2,
+          "owner": "database"
+        },
+        {
+          "task_id": "db-2",
+          "status": "done",
+          "time": 1784431942.133184,
+          "sprint": 2,
+          "owner": "database"
+        },
+        {
+          "task_id": "be-2",
+          "status": "in_progress",
+          "time": 1784431942.135625,
+          "sprint": 2,
+          "owner": "backend"
+        },
+        {
+          "task_id": "be-2",
+          "status": "done",
+          "time": 1784431960.921047,
+          "sprint": 2,
+          "owner": "backend"
+        },
+        {
+          "task_id": "fe-2",
+          "status": "in_progress",
+          "time": 1784431960.9231439,
+          "sprint": 2,
+          "owner": "frontend"
+        },
+        {
+          "task_id": "fe-2",
+          "status": "done",
+          "time": 1784431972.098664,
+          "sprint": 2,
+          "owner": "frontend"
+        },
+        {
+          "task_id": "qa-2",
+          "status": "in_progress",
+          "time": 1784431972.100758,
+          "sprint": 2,
+          "owner": "qa"
+        },
+        {
+          "task_id": "qa-2",
+          "status": "done",
+          "time": 1784431984.5657878,
+          "sprint": 2,
+          "owner": "qa"
+        },
+        {
+          "task_id": "sec-2",
+          "status": "in_progress",
+          "time": 1784431984.567384,
+          "sprint": 2,
+          "owner": "security"
+        },
+        {
+          "task_id": "sec-2",
+          "status": "done",
+          "time": 1784432002.442409,
+          "sprint": 2,
+          "owner": "security"
         }
       ],
+      "replanning_events": [],
+      "reassignment_history": [],
+      "dependency_changes": [],
       "commits": [
         {
           "hash": "929b33f",
@@ -868,108 +1137,341 @@
           "sprint": 2
         }
       ],
-      "started_at": 1784426433.143095,
-      "completed_at": 1784426489.789879
+      "started_at": 1784431888.778838,
+      "completed_at": 1784432010.499079
     },
     {
       "number": 3,
-      "goal": "Implement task search, filtering, and sorting",
+      "goal": "Add task search, filtering, and sorting.",
       "tasks": [
         {
-          "id": "auto-qa-s3",
-          "title": "Final qa pass",
-          "owner": "qa",
+          "id": "arch-3",
+          "title": "Define task search, filtering, sorting API and UI contract",
+          "owner": "architect",
           "depends_on": [],
-          "status": "blocked"
+          "status": "done"
         },
         {
-          "id": "auto-security-s3",
-          "title": "Final security pass",
+          "id": "be-3",
+          "title": "Implement validated task search, filtering, and sorting query support in server.py",
+          "owner": "backend",
+          "depends_on": [
+            "arch-3"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "fe-3",
+          "title": "Add task search, filtering, and sorting controls in static/index.html",
+          "owner": "frontend",
+          "depends_on": [
+            "be-3"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "qa-3",
+          "title": "Test task search, filtering, sorting, and user-scoped results",
+          "owner": "qa",
+          "depends_on": [
+            "fe-3"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "sec-3",
+          "title": "Review search parameter validation and user-scoped query enforcement",
           "owner": "security",
-          "depends_on": [],
-          "status": "blocked"
+          "depends_on": [
+            "fe-3"
+          ],
+          "status": "done"
         }
       ],
       "messages": [
         {
           "from": "manager",
+          "to": "backend",
+          "content": "Dependency notification: your task 'Implement validated task search, filtering, and sorting query support in server.py' will begin after Define task search, filtering, sorting API and UI contract is complete.",
+          "time": 1784432091.424884
+        },
+        {
+          "from": "manager",
+          "to": "frontend",
+          "content": "Dependency notification: your task 'Add task search, filtering, and sorting controls in static/index.html' will begin after Implement validated task search, filtering, and sorting query support in server.py is complete.",
+          "time": 1784432091.424889
+        },
+        {
+          "from": "architect",
+          "to": "backend",
+          "content": "Implement GET /api/tasks with optional bounded q, valid status, and allowlisted sort values; all results must remain filtered by authenticated user_id.",
+          "time": 1784432100.832949
+        },
+        {
+          "from": "architect",
+          "to": "frontend",
+          "content": "Add controls for q, status, and sort that request GET /api/tasks and render API errors safely as text.",
+          "time": 1784432100.8329542
+        },
+        {
+          "from": "manager",
+          "to": "backend",
+          "content": "Dependency complete: 'Define task search, filtering, sorting API and UI contract' is done. You may now proceed with 'Implement validated task search, filtering, and sorting query support in server.py'.",
+          "time": 1784432100.833013
+        },
+        {
+          "from": "backend",
+          "to": "frontend",
+          "content": "GET /api/tasks now accepts optional q, status, and sort parameters. Supported sort values: created_desc (default), created_asc, title_asc, title_desc; invalid or repeated parameters return 400.",
+          "time": 1784432146.81928
+        },
+        {
+          "from": "backend",
+          "to": "qa",
+          "content": "Backend search/filter/sort support is ready. Manual coverage verified literal % search, status filtering, title ordering, and invalid sort rejection; existing 8 API tests still pass.",
+          "time": 1784432146.819285
+        },
+        {
+          "from": "manager",
+          "to": "frontend",
+          "content": "Dependency complete: 'Implement validated task search, filtering, and sorting query support in server.py' is done. You may now proceed with 'Add task search, filtering, and sorting controls in static/index.html'.",
+          "time": 1784432146.819346
+        },
+        {
+          "from": "frontend",
+          "to": "qa",
+          "content": "Frontend search/filter/sort controls are ready: Apply reloads with q/status/sort, status and sort changes reload immediately, and Clear restores the default task list.",
+          "time": 1784432184.999567
+        },
+        {
+          "from": "frontend",
+          "to": "security",
+          "content": "Client query construction uses URLSearchParams and displays API failures through the existing textContent-based notice path.",
+          "time": 1784432184.9995708
+        },
+        {
+          "from": "manager",
+          "to": "qa",
+          "content": "Dependency complete: 'Add task search, filtering, and sorting controls in static/index.html' is done. You may now proceed with 'Test task search, filtering, sorting, and user-scoped results'.",
+          "time": 1784432184.999616
+        },
+        {
+          "from": "manager",
+          "to": "security",
+          "content": "Dependency complete: 'Add task search, filtering, and sorting controls in static/index.html' is done. You may now proceed with 'Review search parameter validation and user-scoped query enforcement'.",
+          "time": 1784432184.999618
+        },
+        {
+          "from": "manager",
           "to": "qa",
           "content": "QA handoff: implementation work is ready for regression and integration validation.",
-          "time": 1784426505.571622
+          "time": 1784432184.9996579
         },
         {
           "from": "manager",
           "to": "security",
           "content": "Security review request: implementation work is ready for authentication, authorization, and input-handling review.",
-          "time": 1784426505.571628
+          "time": 1784432184.999666
         },
         {
           "from": "qa",
           "to": "manager",
-          "content": "QA found Sprint 3 is incomplete: server.py always lists a user's tasks as `ORDER BY id DESC` and does not parse search/filter/sort query parameters; static/index.html has no corresponding controls. Existing authentication tests still pass, but search/filter/sort require implementation tasks.",
-          "time": 1784426520.343524
+          "content": "QA passed Sprint 3: all 9 API/UI regression tests pass, including the new search/filter/sort coverage with literal percent search, title sorting, status filtering, invalid query rejection, and cross-user result isolation.",
+          "time": 1784432215.8125608
+        },
+        {
+          "from": "qa",
+          "to": "security",
+          "content": "QA added passing coverage for malformed/duplicate/unknown search parameters and verifies result isolation across users.",
+          "time": 1784432215.812572
         },
         {
           "from": "security",
           "to": "manager",
-          "content": "Security cannot complete Sprint 3 feature review: no query parsing or UI controls for search/filter/sort exist. When implemented, whitelist sort fields/directions and parameterize search/status values while retaining the authenticated user_id predicate.",
-          "time": 1784426546.255311
+          "content": "Security sign-off: search text and filters are bound SQL parameters, literal wildcard characters are escaped, sorting is selected from a fixed allowlist, malformed/repeated query parameters are rejected, and all result queries begin with authenticated user_id scoping.",
+          "time": 1784432231.319329
         }
       ],
-      "retrospective": "Sprint 3 did not deliver search, filtering, or sorting because the frozen task graph contained only QA and security review tasks.",
-      "blockers": [
-        {
-          "role": "qa",
-          "text": "No backend or frontend implementation task exists for Sprint 3, so QA cannot validate the requested search, filtering, and sorting behavior.",
-          "sprint": 3,
-          "time": 1784426520.343544
-        },
-        {
-          "role": "security",
-          "text": "Search, filtering, and sorting are absent from both server.py and static/index.html.",
-          "sprint": 3,
-          "time": 1784426546.255349
-        }
-      ],
+      "retrospective": "Sprint 3 search, filtering, and sorting completed with QA and security sign-off.",
+      "blockers": [],
       "task_events": [
         {
-          "task_id": "auto-qa-s3",
+          "task_id": "arch-3",
           "status": "todo",
-          "time": 1784426505.571638,
-          "sprint": 3
+          "time": 1784432080.5445619,
+          "sprint": 3,
+          "owner": "architect"
         },
         {
-          "task_id": "auto-qa-s3",
-          "status": "in_progress",
-          "time": 1784426505.571875,
-          "sprint": 3
-        },
-        {
-          "task_id": "auto-qa-s3",
-          "status": "blocked",
-          "time": 1784426520.3435571,
-          "sprint": 3
-        },
-        {
-          "task_id": "auto-security-s3",
+          "task_id": "be-3",
           "status": "todo",
-          "time": 1784426520.444,
-          "sprint": 3
+          "time": 1784432080.544586,
+          "sprint": 3,
+          "owner": "backend"
         },
         {
-          "task_id": "auto-security-s3",
+          "task_id": "fe-3",
+          "status": "todo",
+          "time": 1784432080.544588,
+          "sprint": 3,
+          "owner": "frontend"
+        },
+        {
+          "task_id": "qa-3",
+          "status": "todo",
+          "time": 1784432080.544589,
+          "sprint": 3,
+          "owner": "qa"
+        },
+        {
+          "task_id": "sec-3",
+          "status": "todo",
+          "time": 1784432080.54459,
+          "sprint": 3,
+          "owner": "security"
+        },
+        {
+          "task_id": "arch-3",
           "status": "in_progress",
-          "time": 1784426520.444198,
-          "sprint": 3
+          "time": 1784432091.427188,
+          "sprint": 3,
+          "owner": "architect"
         },
         {
-          "task_id": "auto-security-s3",
-          "status": "blocked",
-          "time": 1784426546.2553558,
-          "sprint": 3
+          "task_id": "arch-3",
+          "status": "done",
+          "time": 1784432100.832969,
+          "sprint": 3,
+          "owner": "architect"
+        },
+        {
+          "task_id": "be-3",
+          "status": "in_progress",
+          "time": 1784432100.835577,
+          "sprint": 3,
+          "owner": "backend"
+        },
+        {
+          "task_id": "be-3",
+          "status": "done",
+          "time": 1784432146.819297,
+          "sprint": 3,
+          "owner": "backend"
+        },
+        {
+          "task_id": "fe-3",
+          "status": "in_progress",
+          "time": 1784432147.013324,
+          "sprint": 3,
+          "owner": "frontend"
+        },
+        {
+          "task_id": "fe-3",
+          "status": "done",
+          "time": 1784432184.999585,
+          "sprint": 3,
+          "owner": "frontend"
+        },
+        {
+          "task_id": "qa-3",
+          "status": "in_progress",
+          "time": 1784432185.18375,
+          "sprint": 3,
+          "owner": "qa"
+        },
+        {
+          "task_id": "qa-3",
+          "status": "done",
+          "time": 1784432215.812588,
+          "sprint": 3,
+          "owner": "qa"
+        },
+        {
+          "task_id": "sec-3",
+          "status": "in_progress",
+          "time": 1784432215.974463,
+          "sprint": 3,
+          "owner": "security"
+        },
+        {
+          "task_id": "sec-3",
+          "status": "done",
+          "time": 1784432231.319341,
+          "sprint": 3,
+          "owner": "security"
         }
       ],
+      "replanning_events": [],
+      "reassignment_history": [],
+      "dependency_changes": [],
       "commits": [
+        {
+          "hash": "37a498f",
+          "role": "qa",
+          "time": 1784432215,
+          "message": "[qa] Added and passed regression coverage for task search, filtering, sorting, validation, and user isolation.",
+          "sprint": 3,
+          "summary": "Added and passed regression coverage for task search, filtering, sorting, validation, and user isolation.",
+          "files_changed": [
+            "test_api.py"
+          ],
+          "decisions": [
+            "Added `test_task_search_filter_sort_and_user_isolation` to protect the Sprint 3 API contract.",
+            "Validated with `python3 -m unittest -v test_api.py`: 9/9 tests passed."
+          ],
+          "blockers": [],
+          "new_tasks": []
+        },
+        {
+          "hash": "7dbc26b",
+          "role": "frontend",
+          "time": 1784432185,
+          "message": "[frontend] Added search, status-filter, and sort controls to the single-file Kanban UI.",
+          "sprint": 3,
+          "summary": "Added search, status-filter, and sort controls to the single-file Kanban UI.",
+          "files_changed": [
+            "static/index.html"
+          ],
+          "decisions": [
+            "The UI sends only non-default supported query values, leaving the backend as the validation authority.",
+            "Search input is capped at 100 characters to match the API contract; responsive layout collapses the controls on small screens.",
+            "Targeted frontend auth/CSP checks and static search-control wiring checks passed."
+          ],
+          "blockers": [],
+          "new_tasks": []
+        },
+        {
+          "hash": "0279b77",
+          "role": "backend",
+          "time": 1784432146,
+          "message": "[backend] Implemented validated, user-scoped task search, status filtering, and allowlisted sorting in `server.py`.",
+          "sprint": 3,
+          "summary": "Implemented validated, user-scoped task search, status filtering, and allowlisted sorting in `server.py`.",
+          "files_changed": [
+            "server.py"
+          ],
+          "decisions": [
+            "Search is case-insensitive, limited to 100 characters, and treats %, _, and backslashes literally.",
+            "All query values use bound parameters; sort clauses come exclusively from a fixed server-side allowlist.",
+            "Listing remains scoped to the authenticated user_id before search and filter conditions."
+          ],
+          "blockers": [],
+          "new_tasks": []
+        },
+        {
+          "hash": "1d5bdf1",
+          "role": "Solomon Adeniran",
+          "time": 1784430544,
+          "message": "update:upgraded engineer avatars",
+          "sprint": 3
+        },
+        {
+          "hash": "21b5a48",
+          "role": "Solomon Adeniran",
+          "time": 1784430012,
+          "message": "feat: harden sprint orchestration and replay engine",
+          "sprint": 3
+        },
         {
           "hash": "105b980",
           "role": "manager",
@@ -1151,24 +1653,420 @@
           "sprint": 3
         }
       ],
-      "started_at": 1784426489.92374,
-      "completed_at": 1784426559.7132108
+      "started_at": 1784432065.702635,
+      "completed_at": 1784432241.0138922
+    },
+    {
+      "number": 4,
+      "goal": "Implement drag-and-drop Kanban board with optimistic UI updates.",
+      "tasks": [
+        {
+          "id": "arch-4",
+          "title": "Define drag-and-drop and optimistic-update interaction contract",
+          "owner": "architect",
+          "depends_on": [],
+          "status": "done"
+        },
+        {
+          "id": "be-4",
+          "title": "Validate PATCH task-status API contract for drag-and-drop updates",
+          "owner": "backend",
+          "depends_on": [
+            "arch-4"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "fe-4",
+          "title": "Implement accessible drag-and-drop board movement with optimistic updates and rollback",
+          "owner": "frontend",
+          "depends_on": [
+            "be-4"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "qa-4",
+          "title": "Test drag-and-drop movement, optimistic success, and failed-update rollback",
+          "owner": "qa",
+          "depends_on": [
+            "fe-4"
+          ],
+          "status": "done"
+        },
+        {
+          "id": "sec-4",
+          "title": "Review drag-and-drop input handling and optimistic-update authorization behavior",
+          "owner": "security",
+          "depends_on": [
+            "fe-4"
+          ],
+          "status": "done"
+        }
+      ],
+      "messages": [
+        {
+          "from": "manager",
+          "to": "backend",
+          "content": "Dependency notification: your task 'Validate PATCH task-status API contract for drag-and-drop updates' will begin after Define drag-and-drop and optimistic-update interaction contract is complete.",
+          "time": 1784432351.814676
+        },
+        {
+          "from": "manager",
+          "to": "frontend",
+          "content": "Dependency notification: your task 'Implement accessible drag-and-drop board movement with optimistic updates and rollback' will begin after Validate PATCH task-status API contract for drag-and-drop updates is complete.",
+          "time": 1784432351.81468
+        },
+        {
+          "from": "architect",
+          "to": "backend",
+          "content": "PATCH /api/tasks/{id} must remain authenticated, user-scoped, and limited to valid statuses; return a clear non-2xx error so the client can roll back.",
+          "time": 1784432363.9086132
+        },
+        {
+          "from": "architect",
+          "to": "frontend",
+          "content": "Use native draggable cards and fixed status-column drop targets. Apply a local status change before PATCH, rerender immediately, and restore the prior task state with an error notice if PATCH fails; keep the status select usable as fallback.",
+          "time": 1784432363.908617
+        },
+        {
+          "from": "manager",
+          "to": "backend",
+          "content": "Dependency complete: 'Define drag-and-drop and optimistic-update interaction contract' is done. You may now proceed with 'Validate PATCH task-status API contract for drag-and-drop updates'.",
+          "time": 1784432363.908675
+        },
+        {
+          "from": "backend",
+          "to": "frontend",
+          "content": "PATCH /api/tasks/{id} is ready for optimistic status moves: valid status updates return 200 with the task; invalid status returns 400; unauthenticated requests return 401; other-user task changes return 404.",
+          "time": 1784432377.2141151
+        },
+        {
+          "from": "manager",
+          "to": "frontend",
+          "content": "Dependency complete: 'Validate PATCH task-status API contract for drag-and-drop updates' is done. You may now proceed with 'Implement accessible drag-and-drop board movement with optimistic updates and rollback'.",
+          "time": 1784432377.2141628
+        },
+        {
+          "from": "frontend",
+          "to": "qa",
+          "content": "Drag-and-drop is ready for validation: cards are draggable, fixed status columns accept drops, the local board rerenders before PATCH completes, failures restore the prior task list and show an error, and the status select remains available.",
+          "time": 1784432430.4670222
+        },
+        {
+          "from": "frontend",
+          "to": "security",
+          "content": "Drag state uses only the in-memory task ID and fixed data-status column targets; server-authorized PATCH remains the source of truth.",
+          "time": 1784432430.4670331
+        },
+        {
+          "from": "manager",
+          "to": "qa",
+          "content": "Dependency complete: 'Implement accessible drag-and-drop board movement with optimistic updates and rollback' is done. You may now proceed with 'Test drag-and-drop movement, optimistic success, and failed-update rollback'.",
+          "time": 1784432430.4671218
+        },
+        {
+          "from": "manager",
+          "to": "security",
+          "content": "Dependency complete: 'Implement accessible drag-and-drop board movement with optimistic updates and rollback' is done. You may now proceed with 'Review drag-and-drop input handling and optimistic-update authorization behavior'.",
+          "time": 1784432430.4671302
+        },
+        {
+          "from": "manager",
+          "to": "qa",
+          "content": "QA handoff: implementation work is ready for regression and integration validation.",
+          "time": 1784432430.46719
+        },
+        {
+          "from": "manager",
+          "to": "security",
+          "content": "Security review request: implementation work is ready for authentication, authorization, and input-handling review.",
+          "time": 1784432430.4672
+        },
+        {
+          "from": "qa",
+          "to": "manager",
+          "content": "QA passed Sprint 4: all 11 API/UI regression tests pass, including drag/drop wiring, optimistic-before-PATCH ordering, rollback after failed PATCH, and invalid-status persistence protection.",
+          "time": 1784432623.209826
+        },
+        {
+          "from": "qa",
+          "to": "security",
+          "content": "QA coverage confirms drag/drop uses fixed status columns and failed/invalid status updates do not persist; all 11 tests pass.",
+          "time": 1784432623.209834
+        },
+        {
+          "from": "security",
+          "to": "manager",
+          "content": "Security sign-off: drops use only in-memory task IDs with fixed status-column targets; PATCH remains authenticated, status-validated, and user-scoped. Failed updates roll back locally without bypassing server authorization.",
+          "time": 1784432642.322416
+        }
+      ],
+      "retrospective": "Sprint 4 completed with passing QA coverage and security sign-off.",
+      "blockers": [],
+      "task_events": [
+        {
+          "task_id": "arch-4",
+          "status": "todo",
+          "time": 1784432340.286888,
+          "sprint": 4,
+          "owner": "architect"
+        },
+        {
+          "task_id": "be-4",
+          "status": "todo",
+          "time": 1784432340.286895,
+          "sprint": 4,
+          "owner": "backend"
+        },
+        {
+          "task_id": "fe-4",
+          "status": "todo",
+          "time": 1784432340.286897,
+          "sprint": 4,
+          "owner": "frontend"
+        },
+        {
+          "task_id": "qa-4",
+          "status": "todo",
+          "time": 1784432340.2868989,
+          "sprint": 4,
+          "owner": "qa"
+        },
+        {
+          "task_id": "sec-4",
+          "status": "todo",
+          "time": 1784432340.2869,
+          "sprint": 4,
+          "owner": "security"
+        },
+        {
+          "task_id": "arch-4",
+          "status": "in_progress",
+          "time": 1784432351.8166301,
+          "sprint": 4,
+          "owner": "architect"
+        },
+        {
+          "task_id": "arch-4",
+          "status": "done",
+          "time": 1784432363.9086359,
+          "sprint": 4,
+          "owner": "architect"
+        },
+        {
+          "task_id": "be-4",
+          "status": "in_progress",
+          "time": 1784432363.911276,
+          "sprint": 4,
+          "owner": "backend"
+        },
+        {
+          "task_id": "be-4",
+          "status": "done",
+          "time": 1784432377.214139,
+          "sprint": 4,
+          "owner": "backend"
+        },
+        {
+          "task_id": "fe-4",
+          "status": "in_progress",
+          "time": 1784432377.216469,
+          "sprint": 4,
+          "owner": "frontend"
+        },
+        {
+          "task_id": "fe-4",
+          "status": "done",
+          "time": 1784432430.467068,
+          "sprint": 4,
+          "owner": "frontend"
+        },
+        {
+          "task_id": "qa-4",
+          "status": "in_progress",
+          "time": 1784432430.64581,
+          "sprint": 4,
+          "owner": "qa"
+        },
+        {
+          "task_id": "qa-4",
+          "status": "done",
+          "time": 1784432623.209868,
+          "sprint": 4,
+          "owner": "qa"
+        },
+        {
+          "task_id": "sec-4",
+          "status": "in_progress",
+          "time": 1784432623.3938718,
+          "sprint": 4,
+          "owner": "security"
+        },
+        {
+          "task_id": "sec-4",
+          "status": "done",
+          "time": 1784432642.3224509,
+          "sprint": 4,
+          "owner": "security"
+        }
+      ],
+      "replanning_events": [],
+      "reassignment_history": [],
+      "dependency_changes": [],
+      "commits": [
+        {
+          "hash": "ecda1db",
+          "role": "qa",
+          "time": 1784432623,
+          "message": "[qa] Added and passed Sprint 4 regression tests for drag/drop optimistic-update wiring, rollback order, and rejected status persistence.",
+          "sprint": 4,
+          "summary": "Added and passed Sprint 4 regression tests for drag/drop optimistic-update wiring, rollback order, and rejected status persistence.",
+          "files_changed": [
+            "test_api.py"
+          ],
+          "decisions": [
+            "Added a static interaction-contract test because the standard-library-only project has no browser automation harness; it verifies draggable cards, fixed drop targets, optimistic render before PATCH, and rollback after PATCH failure.",
+            "Added an API regression ensuring an invalid status update returns 400 without changing the stored task.",
+            "Validated with `python3 -m unittest -v test_api.py`: 11/11 tests passed."
+          ],
+          "blockers": [],
+          "new_tasks": []
+        },
+        {
+          "hash": "f2aa66c",
+          "role": "frontend",
+          "time": 1784432430,
+          "message": "[frontend] Implemented native drag-and-drop task movement with optimistic status updates and rollback in the Kanban UI.",
+          "sprint": 4,
+          "summary": "Implemented native drag-and-drop task movement with optimistic status updates and rollback in the Kanban UI.",
+          "files_changed": [
+            "static/index.html"
+          ],
+          "decisions": [
+            "Drops onto a task's existing status are ignored.",
+            "A failed PATCH restores a copied pre-move task state; a 401 keeps the existing signed-out behavior.",
+            "Verified static drag/drop and optimistic-update wiring, plus existing frontend authentication and CSP checks."
+          ],
+          "blockers": [],
+          "new_tasks": []
+        },
+        {
+          "hash": "c144664",
+          "role": "manager",
+          "time": 1784426607,
+          "message": "[manager] Sprint 4 retrospective complete",
+          "sprint": 4
+        },
+        {
+          "hash": "2bbbfa7",
+          "role": "security",
+          "time": 1784426597,
+          "message": "[security] Security review cannot assess Sprint 4\u2019s drag-and-drop implementation because it is absent; the existing protected PATCH endpoint remains the only task-movement path.",
+          "sprint": 4,
+          "summary": "Security review cannot assess Sprint 4\u2019s drag-and-drop implementation because it is absent; the existing protected PATCH endpoint remains the only task-movement path.",
+          "files_changed": [],
+          "decisions": [
+            "Current status changes use the existing authenticated PATCH endpoint and retain server-side status validation.",
+            "A future optimistic implementation must restore the prior local task state if PATCH fails, preventing UI/server state divergence."
+          ],
+          "blockers": [
+            "No drag-and-drop or optimistic-update implementation exists in the frontend to review."
+          ],
+          "new_tasks": []
+        },
+        {
+          "hash": "54d8bcb",
+          "role": "qa",
+          "time": 1784426587,
+          "message": "[qa] Sprint 4 drag-and-drop and optimistic-update behavior is not implemented; existing authentication regression tests still pass.",
+          "sprint": 4,
+          "summary": "Sprint 4 drag-and-drop and optimistic-update behavior is not implemented; existing authentication regression tests still pass.",
+          "files_changed": [],
+          "decisions": [
+            "Evidence: static/index.html contains no drag, drop, dragstart, dragover, draggable, or optimistic implementation; status updates await the API before reloading."
+          ],
+          "blockers": [
+            "No frontend implementation task exists for Sprint 4, so the requested drag-and-drop and optimistic UI behavior cannot be validated."
+          ],
+          "new_tasks": []
+        },
+        {
+          "hash": "243ce50",
+          "role": "architect",
+          "time": 1784426575,
+          "message": "[architect] No architecture task is assigned for Sprint 4.",
+          "sprint": 4,
+          "summary": "No architecture task is assigned for Sprint 4.",
+          "files_changed": [],
+          "decisions": [],
+          "blockers": [
+            "No task was assigned, so no authorized architecture work can be performed."
+          ],
+          "new_tasks": []
+        },
+        {
+          "hash": "e85cad2",
+          "role": "manager",
+          "time": 1784426568,
+          "message": "[manager] No Sprint 4 task is assigned, and planning is frozen with no task graph available to coordinate.",
+          "sprint": 4,
+          "summary": "No Sprint 4 task is assigned, and planning is frozen with no task graph available to coordinate.",
+          "files_changed": [],
+          "decisions": [],
+          "blockers": [
+            "No tasks are available for delegation or management."
+          ],
+          "new_tasks": []
+        }
+      ],
+      "started_at": 1784432324.725297,
+      "completed_at": 1784432651.885958
     }
   ],
   "tasks": [
     {
-      "id": "auto-qa-s4",
-      "title": "Final qa pass",
-      "owner": "qa",
+      "id": "arch-5",
+      "title": "Define adaptive replanning, blocker recovery, and dynamic task-generation rules",
+      "owner": "architect",
       "depends_on": [],
-      "status": "blocked"
+      "status": "done"
     },
     {
-      "id": "auto-security-s4",
-      "title": "Final security pass",
+      "id": "be-5",
+      "title": "Implement persisted autonomous replanning, blocker recovery, and validated dynamic task generation in orchestrator/run.py",
+      "owner": "backend",
+      "depends_on": [
+        "arch-5"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "fe-5",
+      "title": "Expose adaptive sprint state, recovery tasks, and replanning events in dashboard/index.html",
+      "owner": "frontend",
+      "depends_on": [
+        "be-5"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "qa-5",
+      "title": "Test replanning persistence, recovery dependencies, dynamic task validation, and dashboard replay",
+      "owner": "qa",
+      "depends_on": [
+        "fe-5"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "sec-5",
+      "title": "Review dynamic task validation, state persistence, and recovery-task authorization boundaries",
       "owner": "security",
-      "depends_on": [],
-      "status": "blocked"
+      "depends_on": [
+        "fe-5"
+      ],
+      "status": "done"
     }
   ],
   "agents": {
@@ -1177,15 +2075,15 @@
       "current_task": null
     },
     "architect": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "backend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "frontend": {
-      "status": "idle",
+      "status": "done",
       "current_task": null
     },
     "database": {
@@ -1193,41 +2091,122 @@
       "current_task": null
     },
     "qa": {
-      "status": "blocked",
+      "status": "done",
       "current_task": null
     },
     "security": {
-      "status": "blocked",
+      "status": "done",
       "current_task": null
     }
   },
   "files_owned": {
-    "server.py": "security"
+    "server.py": "backend",
+    "static/index.html": "frontend",
+    "test_api.py": "qa",
+    "orchestrator/run.py": "security"
   },
   "messages": [
     {
       "from": "manager",
+      "to": "backend",
+      "content": "Dependency notification: your task 'Implement persisted autonomous replanning, blocker recovery, and validated dynamic task generation in orchestrator/run.py' will begin after Define adaptive replanning, blocker recovery, and dynamic task-generation rules is complete.",
+      "time": 1784432718.129498
+    },
+    {
+      "from": "manager",
+      "to": "frontend",
+      "content": "Dependency notification: your task 'Expose adaptive sprint state, recovery tasks, and replanning events in dashboard/index.html' will begin after Implement persisted autonomous replanning, blocker recovery, and validated dynamic task generation in orchestrator/run.py is complete.",
+      "time": 1784432718.129506
+    },
+    {
+      "from": "architect",
+      "to": "backend",
+      "content": "Use durable state transitions and validated recovery-task creation only after the repeated-blocker threshold; reject unknown owners/dependencies, duplicate recovery work, and dependency cycles.",
+      "time": 1784432727.997068
+    },
+    {
+      "from": "architect",
+      "to": "frontend",
+      "content": "Render recovery links, paused/resumed task state, blockers, and persisted replanning events from the durable dashboard payload as plain text.",
+      "time": 1784432727.997072
+    },
+    {
+      "from": "manager",
+      "to": "backend",
+      "content": "Dependency complete: 'Define adaptive replanning, blocker recovery, and dynamic task-generation rules' is done. You may now proceed with 'Implement persisted autonomous replanning, blocker recovery, and validated dynamic task generation in orchestrator/run.py'.",
+      "time": 1784432727.997117
+    },
+    {
+      "from": "backend",
+      "to": "frontend",
+      "content": "Adaptive state is ready to render: persisted replanning events, reassignment history, dependency changes, recovery links, and paused/resumed task transitions.",
+      "time": 1784432746.896609
+    },
+    {
+      "from": "backend",
+      "to": "qa",
+      "content": "Relevant adaptive-sprint and dashboard-replay tests pass: recovery creation/validation, pausing/resuming, reassignment persistence, replanning commits, state save/load, and replay events.",
+      "time": 1784432746.8966131
+    },
+    {
+      "from": "manager",
+      "to": "frontend",
+      "content": "Dependency complete: 'Implement persisted autonomous replanning, blocker recovery, and validated dynamic task generation in orchestrator/run.py' is done. You may now proceed with 'Expose adaptive sprint state, recovery tasks, and replanning events in dashboard/index.html'.",
+      "time": 1784432746.896682
+    },
+    {
+      "from": "frontend",
+      "to": "qa",
+      "content": "Dashboard support is ready: current and archived sprint views include replanning events, reassignment history, dependency changes, paused/blocked statuses, recovery links, and replay timeline markers.",
+      "time": 1784432767.9783611
+    },
+    {
+      "from": "manager",
+      "to": "qa",
+      "content": "Dependency complete: 'Expose adaptive sprint state, recovery tasks, and replanning events in dashboard/index.html' is done. You may now proceed with 'Test replanning persistence, recovery dependencies, dynamic task validation, and dashboard replay'.",
+      "time": 1784432767.978441
+    },
+    {
+      "from": "manager",
+      "to": "security",
+      "content": "Dependency complete: 'Expose adaptive sprint state, recovery tasks, and replanning events in dashboard/index.html' is done. You may now proceed with 'Review dynamic task validation, state persistence, and recovery-task authorization boundaries'.",
+      "time": 1784432767.978448
+    },
+    {
+      "from": "manager",
       "to": "qa",
       "content": "QA handoff: implementation work is ready for regression and integration validation.",
-      "time": 1784426575.114881
+      "time": 1784432767.978505
     },
     {
       "from": "manager",
       "to": "security",
       "content": "Security review request: implementation work is ready for authentication, authorization, and input-handling review.",
-      "time": 1784426575.1148841
+      "time": 1784432767.978515
     },
     {
       "from": "qa",
       "to": "manager",
-      "content": "QA found Sprint 4 is incomplete: static/index.html has no draggable elements or drag/drop handlers. Status movement uses a select control, and mutate() waits for PATCH then reloads, so it is not optimistic.",
-      "time": 1784426587.933086
+      "content": "QA passed Sprint 5: 14 focused tests cover recovery creation and validation, downstream pause/resume, reassignment and state persistence, replanning commits, dashboard replay, safe dashboard text rendering, and commit-stage safety.",
+      "time": 1784432783.533152
+    },
+    {
+      "from": "qa",
+      "to": "security",
+      "content": "QA evidence is ready: adaptive recovery and dashboard replay tests passed, including safe rendering of persisted dashboard content and recovery dependency validation.",
+      "time": 1784432783.533154
     },
     {
       "from": "security",
       "to": "manager",
-      "content": "Security review is blocked because no Sprint 4 drag-and-drop or optimistic-update code exists. When added, retain authenticated PATCH requests, treat client drop data as untrusted, and roll back optimistic state on failed API responses.",
-      "time": 1784426597.793223
+      "content": "Security patch applied: add_tasks now accepts only dependency-ordered task objects with allowed owners, valid fields, known dependencies, unique IDs, and no dependency cycle before writing state.",
+      "time": 1784432844.442542
+    },
+    {
+      "from": "security",
+      "to": "qa",
+      "content": "Dynamic task validation is hardened and verified manually; focused adaptive, commit-safety, and planner suites pass (17 tests).",
+      "time": 1784432844.4425468
     }
   ],
   "architecture_decisions": [
@@ -1238,179 +2217,545 @@
     },
     {
       "by": "database",
-      "decision": "Kept the existing compatible tasks schema, which already fulfilled db-1 and preserves the user_id column required by server.py.",
+      "decision": "No schema edit was needed because the existing implementation meets db-1; an isolated SQLite initialization check passed.",
       "sprint": 1
     },
     {
       "by": "backend",
-      "decision": "Preserved the existing authenticated REST API implementation, including user-scoped task access and server-side status validation.",
+      "decision": "No server edit was needed; existing handlers validate input, persist changes through SQLite, and return JSON task records.",
       "sprint": 1
     },
     {
       "by": "backend",
-      "decision": "Validated the API suite with `python3 -m unittest -v test_api.py` (5 passing).",
+      "decision": "`python3 -m unittest -v test_api.py` passed all 8 tests, including protected create/list/update/delete lifecycle coverage.",
       "sprint": 1
     },
     {
       "by": "frontend",
-      "decision": "Retained the existing single-file vanilla-JS UI: each task\u2019s status selector triggers PATCH to move it between Todo, In Progress, and Done.",
+      "decision": "No frontend edit was needed; `static/index.html` meets fe-1 while preserving the existing authenticated API flow and vanilla-JS-only constraint.",
       "sprint": 1
+    },
+    {
+      "by": "qa",
+      "decision": "Validated with `python3 -m unittest -v test_api.py`: 8/8 passing.",
+      "sprint": 1
+    },
+    {
+      "by": "qa",
+      "decision": "Validated `database.py` and `server.py` syntax with `py_compile`; inspected static UI endpoint wiring and all three board columns.",
+      "sprint": 1
+    },
+    {
+      "by": "qa",
+      "decision": "Recorded the full-suite errors as test-environment/orchestrator failures because they are outside the Sprint 1 app paths and their traces do not implicate the Kanban implementation.",
+      "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "No security patch is required for the scoped local app.",
+      "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "Verified all 8 API/security regression tests pass, including token tampering/expiry rejection, cross-user mutation denial, password hashing, login-work equalization, and CSP without unsafe-inline.",
+      "sprint": 1
+    },
+    {
+      "by": "security",
+      "decision": "The server intentionally binds to localhost and requires a 32-byte KANBAN_JWT_SECRET before startup.",
+      "sprint": 1
+    },
+    {
+      "by": "architect",
+      "decision": "Retain the standard-library stack: http.server, sqlite3, json, hashlib, hmac, and vanilla JavaScript in one static HTML file.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Use PBKDF2-HMAC with random per-user salts for passwords and signed, expiring HS256 JWTs; require an application signing secret at startup.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Enforce task ownership on the server for list, create, update, and delete operations; unauthenticated requests receive 401 and cross-user task access is treated as not found.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "The existing graph is acyclic: arch-2 \u2192 db-2 \u2192 be-2 \u2192 fe-2 \u2192 qa-2/security-2. No additional task is needed.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Use Python standard-library components only: sqlite3, hashlib.pbkdf2_hmac, hmac-SHA256, http.server, and vanilla JavaScript.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Passwords use PBKDF2-HMAC-SHA256 with a random salt per user; the server must require a sufficiently strong JWT signing secret at startup.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "JWTs contain integer subject, issued-at, and expiry claims; accept HS256 only and compare signatures in constant time.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Return 401 for missing/invalid authentication and 404 for another user's task, preventing task-existence disclosure.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "The planned dependency chain is valid and introduces no file ownership overlap: database.py \u2192 server.py \u2192 static/index.html.",
+      "sprint": 2
+    },
+    {
+      "by": "database",
+      "decision": "No database edit was needed: the existing migration adds nullable tasks.user_id for legacy databases and preserves existing task rows.",
+      "sprint": 2
+    },
+    {
+      "by": "database",
+      "decision": "An isolated legacy-database migration check confirmed users creation, user_id addition, ownership index creation, and legacy task preservation.",
+      "sprint": 2
+    },
+    {
+      "by": "backend",
+      "decision": "No server edit was needed: existing standard-library code uses PBKDF2-HMAC password derivation, HS256 signing with expiry validation, and user-scoped task SQL.",
+      "sprint": 2
+    },
+    {
+      "by": "backend",
+      "decision": "Four focused authentication and authorization regression tests passed.",
+      "sprint": 2
     },
     {
       "by": "frontend",
-      "decision": "Validated the UI/API contract and ran `python3 -m unittest -v test_api.py` successfully (5 passing).",
-      "sprint": 1
+      "decision": "No frontend edit was needed; the existing single static HTML file meets the authentication contract without external dependencies.",
+      "sprint": 2
     },
     {
-      "by": "qa",
-      "decision": "Reviewed the latest database, backend, and frontend commits; task lifecycle endpoints and UI integration are covered by the existing regression tests.",
-      "sprint": 1
-    },
-    {
-      "by": "qa",
-      "decision": "Attempted a real socket-based end-to-end smoke test, but the sandbox disallows local TCP binding (PermissionError); this is an environment limitation, not an application failure.",
-      "sprint": 1
-    },
-    {
-      "by": "security",
-      "decision": "Added nosniff, anti-framing, and referrer-policy headers to API and static responses.",
-      "sprint": 1
-    },
-    {
-      "by": "security",
-      "decision": "Added a restrictive HTML Content Security Policy that accommodates the required single-file inline UI while blocking external resources, plugins, frames, and cross-origin form submissions.",
-      "sprint": 1
-    },
-    {
-      "by": "security",
-      "decision": "Validated with 12 passing automated tests, a direct security-header assertion, and `git diff --check`.",
-      "sprint": 1
-    },
-    {
-      "by": "qa",
-      "decision": "Reviewed recent commits and ran `python3 -m unittest -v test_api.py`; all 5 tests passed.",
+      "by": "frontend",
+      "decision": "The interface keeps user-visible account data in page memory and persists only the JWT for the current browser session.",
       "sprint": 2
     },
     {
       "by": "qa",
-      "decision": "No new regression or evidenced gap was found in the current JWT authentication implementation.",
-      "sprint": 2
-    },
-    {
-      "by": "security",
-      "decision": "JWTs require HS256 signatures with a configured 32-byte minimum secret and enforce expiration; invalid and expired tokens are rejected.",
-      "sprint": 2
-    },
-    {
-      "by": "security",
-      "decision": "Passwords use per-user random salts, PBKDF2-HMAC-SHA256, and constant-time hash comparisons.",
-      "sprint": 2
-    },
-    {
-      "by": "security",
-      "decision": "Task SQL is parameterized and every task read, update, and delete is scoped to the authenticated user ID.",
-      "sprint": 2
-    },
-    {
-      "by": "security",
-      "decision": "Validated syntax and ran `python3 -m unittest -v test_api.py` successfully (5 passing).",
+      "decision": "No new test file was needed because the existing focused suite covers the Sprint 2 acceptance paths.",
       "sprint": 2
     },
     {
       "by": "qa",
-      "decision": "Evidence: GET /api/tasks ignores query parameters and uses fixed `ORDER BY id DESC`; frontend filtering only groups tasks into fixed Kanban status columns.",
+      "decision": "`database.py` and `server.py` also pass Python syntax compilation.",
+      "sprint": 2
+    },
+    {
+      "by": "security",
+      "decision": "No security patch is required for the scoped localhost app.",
+      "sprint": 2
+    },
+    {
+      "by": "security",
+      "decision": "Four focused security tests passed: tampered/expired token rejection, cross-user task denial, unknown-user login work equalization, and CSP without unsafe-inline.",
+      "sprint": 2
+    },
+    {
+      "by": "security",
+      "decision": "Parameterized SQLite queries, bounded JSON input, strict field validation, and textContent-based rendering reduce injection risks.",
+      "sprint": 2
+    },
+    {
+      "by": "architect",
+      "decision": "Keep the existing Python standard-library and single-file vanilla-JS architecture.",
+      "sprint": 3
+    },
+    {
+      "by": "architect",
+      "decision": "Search is case-insensitive title matching scoped to the authenticated user; filtering applies a valid status; sorting uses a server-side fixed allowlist rather than client-provided SQL.",
+      "sprint": 3
+    },
+    {
+      "by": "architect",
+      "decision": "Use explicit deterministic defaults: no filter, empty query, and newest-created-first ordering.",
+      "sprint": 3
+    },
+    {
+      "by": "architect",
+      "decision": "The manager graph is acyclic: arch-3 \u2192 be-3 \u2192 fe-3 \u2192 qa-3/security-3. Existing schema fields cover this feature, so no database task is needed.",
+      "sprint": 3
+    },
+    {
+      "by": "architect",
+      "decision": "Use a case-insensitive, bounded title substring search scoped to the authenticated user.",
+      "sprint": 3
+    },
+    {
+      "by": "architect",
+      "decision": "Accept only status values todo, in_progress, done and a fixed server-side sort allowlist; reject malformed or unsupported query parameters with 400.",
+      "sprint": 3
+    },
+    {
+      "by": "architect",
+      "decision": "Default behavior remains unfiltered results ordered newest first; no database schema change is required.",
+      "sprint": 3
+    },
+    {
+      "by": "architect",
+      "decision": "The existing graph is acyclic and preserves ownership boundaries: server.py for backend and static/index.html for frontend.",
+      "sprint": 3
+    },
+    {
+      "by": "backend",
+      "decision": "Search is case-insensitive, limited to 100 characters, and treats %, _, and backslashes literally.",
+      "sprint": 3
+    },
+    {
+      "by": "backend",
+      "decision": "All query values use bound parameters; sort clauses come exclusively from a fixed server-side allowlist.",
+      "sprint": 3
+    },
+    {
+      "by": "backend",
+      "decision": "Listing remains scoped to the authenticated user_id before search and filter conditions.",
+      "sprint": 3
+    },
+    {
+      "by": "frontend",
+      "decision": "The UI sends only non-default supported query values, leaving the backend as the validation authority.",
+      "sprint": 3
+    },
+    {
+      "by": "frontend",
+      "decision": "Search input is capped at 100 characters to match the API contract; responsive layout collapses the controls on small screens.",
+      "sprint": 3
+    },
+    {
+      "by": "frontend",
+      "decision": "Targeted frontend auth/CSP checks and static search-control wiring checks passed.",
+      "sprint": 3
+    },
+    {
+      "by": "qa",
+      "decision": "Added `test_task_search_filter_sort_and_user_isolation` to protect the Sprint 3 API contract.",
+      "sprint": 3
+    },
+    {
+      "by": "qa",
+      "decision": "Validated with `python3 -m unittest -v test_api.py`: 9/9 tests passed.",
       "sprint": 3
     },
     {
       "by": "security",
-      "decision": "Current task queries remain user-scoped and use a fixed ORDER BY id DESC; no dynamic SQL ordering or query-input handling has been added.",
+      "decision": "No security patch is required.",
       "sprint": 3
     },
     {
       "by": "security",
-      "decision": "Existing authentication regression suite passes (5 tests).",
+      "decision": "Verified the new search/filter/sort isolation test passes.",
       "sprint": 3
+    },
+    {
+      "by": "security",
+      "decision": "Frontend uses URLSearchParams for query encoding and textContent for rendered API content, preserving the existing XSS protections.",
+      "sprint": 3
+    },
+    {
+      "by": "architect",
+      "decision": "Use native HTML drag-and-drop in the existing single static HTML file; do not introduce dependencies.",
+      "sprint": 4
+    },
+    {
+      "by": "architect",
+      "decision": "Only a task ID and a target status are client-side drag state; derive targets from fixed board columns and treat server responses as authoritative.",
+      "sprint": 4
+    },
+    {
+      "by": "architect",
+      "decision": "Optimistic updates change local task state first, then PATCH the authenticated endpoint; on failure restore the previous status and rerender.",
+      "sprint": 4
+    },
+    {
+      "by": "architect",
+      "decision": "The graph is acyclic: arch-4 \u2192 be-4 \u2192 fe-4 \u2192 qa-4/security-4. No schema change is needed.",
+      "sprint": 4
+    },
+    {
+      "by": "architect",
+      "decision": "Drag data contains only the task ID; the destination status comes from a fixed column attribute, not arbitrary drop payload.",
+      "sprint": 4
+    },
+    {
+      "by": "architect",
+      "decision": "Ignore drops onto the task's current column.",
+      "sprint": 4
+    },
+    {
+      "by": "architect",
+      "decision": "The server remains authoritative: an optimistic success may be reconciled from the PATCH response, while a failed request must restore the exact prior local task list/state.",
+      "sprint": 4
+    },
+    {
+      "by": "architect",
+      "decision": "No task graph changes are required; the existing dependencies are acyclic and file ownership remains separated.",
+      "sprint": 4
+    },
+    {
+      "by": "backend",
+      "decision": "No backend edit was needed: PATCH validates statuses, scopes updates by authenticated user_id, and returns non-2xx errors suitable for frontend rollback.",
+      "sprint": 4
+    },
+    {
+      "by": "backend",
+      "decision": "Focused protected-lifecycle and user-isolation regression tests passed.",
+      "sprint": 4
+    },
+    {
+      "by": "frontend",
+      "decision": "Drops onto a task's existing status are ignored.",
+      "sprint": 4
+    },
+    {
+      "by": "frontend",
+      "decision": "A failed PATCH restores a copied pre-move task state; a 401 keeps the existing signed-out behavior.",
+      "sprint": 4
+    },
+    {
+      "by": "frontend",
+      "decision": "Verified static drag/drop and optimistic-update wiring, plus existing frontend authentication and CSP checks.",
+      "sprint": 4
     },
     {
       "by": "qa",
-      "decision": "Evidence: static/index.html contains no drag, drop, dragstart, dragover, draggable, or optimistic implementation; status updates await the API before reloading.",
+      "decision": "Added a static interaction-contract test because the standard-library-only project has no browser automation harness; it verifies draggable cards, fixed drop targets, optimistic render before PATCH, and rollback after PATCH failure.",
+      "sprint": 4
+    },
+    {
+      "by": "qa",
+      "decision": "Added an API regression ensuring an invalid status update returns 400 without changing the stored task.",
+      "sprint": 4
+    },
+    {
+      "by": "qa",
+      "decision": "Validated with `python3 -m unittest -v test_api.py`: 11/11 tests passed.",
       "sprint": 4
     },
     {
       "by": "security",
-      "decision": "Current status changes use the existing authenticated PATCH endpoint and retain server-side status validation.",
+      "decision": "No security patch is required.",
       "sprint": 4
     },
     {
       "by": "security",
-      "decision": "A future optimistic implementation must restore the prior local task state if PATCH fails, preventing UI/server state divergence.",
+      "decision": "Verified focused drag/drop contract, invalid-status rejection, and protected lifecycle tests pass.",
       "sprint": 4
+    },
+    {
+      "by": "security",
+      "decision": "External drag payload is ignored because drops act only when an in-memory dragTaskId was set by an application card.",
+      "sprint": 4
+    },
+    {
+      "by": "architect",
+      "decision": "The planner begins with a finite, frozen task graph; only architect-validated recovery tasks may be appended after the repeated-blocker threshold.",
+      "sprint": 5
+    },
+    {
+      "by": "architect",
+      "decision": "A recovery task must target the blocking work, carry a valid owner and existing dependency relation, and never introduce a dependency cycle.",
+      "sprint": 5
+    },
+    {
+      "by": "architect",
+      "decision": "When a dependency is blocked, pause downstream tasks; when recovery completes, resume only tasks whose dependencies are satisfied.",
+      "sprint": 5
+    },
+    {
+      "by": "architect",
+      "decision": "Persist task transitions, reassignments, recovery links, and replanning events atomically so dashboard replay derives from durable state.",
+      "sprint": 5
+    },
+    {
+      "by": "architect",
+      "decision": "No database task is required. The graph is acyclic: arch-5 \u2192 be-5 \u2192 fe-5 \u2192 qa-5/security-5.",
+      "sprint": 5
+    },
+    {
+      "by": "architect",
+      "decision": "Keep initial planning finite and frozen; autonomous task generation is reserved for architect-valid recovery work.",
+      "sprint": 5
+    },
+    {
+      "by": "architect",
+      "decision": "Pause downstream dependencies when work is blocked, then resume only after recovery and dependency completion.",
+      "sprint": 5
+    },
+    {
+      "by": "architect",
+      "decision": "Persist all adaptive events atomically so reloads and dashboard replay have deterministic state.",
+      "sprint": 5
+    },
+    {
+      "by": "architect",
+      "decision": "The existing task graph is acyclic and sufficient; no database task or dependency change is required.",
+      "sprint": 5
+    },
+    {
+      "by": "backend",
+      "decision": "No orchestrator edit was needed because `orchestrator/run.py` already enforces repeated-blocker thresholds, avoids duplicate recovery tasks, validates recovery dependencies against cycles, pauses/resumes dependent work, and persists adaptive events.",
+      "sprint": 5
+    },
+    {
+      "by": "backend",
+      "decision": "Ran six focused adaptive orchestration and dashboard replay tests successfully.",
+      "sprint": 5
+    },
+    {
+      "by": "frontend",
+      "decision": "No dashboard edit was needed: persisted replanning events feed activity and replay, task chips render paused/blocked/reassigned state, and blockers display recovery status.",
+      "sprint": 5
+    },
+    {
+      "by": "frontend",
+      "decision": "Five focused dashboard replay and safe-rendering tests passed.",
+      "sprint": 5
+    },
+    {
+      "by": "qa",
+      "decision": "No new test file was needed because the existing focused adaptive, dashboard replay, and commit-safety suites cover the Sprint 5 acceptance paths.",
+      "sprint": 5
+    },
+    {
+      "by": "qa",
+      "decision": "`orchestrator/run.py` passes Python syntax compilation.",
+      "sprint": 5
+    },
+    {
+      "by": "security",
+      "decision": "Recovered a concrete validation gap: previously add_tasks only rejected duplicate IDs, allowing malformed owners or dangling dependencies from dynamic proposals.",
+      "sprint": 5
+    },
+    {
+      "by": "security",
+      "decision": "Recovery tasks remain architect-owned and cycle-validated; the new gate also prevents invalid proposal data from entering durable state.",
+      "sprint": 5
     }
   ],
-  "retrospective": "Sprint 4 did not deliver drag-and-drop or optimistic updates because no implementation tasks were present in the frozen plan.",
-  "blockers": [
-    {
-      "role": "qa",
-      "text": "No backend or frontend implementation task exists for Sprint 3, so QA cannot validate the requested search, filtering, and sorting behavior.",
-      "sprint": 3,
-      "time": 1784426520.343544
-    },
-    {
-      "role": "security",
-      "text": "Search, filtering, and sorting are absent from both server.py and static/index.html.",
-      "sprint": 3,
-      "time": 1784426546.255349
-    },
-    {
-      "role": "qa",
-      "text": "No frontend implementation task exists for Sprint 4, so the requested drag-and-drop and optimistic UI behavior cannot be validated.",
-      "sprint": 4,
-      "time": 1784426587.933096
-    },
-    {
-      "role": "security",
-      "text": "No drag-and-drop or optimistic-update implementation exists in the frontend to review.",
-      "sprint": 4,
-      "time": 1784426597.7932339
-    }
-  ],
+  "retrospective": "Sprint 5 completed with validated adaptive replanning, replay visibility, passing QA, and a security hardening patch.",
+  "blockers": [],
   "task_events": [
     {
-      "task_id": "auto-qa-s4",
+      "task_id": "arch-5",
       "status": "todo",
-      "time": 1784426575.114893,
-      "sprint": 4
+      "time": 1784432707.859914,
+      "sprint": 5,
+      "owner": "architect"
     },
     {
-      "task_id": "auto-qa-s4",
-      "status": "in_progress",
-      "time": 1784426575.115149,
-      "sprint": 4
-    },
-    {
-      "task_id": "auto-qa-s4",
-      "status": "blocked",
-      "time": 1784426587.933109,
-      "sprint": 4
-    },
-    {
-      "task_id": "auto-security-s4",
+      "task_id": "be-5",
       "status": "todo",
-      "time": 1784426588.027442,
-      "sprint": 4
+      "time": 1784432707.859924,
+      "sprint": 5,
+      "owner": "backend"
     },
     {
-      "task_id": "auto-security-s4",
+      "task_id": "fe-5",
+      "status": "todo",
+      "time": 1784432707.859926,
+      "sprint": 5,
+      "owner": "frontend"
+    },
+    {
+      "task_id": "qa-5",
+      "status": "todo",
+      "time": 1784432707.859927,
+      "sprint": 5,
+      "owner": "qa"
+    },
+    {
+      "task_id": "sec-5",
+      "status": "todo",
+      "time": 1784432707.8599281,
+      "sprint": 5,
+      "owner": "security"
+    },
+    {
+      "task_id": "arch-5",
       "status": "in_progress",
-      "time": 1784426588.027661,
-      "sprint": 4
+      "time": 1784432718.1325061,
+      "sprint": 5,
+      "owner": "architect"
     },
     {
-      "task_id": "auto-security-s4",
-      "status": "blocked",
-      "time": 1784426597.793246,
-      "sprint": 4
+      "task_id": "arch-5",
+      "status": "done",
+      "time": 1784432727.997088,
+      "sprint": 5,
+      "owner": "architect"
+    },
+    {
+      "task_id": "be-5",
+      "status": "in_progress",
+      "time": 1784432727.999603,
+      "sprint": 5,
+      "owner": "backend"
+    },
+    {
+      "task_id": "be-5",
+      "status": "done",
+      "time": 1784432746.896645,
+      "sprint": 5,
+      "owner": "backend"
+    },
+    {
+      "task_id": "fe-5",
+      "status": "in_progress",
+      "time": 1784432746.8991868,
+      "sprint": 5,
+      "owner": "frontend"
+    },
+    {
+      "task_id": "fe-5",
+      "status": "done",
+      "time": 1784432767.9784021,
+      "sprint": 5,
+      "owner": "frontend"
+    },
+    {
+      "task_id": "qa-5",
+      "status": "in_progress",
+      "time": 1784432767.9812539,
+      "sprint": 5,
+      "owner": "qa"
+    },
+    {
+      "task_id": "qa-5",
+      "status": "done",
+      "time": 1784432783.533174,
+      "sprint": 5,
+      "owner": "qa"
+    },
+    {
+      "task_id": "sec-5",
+      "status": "in_progress",
+      "time": 1784432783.5352042,
+      "sprint": 5,
+      "owner": "security"
+    },
+    {
+      "task_id": "sec-5",
+      "status": "done",
+      "time": 1784432844.4425678,
+      "sprint": 5,
+      "owner": "security"
     }
   ],
-  "planning_frozen_sprint": 4
+  "replanning_events": [],
+  "reassignment_history": [],
+  "dependency_changes": [],
+  "adaptive": {
+    "blocker_threshold_seconds": 60.0,
+    "next_recovery": 1
+  },
+  "planning_frozen_sprint": 5
 }
