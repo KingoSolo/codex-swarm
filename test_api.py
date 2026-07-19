@@ -137,6 +137,38 @@ class KanbanApiTests(unittest.TestCase):
         status, _ = self.request("DELETE", f"/api/tasks/{task_id}", token=alice_token)
         self.assertEqual(status, 204)
 
+    def test_task_search_filter_sort_and_user_isolation(self) -> None:
+        alice = self.register("alice")
+        bob = self.register("bob")
+        alice_token, bob_token = alice["token"], bob["token"]
+        for title, task_status in (
+            ("Beta report", "todo"),
+            ("alpha report", "done"),
+            ("100% complete", "done"),
+        ):
+            status, _ = self.request(
+                "POST", "/api/tasks", {"title": title, "status": task_status}, alice_token
+            )
+            self.assertEqual(status, 201)
+        status, _ = self.request("POST", "/api/tasks", {"title": "Alice report"}, bob_token)
+        self.assertEqual(status, 201)
+
+        status, results = self.request(
+            "GET", "/api/tasks?q=report&sort=title_asc", token=alice_token
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual([task["title"] for task in results], ["alpha report", "Beta report"])
+        status, results = self.request("GET", "/api/tasks?status=done&q=%25", token=alice_token)
+        self.assertEqual(status, 200)
+        self.assertEqual([task["title"] for task in results], ["100% complete"])
+        status, results = self.request("GET", "/api/tasks?q=report", token=bob_token)
+        self.assertEqual(status, 200)
+        self.assertEqual([task["title"] for task in results], ["Alice report"])
+
+        for path in ("/api/tasks?sort=title;DROP", "/api/tasks?status=todo&status=done", "/api/tasks?unknown=x"):
+            status, _ = self.request("GET", path, token=alice_token)
+            self.assertEqual(status, 400)
+
     def test_invalid_and_expired_tokens_are_rejected(self) -> None:
         alice = self.register("alice")
         status, _ = self.request("GET", "/api/tasks", token=f"{alice['token']}tampered")
