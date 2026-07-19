@@ -44,17 +44,12 @@ The orchestrator owns the lifecycle: it loads shared state, plans a sprint once,
 
 ## Screenshots
 
-> Placeholder — add a dashboard screenshot at `docs/images/dashboard.png`.
 
 ```md
-![Codex Org dashboard](docs/images/dashboard.png)
+
 ```
 
-> Placeholder — add a replay screenshot at `docs/images/replay.png`.
-
-```md
-![Sprint replay](docs/images/replay.png)
-```
+![alt text](dashboard-1.png)
 
 ## Replay Engine
 
