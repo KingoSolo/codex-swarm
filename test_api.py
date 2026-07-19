@@ -185,6 +185,37 @@ class KanbanApiTests(unittest.TestCase):
         self.assertIn("/api/auth/", source)
         self.assertIn("response.status === 401", source)
 
+    def test_frontend_drag_drop_optimistic_update_contract(self) -> None:
+        source = Path(__file__).with_name("static").joinpath("index.html").read_text()
+        for marker in (
+            "article.draggable = true",
+            "ondragstart",
+            "ondrop",
+            "data-status=\"todo\"",
+            "data-status=\"in_progress\"",
+            "data-status=\"done\"",
+            "previousTasks",
+            "tasks = previousTasks",
+        ):
+            self.assertIn(marker, source)
+        optimistic_move = source.index("async function optimisticMove")
+        optimistic_update = source.index("tasks[index] = { ...tasks[index], status }", optimistic_move)
+        patch_request = source.index("await api(`/api/tasks/${id}`", optimistic_move)
+        rollback = source.index("tasks = previousTasks", optimistic_move)
+        self.assertLess(optimistic_update, patch_request)
+        self.assertLess(patch_request, rollback)
+
+    def test_invalid_status_update_is_rejected_without_persisting(self) -> None:
+        alice = self.register("alice")
+        token = alice["token"]
+        status, task = self.request("POST", "/api/tasks", {"title": "Keep status"}, token)
+        self.assertEqual(status, 201)
+        status, _ = self.request("PATCH", f"/api/tasks/{task['id']}", {"status": "invalid"}, token)
+        self.assertEqual(status, 400)
+        status, tasks = self.request("GET", "/api/tasks", token=token)
+        self.assertEqual(status, 200)
+        self.assertEqual(tasks[0]["status"], "todo")
+
     def test_static_html_csp_allows_only_hashed_inline_assets(self) -> None:
         headers: dict[str, str] = {}
         handler = object.__new__(KanbanHandler)
