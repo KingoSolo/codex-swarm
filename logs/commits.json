@@ -1,5 +1,20 @@
 [
   {
+    "hash": "929b33f",
+    "role": "manager",
+    "time": 1784426489,
+    "message": "[manager] Sprint 2 retrospective complete",
+    "sprint": 2,
+    "summary": "Sprint 2 retrospective complete",
+    "files_changed": [],
+    "decisions": [
+      "The Sprint 2 task graph contained only final QA and security passes, both completed successfully.",
+      "No implementation changes were made during Sprint 2; authentication functionality was validated as already present."
+    ],
+    "blockers": [],
+    "new_tasks": []
+  },
+  {
     "hash": "f3ead69",
     "role": "security",
     "time": 1784426480,

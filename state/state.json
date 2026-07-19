@@ -1,10 +1,10 @@
 {
   "sprint": {
-    "number": 2,
-    "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
-    "status": "complete",
-    "started_at": 1784426433.143095,
-    "completed_at": 1784426489.789879
+    "number": 3,
+    "goal": "Implement task search, filtering, and sorting",
+    "status": "in_progress",
+    "started_at": 1784426489.92374,
+    "completed_at": null
   },
   "sprint_history": [
     {
@@ -619,24 +619,260 @@
       ],
       "started_at": 1784426288.87665,
       "completed_at": 1784426432.987427
-    }
-  ],
-  "tasks": [
-    {
-      "id": "auto-qa-s2",
-      "title": "Final qa pass",
-      "owner": "qa",
-      "depends_on": [],
-      "status": "done"
     },
     {
-      "id": "auto-security-s2",
-      "title": "Final security pass",
-      "owner": "security",
-      "depends_on": [],
-      "status": "done"
+      "number": 2,
+      "goal": "Add JWT-based user authentication: login, register, protect task endpoints",
+      "tasks": [
+        {
+          "id": "auto-qa-s2",
+          "title": "Final qa pass",
+          "owner": "qa",
+          "depends_on": [],
+          "status": "done"
+        },
+        {
+          "id": "auto-security-s2",
+          "title": "Final security pass",
+          "owner": "security",
+          "depends_on": [],
+          "status": "done"
+        }
+      ],
+      "messages": [
+        {
+          "from": "manager",
+          "to": "qa",
+          "content": "QA handoff: implementation work is ready for regression and integration validation.",
+          "time": 1784426448.8791811
+        },
+        {
+          "from": "manager",
+          "to": "security",
+          "content": "Security review request: implementation work is ready for authentication, authorization, and input-handling review.",
+          "time": 1784426448.8791838
+        }
+      ],
+      "retrospective": "Sprint 2 completed its available QA and security review tasks; no implementation tasks were created in the frozen plan.",
+      "blockers": [],
+      "task_events": [
+        {
+          "task_id": "auto-qa-s2",
+          "status": "todo",
+          "time": 1784426448.879197,
+          "sprint": 2
+        },
+        {
+          "task_id": "auto-qa-s2",
+          "status": "in_progress",
+          "time": 1784426448.879424,
+          "sprint": 2
+        },
+        {
+          "task_id": "auto-qa-s2",
+          "status": "done",
+          "time": 1784426462.704551,
+          "sprint": 2
+        },
+        {
+          "task_id": "auto-security-s2",
+          "status": "todo",
+          "time": 1784426462.805768,
+          "sprint": 2
+        },
+        {
+          "task_id": "auto-security-s2",
+          "status": "in_progress",
+          "time": 1784426462.80598,
+          "sprint": 2
+        },
+        {
+          "task_id": "auto-security-s2",
+          "status": "done",
+          "time": 1784426480.040266,
+          "sprint": 2
+        }
+      ],
+      "commits": [
+        {
+          "hash": "929b33f",
+          "role": "manager",
+          "time": 1784426489,
+          "message": "[manager] Sprint 2 retrospective complete",
+          "sprint": 2,
+          "summary": "Sprint 2 retrospective complete",
+          "files_changed": [],
+          "decisions": [
+            "The Sprint 2 task graph contained only final QA and security passes, both completed successfully.",
+            "No implementation changes were made during Sprint 2; authentication functionality was validated as already present."
+          ],
+          "blockers": [],
+          "new_tasks": []
+        },
+        {
+          "hash": "f3ead69",
+          "role": "security",
+          "time": 1784426480,
+          "message": "[security] Security review found no new evidenced authentication or authorization flaw; JWT validation and protected task isolation tests pass.",
+          "sprint": 2,
+          "summary": "Security review found no new evidenced authentication or authorization flaw; JWT validation and protected task isolation tests pass.",
+          "files_changed": [],
+          "decisions": [
+            "JWTs require HS256 signatures with a configured 32-byte minimum secret and enforce expiration; invalid and expired tokens are rejected.",
+            "Passwords use per-user random salts, PBKDF2-HMAC-SHA256, and constant-time hash comparisons.",
+            "Task SQL is parameterized and every task read, update, and delete is scoped to the authenticated user ID.",
+            "Validated syntax and ran `python3 -m unittest -v test_api.py` successfully (5 passing)."
+          ],
+          "blockers": [],
+          "new_tasks": []
+        },
+        {
+          "hash": "9248e78",
+          "role": "qa",
+          "time": 1784426462,
+          "message": "[qa] Sprint 2 authentication regression tests passed: registration, login, JWT rejection, protected task access, and per-user task isolation are all covered.",
+          "sprint": 2,
+          "summary": "Sprint 2 authentication regression tests passed: registration, login, JWT rejection, protected task access, and per-user task isolation are all covered.",
+          "files_changed": [],
+          "decisions": [
+            "Reviewed recent commits and ran `python3 -m unittest -v test_api.py`; all 5 tests passed.",
+            "No new regression or evidenced gap was found in the current JWT authentication implementation."
+          ],
+          "blockers": [],
+          "new_tasks": []
+        },
+        {
+          "hash": "6fbeaf2",
+          "role": "architect",
+          "time": 1784426448,
+          "message": "[architect] No architecture task is assigned for Sprint 2.",
+          "sprint": 2,
+          "summary": "No architecture task is assigned for Sprint 2.",
+          "files_changed": [],
+          "decisions": [],
+          "blockers": [
+            "No task was assigned, so there is no authorized architecture work to perform."
+          ],
+          "new_tasks": []
+        },
+        {
+          "hash": "5ec966a",
+          "role": "manager",
+          "time": 1784426440,
+          "message": "[manager] No Sprint 2 task is assigned, and planning is marked frozen with no existing task graph to manage.",
+          "sprint": 2,
+          "summary": "No Sprint 2 task is assigned, and planning is marked frozen with no existing task graph to manage.",
+          "files_changed": [],
+          "decisions": [],
+          "blockers": [
+            "No Sprint 2 tasks are available for delegation or coordination."
+          ],
+          "new_tasks": []
+        },
+        {
+          "hash": "85fe3ee",
+          "role": "manager",
+          "time": 1784418899,
+          "message": "[manager] Sprint 2 retrospective complete",
+          "sprint": 2
+        },
+        {
+          "hash": "e4dc99c",
+          "role": "security",
+          "time": 1784418721,
+          "message": "[security] Security review hardened username validation by rejecting non-ASCII confusable identifiers; JWT, password storage, and user-scoped authorization checks otherwise passed review.",
+          "sprint": 2
+        },
+        {
+          "hash": "f74367c",
+          "role": "qa",
+          "time": 1784418675,
+          "message": "[qa] Sprint 2 QA passed: all four authentication regression tests succeed, covering registration/login, invalid or expired tokens, protected CRUD, cross-user isolation, and frontend auth integration.",
+          "sprint": 2
+        },
+        {
+          "hash": "8a49dc8",
+          "role": "frontend",
+          "time": 1784418658,
+          "message": "[frontend] Verified static/index.html already fulfills fe-2 with register/login controls, sessionStorage JWT retention, bearer authentication on task calls, and a 401 sign-out flow.",
+          "sprint": 2
+        },
+        {
+          "hash": "747856e",
+          "role": "backend",
+          "time": 1784418637,
+          "message": "[backend] Verified server.py already fulfills be-2 with registration, login, signed expiring JWT validation, mandatory bearer authentication, and user-scoped task CRUD; all four regression tests pass.",
+          "sprint": 2
+        },
+        {
+          "hash": "60f8b03",
+          "role": "database",
+          "time": 1784418619,
+          "message": "[database] Verified database.py already satisfies db-2: it initializes the users table and migrates tasks with a foreign-key user_id plus an ownership index.",
+          "sprint": 2
+        },
+        {
+          "hash": "ee96993",
+          "role": "architect",
+          "time": 1784418600,
+          "message": "[architect] Defined the JWT authentication contract and user-scoped task authorization behavior for Sprint 2.",
+          "sprint": 2
+        },
+        {
+          "hash": "ca59466",
+          "role": "architect",
+          "time": 1784418587,
+          "message": "[architect] Authentication architecture is already represented by the manager\u2019s dependency-ordered Sprint 2 plan; no additional task was assigned.",
+          "sprint": 2
+        },
+        {
+          "hash": "f1395ab",
+          "role": "manager",
+          "time": 1784418576,
+          "message": "[manager] Created a dependency-ordered Sprint 2 plan for JWT authentication and protected task access.",
+          "sprint": 2
+        },
+        {
+          "hash": "c3bef57",
+          "role": "manager",
+          "time": 1784417444,
+          "message": "[manager] Sprint 2 retrospective complete",
+          "sprint": 2
+        },
+        {
+          "hash": "1267802",
+          "role": "security",
+          "time": 1784417444,
+          "message": "[security] Reviewed input handling.",
+          "sprint": 2
+        },
+        {
+          "hash": "a4cd574",
+          "role": "qa",
+          "time": 1784417444,
+          "message": "[qa] Ran manual pass.",
+          "sprint": 2
+        },
+        {
+          "hash": "be485ca",
+          "role": "architect",
+          "time": 1784417443,
+          "message": "[architect] Chose stdlib http.server + sqlite3 + vanilla JS.",
+          "sprint": 2
+        },
+        {
+          "hash": "a047111",
+          "role": "manager",
+          "time": 1784417443,
+          "message": "[manager] Reviewed blockers, no new tasks needed.",
+          "sprint": 2
+        }
+      ],
+      "started_at": 1784426433.143095,
+      "completed_at": 1784426489.789879
     }
   ],
+  "tasks": [],
   "agents": {
     "manager": {
       "status": "idle",
@@ -659,31 +895,18 @@
       "current_task": null
     },
     "qa": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     },
     "security": {
-      "status": "done",
+      "status": "idle",
       "current_task": null
     }
   },
   "files_owned": {
     "server.py": "security"
   },
-  "messages": [
-    {
-      "from": "manager",
-      "to": "qa",
-      "content": "QA handoff: implementation work is ready for regression and integration validation.",
-      "time": 1784426448.8791811
-    },
-    {
-      "from": "manager",
-      "to": "security",
-      "content": "Security review request: implementation work is ready for authentication, authorization, and input-handling review.",
-      "time": 1784426448.8791838
-    }
-  ],
+  "messages": [],
   "architecture_decisions": [
     {
       "by": "architect",
@@ -771,45 +994,8 @@
       "sprint": 2
     }
   ],
-  "retrospective": "Sprint 2 completed its available QA and security review tasks; no implementation tasks were created in the frozen plan.",
+  "retrospective": null,
   "blockers": [],
-  "task_events": [
-    {
-      "task_id": "auto-qa-s2",
-      "status": "todo",
-      "time": 1784426448.879197,
-      "sprint": 2
-    },
-    {
-      "task_id": "auto-qa-s2",
-      "status": "in_progress",
-      "time": 1784426448.879424,
-      "sprint": 2
-    },
-    {
-      "task_id": "auto-qa-s2",
-      "status": "done",
-      "time": 1784426462.704551,
-      "sprint": 2
-    },
-    {
-      "task_id": "auto-security-s2",
-      "status": "todo",
-      "time": 1784426462.805768,
-      "sprint": 2
-    },
-    {
-      "task_id": "auto-security-s2",
-      "status": "in_progress",
-      "time": 1784426462.80598,
-      "sprint": 2
-    },
-    {
-      "task_id": "auto-security-s2",
-      "status": "done",
-      "time": 1784426480.040266,
-      "sprint": 2
-    }
-  ],
+  "task_events": [],
   "planning_frozen_sprint": 2
 }
