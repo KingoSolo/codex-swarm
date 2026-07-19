@@ -1,5 +1,19 @@
 [
   {
+    "hash": "105b980",
+    "role": "manager",
+    "time": 1784426559,
+    "message": "[manager] Sprint 3 retrospective complete",
+    "sprint": 3,
+    "summary": "Sprint 3 retrospective complete",
+    "files_changed": [],
+    "decisions": [],
+    "blockers": [
+      "The requested feature is absent from both API and UI; no implementation tasks were available in the frozen Sprint 3 plan."
+    ],
+    "new_tasks": []
+  },
+  {
     "hash": "31ffea4",
     "role": "security",
     "time": 1784426546,

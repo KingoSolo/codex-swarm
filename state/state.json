@@ -1,10 +1,10 @@
 {
   "sprint": {
-    "number": 3,
-    "goal": "Implement task search, filtering, and sorting",
-    "status": "complete",
-    "started_at": 1784426489.92374,
-    "completed_at": 1784426559.7132108
+    "number": 4,
+    "goal": "Add drag-and-drop support to the Kanban board with optimistic UI updates",
+    "status": "in_progress",
+    "started_at": 1784426559.861752,
+    "completed_at": null
   },
   "sprint_history": [
     {
@@ -870,24 +870,292 @@
       ],
       "started_at": 1784426433.143095,
       "completed_at": 1784426489.789879
-    }
-  ],
-  "tasks": [
-    {
-      "id": "auto-qa-s3",
-      "title": "Final qa pass",
-      "owner": "qa",
-      "depends_on": [],
-      "status": "blocked"
     },
     {
-      "id": "auto-security-s3",
-      "title": "Final security pass",
-      "owner": "security",
-      "depends_on": [],
-      "status": "blocked"
+      "number": 3,
+      "goal": "Implement task search, filtering, and sorting",
+      "tasks": [
+        {
+          "id": "auto-qa-s3",
+          "title": "Final qa pass",
+          "owner": "qa",
+          "depends_on": [],
+          "status": "blocked"
+        },
+        {
+          "id": "auto-security-s3",
+          "title": "Final security pass",
+          "owner": "security",
+          "depends_on": [],
+          "status": "blocked"
+        }
+      ],
+      "messages": [
+        {
+          "from": "manager",
+          "to": "qa",
+          "content": "QA handoff: implementation work is ready for regression and integration validation.",
+          "time": 1784426505.571622
+        },
+        {
+          "from": "manager",
+          "to": "security",
+          "content": "Security review request: implementation work is ready for authentication, authorization, and input-handling review.",
+          "time": 1784426505.571628
+        },
+        {
+          "from": "qa",
+          "to": "manager",
+          "content": "QA found Sprint 3 is incomplete: server.py always lists a user's tasks as `ORDER BY id DESC` and does not parse search/filter/sort query parameters; static/index.html has no corresponding controls. Existing authentication tests still pass, but search/filter/sort require implementation tasks.",
+          "time": 1784426520.343524
+        },
+        {
+          "from": "security",
+          "to": "manager",
+          "content": "Security cannot complete Sprint 3 feature review: no query parsing or UI controls for search/filter/sort exist. When implemented, whitelist sort fields/directions and parameterize search/status values while retaining the authenticated user_id predicate.",
+          "time": 1784426546.255311
+        }
+      ],
+      "retrospective": "Sprint 3 did not deliver search, filtering, or sorting because the frozen task graph contained only QA and security review tasks.",
+      "blockers": [
+        {
+          "role": "qa",
+          "text": "No backend or frontend implementation task exists for Sprint 3, so QA cannot validate the requested search, filtering, and sorting behavior.",
+          "sprint": 3,
+          "time": 1784426520.343544
+        },
+        {
+          "role": "security",
+          "text": "Search, filtering, and sorting are absent from both server.py and static/index.html.",
+          "sprint": 3,
+          "time": 1784426546.255349
+        }
+      ],
+      "task_events": [
+        {
+          "task_id": "auto-qa-s3",
+          "status": "todo",
+          "time": 1784426505.571638,
+          "sprint": 3
+        },
+        {
+          "task_id": "auto-qa-s3",
+          "status": "in_progress",
+          "time": 1784426505.571875,
+          "sprint": 3
+        },
+        {
+          "task_id": "auto-qa-s3",
+          "status": "blocked",
+          "time": 1784426520.3435571,
+          "sprint": 3
+        },
+        {
+          "task_id": "auto-security-s3",
+          "status": "todo",
+          "time": 1784426520.444,
+          "sprint": 3
+        },
+        {
+          "task_id": "auto-security-s3",
+          "status": "in_progress",
+          "time": 1784426520.444198,
+          "sprint": 3
+        },
+        {
+          "task_id": "auto-security-s3",
+          "status": "blocked",
+          "time": 1784426546.2553558,
+          "sprint": 3
+        }
+      ],
+      "commits": [
+        {
+          "hash": "105b980",
+          "role": "manager",
+          "time": 1784426559,
+          "message": "[manager] Sprint 3 retrospective complete",
+          "sprint": 3,
+          "summary": "Sprint 3 retrospective complete",
+          "files_changed": [],
+          "decisions": [],
+          "blockers": [
+            "The requested feature is absent from both API and UI; no implementation tasks were available in the frozen Sprint 3 plan."
+          ],
+          "new_tasks": []
+        },
+        {
+          "hash": "31ffea4",
+          "role": "security",
+          "time": 1784426546,
+          "message": "[security] Security review confirms Sprint 3 has no new search, filter, or sort input surface to assess because the requested feature is not implemented.",
+          "sprint": 3,
+          "summary": "Security review confirms Sprint 3 has no new search, filter, or sort input surface to assess because the requested feature is not implemented.",
+          "files_changed": [],
+          "decisions": [
+            "Current task queries remain user-scoped and use a fixed ORDER BY id DESC; no dynamic SQL ordering or query-input handling has been added.",
+            "Existing authentication regression suite passes (5 tests)."
+          ],
+          "blockers": [
+            "Search, filtering, and sorting are absent from both server.py and static/index.html."
+          ],
+          "new_tasks": []
+        },
+        {
+          "hash": "b0df7dd",
+          "role": "qa",
+          "time": 1784426520,
+          "message": "[qa] Sprint 3 functionality is not implemented: the current app has no search, filter, or sorting controls or API query support.",
+          "sprint": 3,
+          "summary": "Sprint 3 functionality is not implemented: the current app has no search, filter, or sorting controls or API query support.",
+          "files_changed": [],
+          "decisions": [
+            "Evidence: GET /api/tasks ignores query parameters and uses fixed `ORDER BY id DESC`; frontend filtering only groups tasks into fixed Kanban status columns."
+          ],
+          "blockers": [
+            "No backend or frontend implementation task exists for Sprint 3, so QA cannot validate the requested search, filtering, and sorting behavior."
+          ],
+          "new_tasks": []
+        },
+        {
+          "hash": "5bad5d0",
+          "role": "architect",
+          "time": 1784426505,
+          "message": "[architect] No architecture task is assigned for Sprint 3.",
+          "sprint": 3,
+          "summary": "No architecture task is assigned for Sprint 3.",
+          "files_changed": [],
+          "decisions": [],
+          "blockers": [
+            "No task was assigned, so no authorized architecture work can be performed."
+          ],
+          "new_tasks": []
+        },
+        {
+          "hash": "94ff3de",
+          "role": "manager",
+          "time": 1784426495,
+          "message": "[manager] No Sprint 3 task is assigned, and planning is frozen with no task graph available to coordinate.",
+          "sprint": 3,
+          "summary": "No Sprint 3 task is assigned, and planning is frozen with no task graph available to coordinate.",
+          "files_changed": [],
+          "decisions": [],
+          "blockers": [
+            "No tasks are available for delegation or management."
+          ],
+          "new_tasks": []
+        },
+        {
+          "hash": "222a997",
+          "role": "manager",
+          "time": 1784339340,
+          "message": "[manager] Sprint 3 retrospective complete",
+          "sprint": 3
+        },
+        {
+          "hash": "8ebdc55",
+          "role": "manager",
+          "time": 1784339325,
+          "message": "[manager] Sprint 3 is awaiting a small backend login-timing mitigation before security can complete sign-off.",
+          "sprint": 3
+        },
+        {
+          "hash": "ec9ee34",
+          "role": "security",
+          "time": 1784339177,
+          "message": "[security] Security review found one concrete account-enumeration risk in login timing; JWT validation, password derivation, token storage, and task authorization otherwise meet the intended local-app design.",
+          "sprint": 3
+        },
+        {
+          "hash": "31207d5",
+          "role": "qa",
+          "time": 1784339155,
+          "message": "[qa] Replaced the legacy API regression test with four passing authentication, authorization-isolation, token-rejection, password-storage, and frontend-auth smoke tests.",
+          "sprint": 3
+        },
+        {
+          "hash": "4989211",
+          "role": "frontend",
+          "time": 1784339092,
+          "message": "[frontend] Completed the authentication UI with registration, login, session-scoped JWT storage, authenticated task requests, sign-out, and 401 recovery.",
+          "sprint": 3
+        },
+        {
+          "hash": "1920ad4",
+          "role": "backend",
+          "time": 1784338996,
+          "message": "[backend] Verified that the existing backend implements the confirmed JWT contract, authenticated task routes, and cross-user task isolation; no server changes were needed.",
+          "sprint": 3
+        },
+        {
+          "hash": "7610875",
+          "role": "database",
+          "time": 1784338963,
+          "message": "[database] Verified the users and task-ownership migration, including legacy-task preservation, username uniqueness, and foreign-key enforcement.",
+          "sprint": 3
+        },
+        {
+          "hash": "cbf879c",
+          "role": "architect",
+          "time": 1784338940,
+          "message": "[architect] Audited the current authentication design and confirmed the database/API contract for standard-library JWT-based task isolation.",
+          "sprint": 3
+        },
+        {
+          "hash": "eef2033",
+          "role": "architect",
+          "time": 1784338921,
+          "message": "[architect] No architecture task is currently assigned; Sprint 3 delegation is awaiting assignment.",
+          "sprint": 3
+        },
+        {
+          "hash": "50ab35f",
+          "role": "manager",
+          "time": 1784338913,
+          "message": "[manager] Planned Sprint 3 authentication delivery across architecture, data, API, UI, QA, and security without duplicating any listed task.",
+          "sprint": 3
+        },
+        {
+          "hash": "fc59f9f",
+          "role": "backend",
+          "time": 1784338643,
+          "message": "[backend] Implemented standard-library registration/login, PBKDF2 password verification, HS256 JWTs, Bearer authentication, and user-scoped task CRUD.",
+          "sprint": 3
+        },
+        {
+          "hash": "9567d1b",
+          "role": "database",
+          "time": 1784337083,
+          "message": "[database] Added users storage, task ownership, foreign-key enforcement, indexing, and a safe migration for existing task databases.",
+          "sprint": 3
+        },
+        {
+          "hash": "a81b9a1",
+          "role": "architect",
+          "time": 1784337045,
+          "message": "[architect] Completed the standard-library authentication design for user registration, login, JWT validation, and task ownership.",
+          "sprint": 3
+        },
+        {
+          "hash": "a5de3aa",
+          "role": "architect",
+          "time": 1784337026,
+          "message": "[architect] Defined a standard-library JWT authentication architecture and delegated non-overlapping schema, API, and UI implementation work.",
+          "sprint": 3
+        },
+        {
+          "hash": "ab92fd7",
+          "role": "manager",
+          "time": 1784337001,
+          "message": "[manager] Planned Sprint 2 into architecture, data, API, UI, QA, and security workstreams for standard-library JWT authentication.",
+          "sprint": 3
+        }
+      ],
+      "started_at": 1784426489.92374,
+      "completed_at": 1784426559.7132108
     }
   ],
+  "tasks": [],
   "agents": {
     "manager": {
       "status": "idle",
@@ -910,43 +1178,18 @@
       "current_task": null
     },
     "qa": {
-      "status": "blocked",
+      "status": "idle",
       "current_task": null
     },
     "security": {
-      "status": "blocked",
+      "status": "idle",
       "current_task": null
     }
   },
   "files_owned": {
     "server.py": "security"
   },
-  "messages": [
-    {
-      "from": "manager",
-      "to": "qa",
-      "content": "QA handoff: implementation work is ready for regression and integration validation.",
-      "time": 1784426505.571622
-    },
-    {
-      "from": "manager",
-      "to": "security",
-      "content": "Security review request: implementation work is ready for authentication, authorization, and input-handling review.",
-      "time": 1784426505.571628
-    },
-    {
-      "from": "qa",
-      "to": "manager",
-      "content": "QA found Sprint 3 is incomplete: server.py always lists a user's tasks as `ORDER BY id DESC` and does not parse search/filter/sort query parameters; static/index.html has no corresponding controls. Existing authentication tests still pass, but search/filter/sort require implementation tasks.",
-      "time": 1784426520.343524
-    },
-    {
-      "from": "security",
-      "to": "manager",
-      "content": "Security cannot complete Sprint 3 feature review: no query parsing or UI controls for search/filter/sort exist. When implemented, whitelist sort fields/directions and parameterize search/status values while retaining the authenticated user_id predicate.",
-      "time": 1784426546.255311
-    }
-  ],
+  "messages": [],
   "architecture_decisions": [
     {
       "by": "architect",
@@ -1049,7 +1292,7 @@
       "sprint": 3
     }
   ],
-  "retrospective": "Sprint 3 did not deliver search, filtering, or sorting because the frozen task graph contained only QA and security review tasks.",
+  "retrospective": null,
   "blockers": [
     {
       "role": "qa",
@@ -1064,43 +1307,6 @@
       "time": 1784426546.255349
     }
   ],
-  "task_events": [
-    {
-      "task_id": "auto-qa-s3",
-      "status": "todo",
-      "time": 1784426505.571638,
-      "sprint": 3
-    },
-    {
-      "task_id": "auto-qa-s3",
-      "status": "in_progress",
-      "time": 1784426505.571875,
-      "sprint": 3
-    },
-    {
-      "task_id": "auto-qa-s3",
-      "status": "blocked",
-      "time": 1784426520.3435571,
-      "sprint": 3
-    },
-    {
-      "task_id": "auto-security-s3",
-      "status": "todo",
-      "time": 1784426520.444,
-      "sprint": 3
-    },
-    {
-      "task_id": "auto-security-s3",
-      "status": "in_progress",
-      "time": 1784426520.444198,
-      "sprint": 3
-    },
-    {
-      "task_id": "auto-security-s3",
-      "status": "blocked",
-      "time": 1784426546.2553558,
-      "sprint": 3
-    }
-  ],
+  "task_events": [],
   "planning_frozen_sprint": 3
 }
