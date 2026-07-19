@@ -1,5 +1,21 @@
 [
   {
+    "hash": "b0df7dd",
+    "role": "qa",
+    "time": 1784426520,
+    "message": "[qa] Sprint 3 functionality is not implemented: the current app has no search, filter, or sorting controls or API query support.",
+    "sprint": 3,
+    "summary": "Sprint 3 functionality is not implemented: the current app has no search, filter, or sorting controls or API query support.",
+    "files_changed": [],
+    "decisions": [
+      "Evidence: GET /api/tasks ignores query parameters and uses fixed `ORDER BY id DESC`; frontend filtering only groups tasks into fixed Kanban status columns."
+    ],
+    "blockers": [
+      "No backend or frontend implementation task exists for Sprint 3, so QA cannot validate the requested search, filtering, and sorting behavior."
+    ],
+    "new_tasks": []
+  },
+  {
     "hash": "5bad5d0",
     "role": "architect",
     "time": 1784426505,

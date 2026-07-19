@@ -872,7 +872,15 @@
       "completed_at": 1784426489.789879
     }
   ],
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "auto-qa-s3",
+      "title": "Final qa pass",
+      "owner": "qa",
+      "depends_on": [],
+      "status": "blocked"
+    }
+  ],
   "agents": {
     "manager": {
       "status": "idle",
@@ -895,7 +903,7 @@
       "current_task": null
     },
     "qa": {
-      "status": "idle",
+      "status": "blocked",
       "current_task": null
     },
     "security": {
@@ -906,7 +914,26 @@
   "files_owned": {
     "server.py": "security"
   },
-  "messages": [],
+  "messages": [
+    {
+      "from": "manager",
+      "to": "qa",
+      "content": "QA handoff: implementation work is ready for regression and integration validation.",
+      "time": 1784426505.571622
+    },
+    {
+      "from": "manager",
+      "to": "security",
+      "content": "Security review request: implementation work is ready for authentication, authorization, and input-handling review.",
+      "time": 1784426505.571628
+    },
+    {
+      "from": "qa",
+      "to": "manager",
+      "content": "QA found Sprint 3 is incomplete: server.py always lists a user's tasks as `ORDER BY id DESC` and does not parse search/filter/sort query parameters; static/index.html has no corresponding controls. Existing authentication tests still pass, but search/filter/sort require implementation tasks.",
+      "time": 1784426520.343524
+    }
+  ],
   "architecture_decisions": [
     {
       "by": "architect",
@@ -992,10 +1019,41 @@
       "by": "security",
       "decision": "Validated syntax and ran `python3 -m unittest -v test_api.py` successfully (5 passing).",
       "sprint": 2
+    },
+    {
+      "by": "qa",
+      "decision": "Evidence: GET /api/tasks ignores query parameters and uses fixed `ORDER BY id DESC`; frontend filtering only groups tasks into fixed Kanban status columns.",
+      "sprint": 3
     }
   ],
   "retrospective": null,
-  "blockers": [],
-  "task_events": [],
+  "blockers": [
+    {
+      "role": "qa",
+      "text": "No backend or frontend implementation task exists for Sprint 3, so QA cannot validate the requested search, filtering, and sorting behavior.",
+      "sprint": 3,
+      "time": 1784426520.343544
+    }
+  ],
+  "task_events": [
+    {
+      "task_id": "auto-qa-s3",
+      "status": "todo",
+      "time": 1784426505.571638,
+      "sprint": 3
+    },
+    {
+      "task_id": "auto-qa-s3",
+      "status": "in_progress",
+      "time": 1784426505.571875,
+      "sprint": 3
+    },
+    {
+      "task_id": "auto-qa-s3",
+      "status": "blocked",
+      "time": 1784426520.3435571,
+      "sprint": 3
+    }
+  ],
   "planning_frozen_sprint": 3
 }
