@@ -131,6 +131,19 @@ export KANBAN_JWT_SECRET='replace-with-a-secret-at-least-32-bytes-long'
 python3 server.py
 ```
 
+## API
+
+The Kanban product exposes a local JSON API at `http://127.0.0.1:8000` when `server.py` is running.
+
+- `POST /api/auth/register` — create an account and receive a JWT.
+- `POST /api/auth/login` — sign in and receive a JWT.
+- `GET /api/tasks` — list the signed-in user's tasks; supports `q`, `status`, and `sort`.
+- `POST /api/tasks` — create a task.
+- `PATCH /api/tasks/:id` — update a task title or status.
+- `DELETE /api/tasks/:id` — delete a task.
+
+Task endpoints require `Authorization: Bearer <token>`.
+
 Run tests:
 
 ```bash
@@ -177,4 +190,3 @@ test_mock_planner.py   Orchestration, replay, and persistence regression tests
 - Add stale-lock detection and recovery
 - Add a durable event log for richer audit and replay recovery
 - Add browser-level integration tests for dashboard interactions
-

@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Flowboard</title>
+  <title>Codex Org · Kanban</title>
   <style>
     :root { font-family: system-ui, sans-serif; color: #172033; background: #f5f7fb; }
     * { box-sizing: border-box; } body { margin: 0; } button, input, textarea, select { font: inherit; }
     main { max-width: 1200px; margin: auto; padding: 2rem; } h1 { margin: 0; } .subtitle { color: #62708a; }
+    .product-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; border-bottom: 1px solid #dce2ed; padding-bottom: 1rem; } .product-kicker { color: #315fce; font-size: .72rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 .3rem; } .product-name { font-size: 1.55rem; } .product-name span { color: #62708a; font-size: 1rem; font-weight: 600; margin-left: .4rem; } .back-link { color: #40516d; text-decoration: none; border: 1px solid #dce2ed; border-radius: 6px; padding: .5rem .7rem; font-size: .9rem; font-weight: 650; white-space: nowrap; } .back-link:hover { border-color: #315fce; color: #315fce; }
     form, .column { background: white; border: 1px solid #dce2ed; border-radius: 12px; padding: 1rem; }
     form { display: grid; gap: .7rem; margin: 1.5rem 0; } label { display: grid; gap: .25rem; font-weight: 600; }
     .filters { grid-template-columns: minmax(12rem, 2fr) repeat(2, minmax(9rem, 1fr)) auto auto; align-items: end; }
@@ -23,12 +24,15 @@
     .empty { color: #748198; text-align: center; } .notice { padding: .75rem; background: #feecee; color: #9c1731; border-radius: 6px; }
     .account { display: flex; justify-content: flex-end; align-items: center; gap: .7rem; margin-top: -2.5rem; }
     dialog { width: min(94vw, 550px); border: 0; border-radius: 12px; padding: 1.2rem; } dialog::backdrop { background: #17203388; }
-    @media (max-width: 720px) { main { padding: 1rem; } .board, .filters { grid-template-columns: 1fr; } }
+    @media (max-width: 720px) { main { padding: 1rem; } .product-header { align-items: stretch; flex-direction: column; } .back-link { align-self: flex-start; } .board, .filters { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <main>
-    <h1>Flowboard</h1><p class="subtitle">Keep the next useful thing moving.</p>
+    <header class="product-header">
+      <div><p class="product-kicker">Codex Org Product</p><h1 class="product-name">Kanban <span>Task Workspace</span></h1><p class="subtitle">Keep the next useful thing moving.</p></div>
+      <a class="back-link" href="http://localhost:8080/dashboard/">← Back to Dashboard</a>
+    </header>
     <p id="notice" class="notice" role="status" hidden></p>
     <section id="auth-panel" aria-labelledby="auth-heading"><form id="auth-form"><h2 id="auth-heading">Sign in</h2>
       <label>Username<input id="username" minlength="3" maxlength="64" required autocomplete="username"></label>
