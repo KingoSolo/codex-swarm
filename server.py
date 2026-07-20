@@ -21,7 +21,10 @@ from urllib.parse import parse_qs, urlparse
 from database import VALID_STATUSES, initialize_database, managed_connection, utc_timestamp
 
 
-HOST = os.environ.get("HOST", "127.0.0.1")
+# Cloud platforms such as Render route traffic to an externally reachable
+# listener. Bind all interfaces by default; local users can still override it
+# with HOST=127.0.0.1 if they need loopback-only access.
+HOST = os.environ.get("HOST", "0.0.0.0")
 PORT = int(os.environ.get("PORT", "8000"))
 STATIC_DIR = Path(__file__).with_name("static").resolve()
 MAX_BODY_BYTES = 16_384
