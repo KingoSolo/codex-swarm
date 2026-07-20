@@ -21,8 +21,8 @@ from urllib.parse import parse_qs, urlparse
 from database import VALID_STATUSES, initialize_database, managed_connection, utc_timestamp
 
 
-HOST = "127.0.0.1"
-PORT = 8000
+HOST = os.environ.get("HOST", "127.0.0.1")
+PORT = int(os.environ.get("PORT", "8000"))
 STATIC_DIR = Path(__file__).with_name("static").resolve()
 MAX_BODY_BYTES = 16_384
 PASSWORD_ITERATIONS = 310_000
@@ -40,6 +40,9 @@ TASK_SORTS = {
 DUMMY_PASSWORD_SALT = bytes.fromhex("a7139d4ce2b86f40d75a91cb6e280f5d")
 DUMMY_PASSWORD_HASH = bytes.fromhex(
     "ed7323c16c389a8b9677c4d94c3bd1adf6c3f2ea1f94c2f85d5f3f2a03d3b1a6"
+)
+ALLOWED_ORIGINS = frozenset(
+    origin.strip() for origin in os.environ.get("KANBAN_ALLOWED_ORIGINS", "").split(",") if origin.strip()
 )
 
 
@@ -137,6 +140,13 @@ class KanbanHandler(BaseHTTPRequestHandler):
                 "base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
             )
 
+    def _send_cors_headers(self) -> None:
+        """Allow only configured browser origins to call the JSON API."""
+        origin = self.headers.get("Origin")
+        if origin and origin in ALLOWED_ORIGINS:
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
+
     def _send_json(self, status: HTTPStatus, body: object | None = None) -> None:
         content = b"" if body is None else json.dumps(body).encode("utf-8")
         self.send_response(status)
@@ -144,6 +154,7 @@ class KanbanHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(content)))
         self.send_header("Cache-Control", "no-store")
         self._send_security_headers()
+        self._send_cors_headers()
         self.end_headers()
         if content:
             self.wfile.write(content)
@@ -275,7 +286,11 @@ class KanbanHandler(BaseHTTPRequestHandler):
         self.wfile.write(content)
 
     def do_GET(self) -> None:
-        if urlparse(self.path).path != "/api/tasks":
+        path = urlparse(self.path).path
+        if path == "/health":
+            self._send_json(HTTPStatus.OK, {"status": "ok"})
+            return
+        if path != "/api/tasks":
             self._serve_static()
             return
         user_id = self._authenticated_user_id()
@@ -303,6 +318,18 @@ class KanbanHandler(BaseHTTPRequestHandler):
                 values,
             ).fetchall()
         self._send_json(HTTPStatus.OK, [task_from_row(row) for row in rows])
+
+    def do_OPTIONS(self) -> None:
+        """Handle CORS preflight without granting access to unconfigured origins."""
+        if not urlparse(self.path).path.startswith("/api/"):
+            self._error(HTTPStatus.NOT_FOUND, "not found")
+            return
+        self.send_response(HTTPStatus.NO_CONTENT)
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Authorization, Content-Type")
+        self.send_header("Access-Control-Max-Age", "600")
+        self._send_cors_headers()
+        self.end_headers()
 
     def do_POST(self) -> None:
         path = urlparse(self.path).path

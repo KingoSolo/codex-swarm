@@ -144,6 +144,12 @@ The Kanban product exposes a local JSON API at `http://127.0.0.1:8000` when `ser
 
 Task endpoints require `Authorization: Bearer <token>`.
 
+### Deploying the API on Render
+
+The included [`render.yaml`](render.yaml) creates a Render web service with a persistent disk for SQLite, a generated JWT secret, a health check, and CORS restricted to the GitHub Pages origin. Render supplies `PORT`; the server binds to it automatically.
+
+After Render creates the service, copy its public `https://…onrender.com` URL into [`static/config.js`](static/config.js) as `CODEX_ORG_API_BASE`, then publish that file with the GitHub Pages frontend. The Kanban app will call that API instead of the static host.
+
 Run tests:
 
 ```bash

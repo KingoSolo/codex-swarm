@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import sqlite3
+import os
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
 
-DATABASE_PATH = Path(__file__).with_name("kanban.db")
+DATABASE_PATH = Path(os.environ.get("KANBAN_DATABASE_PATH", Path(__file__).with_name("kanban.db")))
 VALID_STATUSES = frozenset({"todo", "in_progress", "done"})
 
 

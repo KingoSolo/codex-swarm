@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: codex-org-api
+    runtime: python
+    buildCommand: ""
+    startCommand: python3 server.py
+    healthCheckPath: /health
+    envVars:
+      - key: KANBAN_JWT_SECRET
+        generateValue: true
+      - key: KANBAN_DATABASE_PATH
+        value: /var/data/kanban.db
+      # GitHub Pages is a separate origin, so the API permits it explicitly.
+      - key: KANBAN_ALLOWED_ORIGINS
+        value: https://kingosolo.github.io
+    disk:
+      name: kanban-data
+      mountPath: /var/data
+      sizeGB: 1

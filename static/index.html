@@ -59,8 +59,10 @@
     </section>
   </main>
   <dialog id="editor"><form id="edit-form"><label>Title<input id="edit-title" maxlength="200" required></label><div class="dialog-actions"><button class="secondary" type="button" id="cancel">Cancel</button><button>Save changes</button></div></form></dialog>
+  <script src="config.js"></script>
   <script>
     const statuses = [["todo", "Todo"], ["in_progress", "In Progress"], ["done", "Done"]];
+    const apiBase = String(globalThis.CODEX_ORG_API_BASE || "").replace(/\/+$/, "");
     const notice = document.querySelector("#notice"), editor = document.querySelector("#editor");
     const authPanel = document.querySelector("#auth-panel"), app = document.querySelector("#app");
     let tasks = [], editingId = null, dragTaskId = null, authMode = "login", token = sessionStorage.getItem("kanban-token");
@@ -70,7 +72,7 @@
     async function api(path, options = {}) {
       const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
       if (token) headers.Authorization = `Bearer ${token}`;
-      const response = await fetch(path, { ...options, headers });
+      const response = await fetch(`${apiBase}${path}`, { ...options, headers });
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
         const message = body.error || "Request failed.";
